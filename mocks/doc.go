@@ -29,4 +29,4 @@ The package can be used like this:
 
 For further usage look onto GoMock Framework Docs: https://godoc.org/github.com/golang/mock/gomock
 */
-package mongo
+package mocks
