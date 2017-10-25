@@ -57,13 +57,13 @@ func Connect() {
 
 // Session return connected mongo session.
 func Session() (s *mgo.Session) {
-	s := session
+	s = session
 	return
 }
 
 // Mongo return the MongoDB connection string information.
 func Mongo() (m *mgo.DialInfo) {
-	m := mongo
+	m = mongo
 	return
 }
 
