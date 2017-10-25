@@ -1,6 +1,6 @@
-mongo [![GoDoc](https://godoc.org/github.com/ddspog/mongo?status.svg)](https://godoc.org/github.com/ddspog/mongo)
+# mongo [![GoDoc](https://godoc.org/github.com/ddspog/mongo?status.svg)](https://godoc.org/github.com/ddspog/mongo)
 
-# Overview
+### Overview
 Package mongo mask the connection to MongoDB using mgo package.
 
 This is made with function Connect, that saves Session and Mongo object
@@ -10,7 +10,7 @@ The embedded was necessary for the functions to use the interfaces as
 return values, that way, the code can use the original, or generate
 a mock of them for testing purposes.
 
-# Usage
+### Usage
 
 The package can be used like this:
 ```go
