@@ -2,9 +2,9 @@ package model
 
 import (
 	"testing"
+	"time"
 
 	"gopkg.in/mgo.v2/bson"
-
 	"github.com/ddspog/trialtbl"
 )
 
@@ -99,7 +99,7 @@ func TestDocumenterCreation(t *testing.T) {
 		// Test CreatedOn() method
 		e.RegisterResult(2, func(f ...interface{}) (r *trialtbl.Result) {
 			val := d.CreatedOn() == f[0].(int64)
-			sig := "d.CreatedOn() == \"%v\""
+			sig := "d.CreatedOn() == %v"
 			r = trialtbl.NewResult(val, sig)
 			return
 		})
@@ -107,7 +107,7 @@ func TestDocumenterCreation(t *testing.T) {
 		// Test UpdatedOn() method
 		e.RegisterResult(3, func(f ...interface{}) (r *trialtbl.Result) {
 			val := d.UpdatedOn() == f[0].(int64)
-			sig := "d.UpdatedOn() == \"%v\""
+			sig := "d.UpdatedOn() == %v"
 			r = trialtbl.NewResult(val, sig)
 			return
 		})
@@ -129,19 +129,19 @@ func TestDocumenterCalculation(t *testing.T) {
 			trialtbl.NewTrial(true, int64(0)),
 			trialtbl.NewTrial(false, int64(10)),
 			trialtbl.NewTrial(true, before),
-			trialtbl.NewTrial(false, NowInInt64()),
+			trialtbl.NewTrial(true, before),
 		),
 		trialtbl.NewExperiment(
 			trialtbl.NewTrial(false, int64(10)),
 			trialtbl.NewTrial(true, int64(0)),
-			trialtbl.NewTrial(false, NowInInt64()),
+			trialtbl.NewTrial(true, before),
 			trialtbl.NewTrial(true, before),
 		),
 		trialtbl.NewExperiment(
 			trialtbl.NewTrial(false, before),
 			trialtbl.NewTrial(false, before),
-			trialtbl.NewTrial(false, NowInInt64()),
-			trialtbl.NewTrial(false, NowInInt64()),
+			trialtbl.NewTrial(true, before),
+			trialtbl.NewTrial(true, before),
 		),
 	).Test(t, func(e *trialtbl.Experiment) {
 		p := newProduct()
@@ -150,7 +150,7 @@ func TestDocumenterCalculation(t *testing.T) {
 		// Test CreatedOn initial value
 		e.RegisterResult(0, func(f ...interface{}) (r *trialtbl.Result) {
 			val := d.CreatedOn() == f[0].(int64)
-			sig := "d.CreatedOn() == \"%v\""
+			sig := "d.CreatedOn() == %v"
 			r = trialtbl.NewResult(val, sig)
 			return
 		})
@@ -158,27 +158,69 @@ func TestDocumenterCalculation(t *testing.T) {
 		// Test UpdatedOn initial value
 		e.RegisterResult(1, func(f ...interface{}) (r *trialtbl.Result) {
 			val := d.UpdatedOn() == f[0].(int64)
-			sig := "d.UpdatedOn() == \"%v\""
+			sig := "d.UpdatedOn() == %v"
 			r = trialtbl.NewResult(val, sig)
 			return
 		})
-
-		d.CalculateCreatedOn()
 
 		// Check a time smaller than CreatedOn
 		e.RegisterResult(2, func(f ...interface{}) (r *trialtbl.Result) {
+			time.Sleep(5 * time.Millisecond)
+			d.CalculateCreatedOn()
+
 			val := d.CreatedOn() > f[0].(int64)
-			sig := "d.CreatedOn() > \"%v\""
+			sig := "d.CreatedOn() > %v"
 			r = trialtbl.NewResult(val, sig)
 			return
 		})
 
-		d.CalculateUpdatedOn()
-
 		// Check a time smaller than UpdatedOn
 		e.RegisterResult(3, func(f ...interface{}) (r *trialtbl.Result) {
+			time.Sleep(5 * time.Millisecond)
+			d.CalculateUpdatedOn()
+
 			val := d.UpdatedOn() > f[0].(int64)
-			sig := "d.UpdatedOn() > \"%v\""
+			sig := "d.UpdatedOn() > %v"
+			r = trialtbl.NewResult(val, sig)
+			return
+		})
+	})
+}
+
+// TestDocumenterIdGeneration checks the generation of the _id 
+// attributes. Mainly if the function used return different values over
+// the time.
+func TestDocumenterIdGeneration(t *testing.T) {
+	trialtbl.NewSuite(
+		trialtbl.NewExperiment(
+			trialtbl.NewTrial(true),
+		),
+		trialtbl.NewExperiment(
+			trialtbl.NewTrial(true),
+		),
+		trialtbl.NewExperiment(
+			trialtbl.NewTrial(true),
+		),
+		trialtbl.NewExperiment(
+			trialtbl.NewTrial(true),
+		),
+		trialtbl.NewExperiment(
+			trialtbl.NewTrial(true),
+		),
+	).Test(t, func(e *trialtbl.Experiment) {
+		p1 := newProduct()
+		var d1 Documenter = p1
+
+		p2 := newProduct()
+		var d2 Documenter = p2
+
+		// Test if function always generates differents Id.
+		e.RegisterResult(0, func(f ...interface{}) (r *trialtbl.Result) {
+			d1.GenerateId()
+			d2.GenerateId()
+
+			val := d1.Id().Hex() != d2.Id().Hex()
+			sig := "d1.Id().Hex() != d2.Id().Hex()"
 			r = trialtbl.NewResult(val, sig)
 			return
 		})
