@@ -5,6 +5,10 @@ const (
 	testid     string = "000000000000746573746964"
 	product1id string = "000070726f64756374316964"
 	product2id string = "000070726f64756374326964"
+)
+
+var (
+	// Value fixing a point in time for comparisons.
 	before     int64  = NowInInt64()
 )
 
