@@ -10,6 +10,7 @@ type Documenter interface {
 	Id() bson.ObjectId
 	CreatedOn() int64
 	UpdatedOn() int64
+	GenerateId()
 	CalculateCreatedOn()
 	CalculateUpdatedOn()
 }
