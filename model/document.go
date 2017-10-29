@@ -15,18 +15,26 @@ type Document struct {
 }
 
 // Id returs the _id attribute of a Document.
-func (p *Document) Id() bson.ObjectId {
-	return p.id
+func (p *Document) Id() (id bson.ObjectId) {
+	id = p.id
+	return
 }
 
 // CreatedOn returs the created_on attribute of a Document.
-func (p *Document) CreatedOn() int64 {
-	return p.createdOn
+func (p *Document) CreatedOn() (t int64) {
+	t = p.createdOn
+	return
 }
 
 // UpdatedOn returs the updated_on attribute of a Document.
-func (p *Document) UpdatedOn() int64 {
-	return p.updatedOn
+func (p *Document) UpdatedOn() (t int64) {
+	t = p.updatedOn
+	return
+}
+
+// GenerateId creates a new id for a document.
+func (p *Document) GenerateId() {
+	p.id = bson.NewObjectId()
 }
 
 // CalculateCreatedOn update the created_on attribute with a value
