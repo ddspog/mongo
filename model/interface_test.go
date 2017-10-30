@@ -24,7 +24,7 @@ func TestDocumenterCast(t *testing.T) {
 	).Test(t, func(e *trialtbl.Experiment) {
 		e.RegisterResult(0, func(f ...interface{}) (r *trialtbl.Result) {
 			p := newProduct()
-			p.id = bson.ObjectIdHex(f[0].(string))
+			p.IdV = bson.ObjectIdHex(f[0].(string))
 
 			var d Documenter = p
 
@@ -77,9 +77,9 @@ func TestDocumenterCreation(t *testing.T) {
 		// Utility Trial
 		e.RegisterResult(0, func(f ...interface{}) (r *trialtbl.Result) {
 			p := newProduct()
-			p.id = bson.ObjectIdHex(f[0].(string))
-			p.createdOn = f[1].(int64)
-			p.updatedOn = f[2].(int64)
+			p.IdV = bson.ObjectIdHex(f[0].(string))
+			p.CreatedOnV = f[1].(int64)
+			p.UpdatedOnV = f[2].(int64)
 
 			// Cast product to Documenter.
 			d = p
