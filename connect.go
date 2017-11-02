@@ -32,7 +32,7 @@ const (
 // It tries to connect with MONGODB_URL, but without defining this
 // environment variable, tris to connect with default URL.
 func Connect() {
-	once.Do(func(){
+	once.Do(func() {
 		// Parse adequate MongoDB URI.
 		u := mongoURI()
 
@@ -52,7 +52,7 @@ func Connect() {
 
 		session = s
 		mongo = m
-	})	
+	})
 }
 
 // Session return connected mongo session.
