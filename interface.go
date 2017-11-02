@@ -32,14 +32,14 @@ type Collectioner interface {
 	NewIter(session *mgo.Session, firstBatch []bson.Raw, cursorId int64, err error) *mgo.Iter
 	Pipe(pipeline interface{}) *mgo.Pipe
 	Remove(selector interface{}) error
-	RemoveAll(selector interface{}) (info *mgo.ChangeInfo, err error)
+	RemoveAll(selector interface{}) (info *ChangeInfo, err error)
 	RemoveId(id interface{}) error
 	Repair() *mgo.Iter
 	Update(selector interface{}, update interface{}) error
-	UpdateAll(selector interface{}, update interface{}) (info *mgo.ChangeInfo, err error)
+	UpdateAll(selector interface{}, update interface{}) (info *ChangeInfo, err error)
 	UpdateId(id interface{}, update interface{}) error
-	Upsert(selector interface{}, update interface{}) (info *mgo.ChangeInfo, err error)
-	UpsertId(id interface{}, update interface{}) (info *mgo.ChangeInfo, err error)
+	Upsert(selector interface{}, update interface{}) (info *ChangeInfo, err error)
+	UpsertId(id interface{}, update interface{}) (info *ChangeInfo, err error)
 	With(s *mgo.Session) Collectioner
 }
 
