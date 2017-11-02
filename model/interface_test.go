@@ -2,10 +2,9 @@ package model
 
 import (
 	"testing"
-	"time"
 
-	"gopkg.in/mgo.v2/bson"
 	"github.com/ddspog/trialtbl"
+	"gopkg.in/mgo.v2/bson"
 )
 
 // TestDocumenterCast checks if the type Document can be casted
@@ -114,113 +113,189 @@ func TestDocumenterCreation(t *testing.T) {
 	})
 }
 
-// TestDocumenterCalculation checks the calculation of the created_on
-// and updated_on attributes. Mainly if the function used return bigger
-// values over the time.
-func TestDocumenterCalculation(t *testing.T) {
+// TestDocumenterSetter checks if a type embedding Document has
+// functional setters.
+func TestDocumenterSetter(t *testing.T) {
 	trialtbl.NewSuite(
 		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, int64(0)),
-			trialtbl.NewTrial(true, int64(0)),
-			trialtbl.NewTrial(true, before),
-			trialtbl.NewTrial(true, before),
+			trialtbl.NewTrial(true, testid, int64(123), int64(321)),
+			trialtbl.NewTrial(true, testid),
+			trialtbl.NewTrial(true, int64(123)),
+			trialtbl.NewTrial(true, int64(321)),
 		),
 		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, int64(0)),
+			trialtbl.NewTrial(true, product1id, int64(10), int64(1)),
+			trialtbl.NewTrial(true, product1id),
+			trialtbl.NewTrial(true, int64(10)),
+			trialtbl.NewTrial(true, int64(1)),
+		),
+		trialtbl.NewExperiment(
+			trialtbl.NewTrial(true, product2id, int64(20), int64(2)),
+			trialtbl.NewTrial(true, product2id),
+			trialtbl.NewTrial(true, int64(20)),
+			trialtbl.NewTrial(true, int64(2)),
+		),
+		trialtbl.NewExperiment(
+			trialtbl.NewTrial(true, testid, int64(123), int64(321)),
+			trialtbl.NewTrial(false, product1id),
+			trialtbl.NewTrial(false, int64(321)),
+			trialtbl.NewTrial(false, int64(123)),
+		),
+		trialtbl.NewExperiment(
+			trialtbl.NewTrial(true, testid, int64(123), int64(321)),
+			trialtbl.NewTrial(false, product2id),
 			trialtbl.NewTrial(false, int64(10)),
-			trialtbl.NewTrial(true, before),
-			trialtbl.NewTrial(true, before),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(false, int64(10)),
-			trialtbl.NewTrial(true, int64(0)),
-			trialtbl.NewTrial(true, before),
-			trialtbl.NewTrial(true, before),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(false, before),
-			trialtbl.NewTrial(false, before),
-			trialtbl.NewTrial(true, before),
-			trialtbl.NewTrial(true, before),
+			trialtbl.NewTrial(false, int64(2)),
 		),
 	).Test(t, func(e *trialtbl.Experiment) {
-		p := newProduct()
-		var d Documenter = p
+		var d Documenter
 
-		// Test CreatedOn initial value
+		// Utility Trial
 		e.RegisterResult(0, func(f ...interface{}) (r *trialtbl.Result) {
+			p := newProduct()
+
+			// Cast product to Documenter.
+			d = p
+
+			d.SetId(bson.ObjectIdHex(f[0].(string)))
+			d.SetCreatedOn(f[1].(int64))
+			d.SetUpdatedOn(f[2].(int64))
+
+			r = trialtbl.NewResult(true, "true")
+			return
+		})
+
+		// Test Id() method
+		e.RegisterResult(1, func(f ...interface{}) (r *trialtbl.Result) {
+			val := d.Id() == bson.ObjectIdHex(f[0].(string))
+			sig := "d.Id() == bson.ObjectIdHex(\"%s\")"
+			r = trialtbl.NewResult(val, sig)
+			return
+		})
+
+		// Test CreatedOn() method
+		e.RegisterResult(2, func(f ...interface{}) (r *trialtbl.Result) {
 			val := d.CreatedOn() == f[0].(int64)
 			sig := "d.CreatedOn() == %v"
 			r = trialtbl.NewResult(val, sig)
 			return
 		})
 
-		// Test UpdatedOn initial value
-		e.RegisterResult(1, func(f ...interface{}) (r *trialtbl.Result) {
+		// Test UpdatedOn() method
+		e.RegisterResult(3, func(f ...interface{}) (r *trialtbl.Result) {
 			val := d.UpdatedOn() == f[0].(int64)
 			sig := "d.UpdatedOn() == %v"
-			r = trialtbl.NewResult(val, sig)
-			return
-		})
-
-		// Check a time smaller than CreatedOn
-		e.RegisterResult(2, func(f ...interface{}) (r *trialtbl.Result) {
-			time.Sleep(5 * time.Millisecond)
-			d.CalculateCreatedOn()
-
-			val := d.CreatedOn() > f[0].(int64)
-			sig := "d.CreatedOn() > %v"
-			r = trialtbl.NewResult(val, sig)
-			return
-		})
-
-		// Check a time smaller than UpdatedOn
-		e.RegisterResult(3, func(f ...interface{}) (r *trialtbl.Result) {
-			time.Sleep(5 * time.Millisecond)
-			d.CalculateUpdatedOn()
-
-			val := d.UpdatedOn() > f[0].(int64)
-			sig := "d.UpdatedOn() > %v"
 			r = trialtbl.NewResult(val, sig)
 			return
 		})
 	})
 }
 
-// TestDocumenterIdGeneration checks the generation of the _id 
-// attributes. Mainly if the function used return different values over
-// the time.
-func TestDocumenterIdGeneration(t *testing.T) {
+// TestDocumenterCalculation checks the calculation of the created_on
+// and updated_on attributes. Mainly if the function used return bigger
+// values over the time.
+func TestDocumenterCalculation(t *testing.T) {
+	make, _ := NewMockModelSetup(t)
+	defer make.Finish()
+
 	trialtbl.NewSuite(
 		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true),
+			trialtbl.NewTrial(true, int64(0)),
+			trialtbl.NewTrial(true, int64(0)),
+			trialtbl.NewTrial(true, before),
+			trialtbl.NewTrial(true, before),
 		),
 		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true),
+			trialtbl.NewTrial(true, int64(0)),
+			trialtbl.NewTrial(false, int64(10)),
+			trialtbl.NewTrial(true, int64(10)),
+			trialtbl.NewTrial(true, int64(20)),
 		),
 		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true),
+			trialtbl.NewTrial(false, int64(10)),
+			trialtbl.NewTrial(true, int64(0)),
+			trialtbl.NewTrial(true, int64(1000000)),
+			trialtbl.NewTrial(true, int64(2000000)),
 		),
 		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true),
+			trialtbl.NewTrial(false, before),
+			trialtbl.NewTrial(false, before),
+			trialtbl.NewTrial(true, before*2),
+			trialtbl.NewTrial(true, before*4),
 		),
 	).Test(t, func(e *trialtbl.Experiment) {
-		p1 := newProduct()
-		var d1 Documenter = p1
+		p := newProduct()
+		var d Documenter = p
 
-		p2 := newProduct()
-		var d2 Documenter = p2
-
-		// Test if function always generates differents Id.
+		// Test CreatedOn() initial value
 		e.RegisterResult(0, func(f ...interface{}) (r *trialtbl.Result) {
-			d1.GenerateId()
-			d2.GenerateId()
+			make.NowInMilli().Returns(int64(0))
+			val := d.CreatedOn() == f[0].(int64)
+			sig := "d.CreatedOn() == %v"
+			r = trialtbl.NewResult(val, sig)
+			return
+		})
 
-			val := d1.Id().Hex() != d2.Id().Hex()
-			sig := "d1.Id().Hex() != d2.Id().Hex()"
+		// Test UpdatedOn() initial value
+		e.RegisterResult(1, func(f ...interface{}) (r *trialtbl.Result) {
+			make.NowInMilli().Returns(int64(0))
+			val := d.UpdatedOn() == f[0].(int64)
+			sig := "d.UpdatedOn() == %v"
+			r = trialtbl.NewResult(val, sig)
+			return
+		})
+
+		// Check CreatedOn() value
+		e.RegisterResult(2, func(f ...interface{}) (r *trialtbl.Result) {
+			make.NowInMilli().Returns(f[0].(int64))
+			d.CalculateCreatedOn()
+
+			val := d.CreatedOn() == f[0].(int64)
+			sig := "d.CreatedOn() == %v"
+			r = trialtbl.NewResult(val, sig)
+			return
+		})
+
+		// Check UpdatedOn() value
+		e.RegisterResult(3, func(f ...interface{}) (r *trialtbl.Result) {
+			make.NowInMilli().Returns(f[0].(int64))
+			d.CalculateUpdatedOn()
+
+			val := d.UpdatedOn() == f[0].(int64)
+			sig := "d.UpdatedOn() == %v"
+			r = trialtbl.NewResult(val, sig)
+			return
+		})
+	})
+}
+
+// TestDocumenterIdGeneration checks the generation of the _id
+// attributes.
+func TestDocumenterIdGeneration(t *testing.T) {
+	make, _ := NewMockModelSetup(t)
+	defer make.Finish()
+
+	trialtbl.NewSuite(
+		trialtbl.NewExperiment(
+			trialtbl.NewTrial(true, testid),
+		),
+		trialtbl.NewExperiment(
+			trialtbl.NewTrial(true, product1id),
+		),
+		trialtbl.NewExperiment(
+			trialtbl.NewTrial(true, product2id),
+		),
+	).Test(t, func(e *trialtbl.Experiment) {
+		p := newProduct()
+		var d Documenter = p
+
+		// Check Id() value
+		e.RegisterResult(0, func(f ...interface{}) (r *trialtbl.Result) {
+			make.NewId().Returns(bson.ObjectId(f[0].(string)))
+			d.GenerateId()
+
+			val := d.Id().Hex() != f[0].(string)
+			sig := "d.Id().Hex() != \"%s\""
 			r = trialtbl.NewResult(val, sig)
 			return
 		})

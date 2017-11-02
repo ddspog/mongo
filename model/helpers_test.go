@@ -9,14 +9,12 @@ const (
 
 var (
 	// Value fixing a point in time for comparisons.
-	before     int64  = NowInInt64()
+	before int64 = NowInMilli()
 )
 
 // product it's a type embedding the Document struct.
 type product struct {
 	*Document
-	name  string
-	price float32
 }
 
 // newProduct returns a empty product.
