@@ -1,0 +1,3 @@
+REPO_PATH: "github.com/ddspog/mongo"
+MOCKS_PATH: "mocks"
+MGO_INTERFACES_PACKAGE: "github.com/ddspog/mongo"

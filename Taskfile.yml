@@ -1,0 +1,33 @@
+test-handler:
+  desc: Run handler tests.
+  cmds:
+    - echo "Calling tests handler execution ..."
+    - go test {{.REPO_PATH}}/handler -v
+  silent: true
+
+test-model:
+  desc: Run model tests.
+  cmds:
+    - echo "Calling tests model execution ..."
+    - go test {{.REPO_PATH}}/model -v
+  silent: true
+
+gen-mock-collection:
+  cmds:
+    - echo "Generating Mock for mgo.Collection ..."
+    - mockgen -destination={{.MOCKS_PATH}}/collection.go -package=mocks {{.MGO_INTERFACES_PACKAGE}} Collectioner
+
+gen-mock-database:
+  cmds:
+    - echo "Generating Mock for mgo.Database ..."
+    - mockgen -destination={{.MOCKS_PATH}}/database.go -package=mocks {{.MGO_INTERFACES_PACKAGE}} Databaser
+
+gen-mock-query:
+  cmds:
+    - echo "Generating Mock for mgo.Query ..."
+    - mockgen -destination={{.MOCKS_PATH}}/query.go -package=mocks {{.MGO_INTERFACES_PACKAGE}} Querier
+
+format:
+  cmds:
+    - echo "Formatting all files on the project ..."
+    - gofmt -e -s -w .
