@@ -1,4 +1,4 @@
-# handler [![GoDoc](https://godoc.org/github.com/ddspog/handler?status.svg)](https://godoc.org/github.com/ddspog/handler)
+# handler [![GoDoc](https://godoc.org/github.com/ddspog/mongo/handler?status.svg)](https://godoc.org/github.com/ddspog/mongo/handler)
 
 ### Overview
 Package handler enable creation of Handle, a type that connects to
