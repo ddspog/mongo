@@ -1,9 +1,14 @@
 package handler
 
 import (
+	"errors"
+
 	"github.com/ddspog/mongo"
 	"github.com/ddspog/mongo/model"
 )
+
+// ErrIdNotDefined it's an error received when an Id isn't defined.
+var ErrIdNotDefined error = errors.New("Id not defined.")
 
 // Handle it's a type implementing the Handler interface, responsible
 // of taking documents and using them to manipulate collections.
@@ -46,6 +51,7 @@ func (h *Handle) FindAll(doc model.Documenter, out *[]model.Documenter) (err err
 // Insert puts a new document on collection connected to Handle, using
 // doc data.
 func (h *Handle) Insert(doc model.Documenter) (err error) {
+	doc.CalculateCreatedOn()
 	err = h.collectionV.Insert(doc)
 	return
 }
@@ -53,7 +59,11 @@ func (h *Handle) Insert(doc model.Documenter) (err error) {
 // Remove delete a document on collection connected to Handle, matching
 // id of doc.
 func (h *Handle) Remove(doc model.Documenter) (err error) {
-	err = h.collectionV.RemoveId(doc.Id())
+	if doc.Id() == "" {
+		err = ErrIdNotDefined
+	} else {
+		err = h.collectionV.RemoveId(doc.Id())
+	}
 	return
 }
 
@@ -67,6 +77,11 @@ func (h *Handle) RemoveAll(doc model.Documenter) (info *mongo.ChangeInfo, err er
 // Update updates a document on collection connected to Handle,
 // matching id on doc data, updataing with the extra information on doc.
 func (h *Handle) Update(doc model.Documenter) (err error) {
-	err = h.collectionV.UpdateId(doc.Id(), doc)
+	if doc.Id() == "" {
+		err = ErrIdNotDefined
+	} else {
+		doc.CalculateUpdatedOn()
+		err = h.collectionV.UpdateId(doc.Id(), doc)
+	}
 	return
 }
