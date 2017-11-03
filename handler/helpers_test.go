@@ -42,3 +42,11 @@ func newProductStored() (p product) {
 	p.CalculateCreatedOn()
 	return
 }
+
+
+// Finish call Finish() from all objects received.
+func Finish(fs ...interface{Finish()}) {
+	for i := range fs {
+		fs[i].Finish()
+	}
+}
