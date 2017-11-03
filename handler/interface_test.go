@@ -131,44 +131,6 @@ func TestHandleLink(t *testing.T) {
 	})
 }
 
-// TestHandleCount checks if a type embedding Handle runs Count correctly.
-func TestHandleCount(t *testing.T) {
-	make, _ := mongo.NewMockMGOSetup(t)
-	defer make.Finish()
-
-	trialtbl.NewSuite(
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, 10),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, 15),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, 5),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, 150),
-		),
-	).Test(t, func(e *trialtbl.Experiment) {
-		// Test Link() method
-		e.RegisterResult(0, func(f ...interface{}) (r *trialtbl.Result) {
-			db := make.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
-				mcl.ExpectCountReturn(f[0].(int))
-			})
-
-			ph := newProductHandle()
-
-			var h productHandler = ph
-
-			n, err := h.Link(db).Count()
-			val := err == nil && n == f[0].(int)
-			sig := "n, err := h.Link(db).Count(); err == nil && n == %v"
-			r = trialtbl.NewResult(val, sig)
-			return
-		})
-	})
-}
-
 // TestHandleFind checks if a type embedding Handle runs Find correctly
 // returning a document.
 func TestHandleFind(t *testing.T) {
@@ -385,41 +347,76 @@ func TestHandleFindAll(t *testing.T) {
 // TestHandleInsert checks if a type embedding Handle runs Insert
 // correctly.
 func TestHandleInsert(t *testing.T) {
-	make, _ := mongo.NewMockMGOSetup(t)
-	defer make.Finish()
+	makeMGO, _ := mongo.NewMockMGOSetup(t)
+	makeModel, _ := model.NewMockModelSetup(t)
+	defer Finish(makeMGO, makeModel)
 
 	trialtbl.NewSuite(
 		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, productCollection[0].Id().Hex()),
+			trialtbl.NewTrial(true, int64(100)),
+			trialtbl.NewTrial(true, int64(100)),
 		),
 		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, productCollection[1].Id().Hex()),
+			trialtbl.NewTrial(true, int64(50)),
+			trialtbl.NewTrial(false, int64(100)),
 		),
 		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, testid),
+			trialtbl.NewTrial(true, int64(150)),
+			trialtbl.NewTrial(false, int64(100)),
 		),
 		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, product1id),
+			trialtbl.NewTrial(true, int64(200), productCollection[0].Id().Hex()),
+			trialtbl.NewTrial(true, int64(200)),
 		),
 		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, product2id),
+			trialtbl.NewTrial(true, int64(15), productCollection[1].Id().Hex()),
+			trialtbl.NewTrial(true, int64(15)),
+		),
+		trialtbl.NewExperiment(
+			trialtbl.NewTrial(true, int64(1), testid),
+			trialtbl.NewTrial(true, int64(1)),
+		),
+		trialtbl.NewExperiment(
+			trialtbl.NewTrial(true, int64(1), testid),
+			trialtbl.NewTrial(false, int64(2)),
+		),
+		trialtbl.NewExperiment(
+			trialtbl.NewTrial(true, int64(2110), product1id),
+			trialtbl.NewTrial(true, int64(2110)),
+		),
+		trialtbl.NewExperiment(
+			trialtbl.NewTrial(true, int64(10), product2id),
+			trialtbl.NewTrial(true, int64(10)),
 		),
 	).Test(t, func(e *trialtbl.Experiment) {
+		var h productHandler
+
 		// Test Insert() execution
 		e.RegisterResult(0, func(f ...interface{}) (r *trialtbl.Result) {
-			db := make.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
+			db := makeMGO.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
 				mcl.ExpectInsertReturn()
 			})
 
 			ph := newProductHandle()
-			ph.Document().SetId(bson.ObjectIdHex(f[0].(string)))
+			if len(f) == 2 {
+				ph.Document().SetId(bson.ObjectIdHex(f[1].(string)))
+			}
 
 			// Cast productHandle to productHandler.
-			var h productHandler = ph
+			h = ph
 
+			makeModel.NowInMilli().Returns(f[0].(int64))
 			err := h.Link(db).Insert()
 			val := err == nil
 			sig := "err := h.Link(db).Insert(); err == nil /* Inserted? */"
+			r = trialtbl.NewResult(val, sig)
+			return
+		})
+
+		// Test CreatedOn() attribution
+		e.RegisterResult(1, func(f ...interface{}) (r *trialtbl.Result) {
+			val := h.Document().CreatedOn() == f[0].(int64)
+			sig := "h.Document().CreatedOn() == %v"
 			r = trialtbl.NewResult(val, sig)
 			return
 		})
@@ -435,35 +432,57 @@ func TestHandleRemove(t *testing.T) {
 	trialtbl.NewSuite(
 		trialtbl.NewExperiment(
 			trialtbl.NewTrial(true, productCollection[0].Id().Hex()),
+			trialtbl.NewTrial(false),
 		),
 		trialtbl.NewExperiment(
 			trialtbl.NewTrial(true, productCollection[1].Id().Hex()),
+			trialtbl.NewTrial(false),
 		),
 		trialtbl.NewExperiment(
 			trialtbl.NewTrial(true, testid),
+			trialtbl.NewTrial(false),
 		),
 		trialtbl.NewExperiment(
 			trialtbl.NewTrial(true, product1id),
+			trialtbl.NewTrial(false),
 		),
 		trialtbl.NewExperiment(
 			trialtbl.NewTrial(true, product2id),
+			trialtbl.NewTrial(false),
+		),
+		trialtbl.NewExperiment(
+			trialtbl.NewTrial(false),
+			trialtbl.NewTrial(true),
 		),
 	).Test(t, func(e *trialtbl.Experiment) {
+		var err error
+
 		// Test Remove() execution
 		e.RegisterResult(0, func(f ...interface{}) (r *trialtbl.Result) {
 			db := make.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
-				mcl.ExpectRemoveIdReturn()
+				if len(f) == 1 {
+					mcl.ExpectRemoveIdReturn()
+				}
 			})
 
 			ph := newProductHandle()
-			ph.Document().SetId(bson.ObjectIdHex(f[0].(string)))
+			if len(f) == 1 {
+				ph.Document().SetId(bson.ObjectIdHex(f[0].(string)))
+			}
 
 			// Cast productHandle to productHandler.
 			var h productHandler = ph
 
-			err := h.Link(db).Remove()
+			err = h.Link(db).Remove()
 			val := err == nil
 			sig := "err := h.Link(db).Remove(); err == nil /* Removed? */"
+			r = trialtbl.NewResult(val, sig)
+			return
+		})
+
+		e.RegisterResult(1, func(f ...interface{}) (r *trialtbl.Result) {
+			val := err == ErrIdNotDefined
+			sig := fmt.Sprintf("err := h.Link(db).Remove(); err == %v", ErrIdNotDefined)
 			r = trialtbl.NewResult(val, sig)
 			return
 		})
@@ -519,41 +538,80 @@ func TestHandleRemoveAll(t *testing.T) {
 // TestHandleUpdate checks if a type embedding Handle runs Update
 // correctly.
 func TestHandleUpdate(t *testing.T) {
-	make, _ := mongo.NewMockMGOSetup(t)
-	defer make.Finish()
+	makeMGO, _ := mongo.NewMockMGOSetup(t)
+	makeModel, _ := model.NewMockModelSetup(t)
+	defer Finish(makeMGO, makeModel)
 
 	trialtbl.NewSuite(
 		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, productCollection[0].Id().Hex()),
+			trialtbl.NewTrial(true, int64(1), productCollection[0].Id().Hex()),
+			trialtbl.NewTrial(false),
+			trialtbl.NewTrial(true, int64(1)),
 		),
 		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, productCollection[1].Id().Hex()),
+			trialtbl.NewTrial(true, int64(10), productCollection[1].Id().Hex()),
+			trialtbl.NewTrial(false),
+			trialtbl.NewTrial(true, int64(10)),
 		),
 		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, testid),
+			trialtbl.NewTrial(true, int64(20), testid),
+			trialtbl.NewTrial(false),
+			trialtbl.NewTrial(true, int64(20)),
 		),
 		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, product1id),
+			trialtbl.NewTrial(true, int64(30), product1id),
+			trialtbl.NewTrial(false),
+			trialtbl.NewTrial(true, int64(30)),
 		),
 		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, product2id),
+			trialtbl.NewTrial(true, int64(15), product2id),
+			trialtbl.NewTrial(false),
+			trialtbl.NewTrial(true, int64(15)),
+		),
+		trialtbl.NewExperiment(
+			trialtbl.NewTrial(false, int64(1)),
+			trialtbl.NewTrial(true),
+			trialtbl.NewTrial(false, int64(1)),
 		),
 	).Test(t, func(e *trialtbl.Experiment) {
+		var h productHandler
+		var err error
+
 		// Test Remove() execution
 		e.RegisterResult(0, func(f ...interface{}) (r *trialtbl.Result) {
-			db := make.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
-				mcl.ExpectUpdateIdReturn()
+			db := makeMGO.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
+				if len(f) == 2 {
+					mcl.ExpectUpdateIdReturn()
+				}
 			})
 
 			ph := newProductHandle()
-			ph.Document().SetId(bson.ObjectIdHex(f[0].(string)))
+			if len(f) == 2 {
+				ph.Document().SetId(bson.ObjectIdHex(f[1].(string)))
+			}
 
 			// Cast productHandle to productHandler.
-			var h productHandler = ph
+			h = ph
 
-			err := h.Link(db).Update()
+			makeModel.NowInMilli().Returns(f[0].(int64))
+			err = h.Link(db).Update()
 			val := err == nil
 			sig := "err := h.Link(db).Update(); err == nil /* Updated? */"
+			r = trialtbl.NewResult(val, sig)
+			return
+		})
+
+		// Test error signature
+		e.RegisterResult(1, func(f ...interface{}) (r *trialtbl.Result) {
+			val := err == ErrIdNotDefined
+			sig := fmt.Sprintf("err := h.Link(db).Remove(); err == %v", ErrIdNotDefined)
+			r = trialtbl.NewResult(val, sig)
+			return
+		})
+
+		e.RegisterResult(2, func(f ...interface{}) (r *trialtbl.Result) {
+			val := h.Document().UpdatedOn() == f[0].(int64)
+			sig := "h.Document().UpdatedOn() == %v"
 			r = trialtbl.NewResult(val, sig)
 			return
 		})
