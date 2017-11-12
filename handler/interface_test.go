@@ -7,7 +7,6 @@ import (
 	"github.com/ddspog/bdd"
 	"github.com/ddspog/mongo"
 	"github.com/ddspog/mongo/model"
-	"github.com/ddspog/trialtbl"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -221,278 +220,164 @@ func Test_Find_various_documents_with_Handle(t *testing.T) {
 	))
 }
 
-// TestHandleInsert checks if a type embedding Handle runs Insert
-// correctly.
-func TestHandleInsert(t *testing.T) {
+// Feature Insert documents with Handle
+// - As a developer,
+// - I want to Insert documents using Handle,
+// - So that I can use Handler to insert data.
+func Test_Insert_documents_with_Handle(t *testing.T) {
 	makeMGO, _ := mongo.NewMockMGOSetup(t)
 	makeModel, _ := model.NewMockModelSetup(t)
 	defer Finish(makeMGO, makeModel)
 
-	trialtbl.NewSuite(
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, int64(100)),
-			trialtbl.NewTrial(true, int64(100)),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, int64(50)),
-			trialtbl.NewTrial(false, int64(100)),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, int64(150)),
-			trialtbl.NewTrial(false, int64(100)),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, int64(200), productCollection[0].Id().Hex()),
-			trialtbl.NewTrial(true, int64(200)),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, int64(15), productCollection[1].Id().Hex()),
-			trialtbl.NewTrial(true, int64(15)),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, int64(1), testid),
-			trialtbl.NewTrial(true, int64(1)),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, int64(1), testid),
-			trialtbl.NewTrial(false, int64(2)),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, int64(2110), product1id),
-			trialtbl.NewTrial(true, int64(2110)),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, int64(10), product2id),
-			trialtbl.NewTrial(true, int64(10)),
-		),
-	).Test(t, func(e *trialtbl.Experiment) {
-		var h productHandler
+	given, like, s := bdd.Sentences()
 
-		// Test Insert() execution.
-		e.RegisterResult(0, func(f ...interface{}) (r *trialtbl.Result) {
-			db := makeMGO.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
-				mcl.ExpectInsertReturn()
-			})
+	given(t, "a empty ProductHandler h with Id '%[1]v'", func(when bdd.When, args ...interface{}) {
+		db := makeMGO.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
+			mcl.ExpectInsertReturn()
+		})
 
-			ph := newProductHandle()
-			if len(f) == 2 {
-				ph.Document().SetId(bson.ObjectIdHex(f[1].(string)))
-			}
+		var h productHandler = newProductHandle()
+		if args[0].(string) != "" {
+			h.Document().SetId(bson.ObjectIdHex(args[0].(string)))
+		}
 
-			// Cast productHandle to productHandler.
-			h = ph
-
-			makeModel.NowInMilli().Returns(f[0].(int64))
+		when("h.Link(db).Insert() is called", func(it bdd.It) {
+			makeModel.NowInMilli().Returns(args[1].(int64))
 			err := h.Link(db).Insert()
-			val := err == nil
-			sig := "err := h.Link(db).Insert(); err == nil /* Inserted? */"
-			r = trialtbl.NewResult(val, sig)
-			return
-		})
 
-		// Test CreatedOn() attribution.
-		e.RegisterResult(1, func(f ...interface{}) (r *trialtbl.Result) {
-			val := h.Document().CreatedOn() == f[0].(int64)
-			sig := "h.Document().CreatedOn() == %v"
-			r = trialtbl.NewResult(val, sig)
-			return
+			it("should return no errors", func(assert bdd.Assert) {
+				assert.Nil(err)
+			})
+			it("h.Document().CreatedOn() should return %[2]v", func(assert bdd.Assert) {
+				assert.Equal(h.Document().CreatedOn(), args[1].(int64))
+			})
 		})
-	})
+	}, like(
+		s("", int64(50)), s("", int64(100)), s("", int64(150)),
+		s(productCollection[0].Id().Hex(), int64(200)),
+		s(productCollection[1].Id().Hex(), int64(15)),
+		s(testid, int64(1)), s(product1id, int64(2110)), s(product2id, int64(10)),
+	))
 }
 
-// TestHandleRemove checks if a type embedding Handle runs Remove
-// correctly.
-func TestHandleRemove(t *testing.T) {
+// Feature Remove documents with Handle
+// - As a developer,
+// - I want to Remove documents using Handle,
+// - So that I can use Handler to remove data.
+func Test_Remove_documents_with_Handle(t *testing.T) {
 	make, _ := mongo.NewMockMGOSetup(t)
 	defer make.Finish()
 
-	trialtbl.NewSuite(
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, productCollection[0].Id().Hex()),
-			trialtbl.NewTrial(false),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, productCollection[1].Id().Hex()),
-			trialtbl.NewTrial(false),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, testid),
-			trialtbl.NewTrial(false),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, product1id),
-			trialtbl.NewTrial(false),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, product2id),
-			trialtbl.NewTrial(false),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(false),
-			trialtbl.NewTrial(true),
-		),
-	).Test(t, func(e *trialtbl.Experiment) {
-		var err error
+	given, like, s := bdd.Sentences()
 
-		// Test Remove() execution.
-		e.RegisterResult(0, func(f ...interface{}) (r *trialtbl.Result) {
-			db := make.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
-				if len(f) == 1 {
-					mcl.ExpectRemoveIdReturn()
-				}
-			})
-
-			ph := newProductHandle()
-			if len(f) == 1 {
-				ph.Document().SetId(bson.ObjectIdHex(f[0].(string)))
+	given(t, "a empty ProductHandler h with Id '%[1]v'", func(when bdd.When, args ...interface{}) {
+		db := make.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
+			if args[0].(string) != "" {
+				mcl.ExpectRemoveIdReturn()
 			}
-
-			// Cast productHandle to productHandler.
-			var h productHandler = ph
-
-			err = h.Link(db).Remove()
-			val := err == nil
-			sig := "err := h.Link(db).Remove(); err == nil /* Removed? */"
-			r = trialtbl.NewResult(val, sig)
-			return
 		})
 
-		// Test error signature.
-		e.RegisterResult(1, func(f ...interface{}) (r *trialtbl.Result) {
-			val := err == ErrIDNotDefined
-			sig := fmt.Sprintf("err := h.Link(db).Remove(); err == %v", ErrIDNotDefined)
-			r = trialtbl.NewResult(val, sig)
-			return
+		var h productHandler = newProductHandle()
+		if args[0].(string) != "" {
+			h.Document().SetId(bson.ObjectIdHex(args[0].(string)))
+		}
+
+		when("h.Link(db).Remove() is called", func(it bdd.It) {
+			err := h.Link(db).Remove()
+
+			if args[0].(string) != "" {
+				it("should return no errors", func(assert bdd.Assert) {
+					assert.Nil(err)
+				})
+			} else {
+				it("should return an error", func(assert bdd.Assert) {
+					assert.Equal(err, ErrIDNotDefined)
+				})
+			}
 		})
-	})
+	}, like(
+		s(productCollection[0].Id().Hex()), s(productCollection[1].Id().Hex()),
+		s(testid), s(product1id), s(product2id), s(""),
+	))
 }
 
-// TestHandleRemoveAll checks if a type embedding Handle runs RemoveAll
-// correctly.
-func TestHandleRemoveAll(t *testing.T) {
+// Feature Remove various documents with Handle
+// - As a developer,
+// - I want to Remove various documents using Handle,
+// - So that I can use Handler to remove lots of data.
+func Test_Remove_various_documents_with_Handle(t *testing.T) {
 	make, _ := mongo.NewMockMGOSetup(t)
 	defer make.Finish()
 
-	trialtbl.NewSuite(
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, productCollection[0].Id().Hex()),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, productCollection[1].Id().Hex()),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, testid),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, product1id),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, product2id),
-		),
-	).Test(t, func(e *trialtbl.Experiment) {
-		// Test Remove() execution.
-		e.RegisterResult(0, func(f ...interface{}) (r *trialtbl.Result) {
-			db := make.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
-				mcl.ExpectRemoveAllReturn(mongo.NewRemoveInfo(0))
-			})
+	given, like, s := bdd.Sentences()
 
-			ph := newProductHandle()
-			if len(f) == 1 {
-				ph.Document().SetId(bson.ObjectIdHex(f[0].(string)))
-			}
+	given(t, "a empty ProductHandler h with Id '%[1]v'", func(when bdd.When, args ...interface{}) {
+		db := make.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
+			mcl.ExpectRemoveAllReturn(mongo.NewRemoveInfo(0))
+		})
 
-			// Cast productHandle to productHandler.
-			var h productHandler = ph
+		var h productHandler = newProductHandle()
+		if args[0].(string) != "" {
+			h.Document().SetId(bson.ObjectIdHex(args[0].(string)))
+		}
 
+		when("h.Link(db).RemoveAll() is called", func(it bdd.It) {
 			_, err := h.Link(db).RemoveAll()
-			val := err == nil
-			sig := "_, err := h.Link(db).RemoveAll(); err == nil /* Removed all? */"
-			r = trialtbl.NewResult(val, sig)
-			return
+
+			it("should return no errors", func(assert bdd.Assert) {
+				assert.Nil(err)
+			})
 		})
-	})
+	}, like(
+		s(productCollection[0].Id().Hex()), s(productCollection[1].Id().Hex()),
+		s(testid), s(product1id), s(product2id), s(""),
+	))
 }
 
-// TestHandleUpdate checks if a type embedding Handle runs Update
-// correctly.
-func TestHandleUpdate(t *testing.T) {
+// Feature Update documents with Handle
+// - As a developer,
+// - I want to Update documents using Handle,
+// - So that I can use Handler to update data.
+func Test_Update_documents_with_Handle(t *testing.T) {
 	makeMGO, _ := mongo.NewMockMGOSetup(t)
 	makeModel, _ := model.NewMockModelSetup(t)
 	defer Finish(makeMGO, makeModel)
 
-	trialtbl.NewSuite(
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, int64(1), productCollection[0].Id().Hex()),
-			trialtbl.NewTrial(false),
-			trialtbl.NewTrial(true, int64(1)),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, int64(10), productCollection[1].Id().Hex()),
-			trialtbl.NewTrial(false),
-			trialtbl.NewTrial(true, int64(10)),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, int64(20), testid),
-			trialtbl.NewTrial(false),
-			trialtbl.NewTrial(true, int64(20)),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, int64(30), product1id),
-			trialtbl.NewTrial(false),
-			trialtbl.NewTrial(true, int64(30)),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, int64(15), product2id),
-			trialtbl.NewTrial(false),
-			trialtbl.NewTrial(true, int64(15)),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(false, int64(1)),
-			trialtbl.NewTrial(true),
-			trialtbl.NewTrial(false, int64(1)),
-		),
-	).Test(t, func(e *trialtbl.Experiment) {
-		var h productHandler
-		var err error
+	given, like, s := bdd.Sentences()
 
-		// Test Remove() execution.
-		e.RegisterResult(0, func(f ...interface{}) (r *trialtbl.Result) {
-			db := makeMGO.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
-				if len(f) == 2 {
-					mcl.ExpectUpdateIdReturn()
-				}
-			})
-
-			ph := newProductHandle()
-			if len(f) == 2 {
-				ph.Document().SetId(bson.ObjectIdHex(f[1].(string)))
+	given(t, "a empty ProductHandler h with Id '%[1]v'", func(when bdd.When, args ...interface{}) {
+		db := makeMGO.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
+			if args[0].(string) != "" {
+				mcl.ExpectUpdateIdReturn()
 			}
-
-			// Cast productHandle to productHandler.
-			h = ph
-
-			makeModel.NowInMilli().Returns(f[0].(int64))
-			err = h.Link(db).Update()
-			val := err == nil
-			sig := "err := h.Link(db).Update(); err == nil /* Updated? */"
-			r = trialtbl.NewResult(val, sig)
-			return
 		})
 
-		// Test error signature.
-		e.RegisterResult(1, func(f ...interface{}) (r *trialtbl.Result) {
-			val := err == ErrIDNotDefined
-			sig := fmt.Sprintf("err := h.Link(db).Remove(); err == %v", ErrIDNotDefined)
-			r = trialtbl.NewResult(val, sig)
-			return
-		})
+		var h productHandler = newProductHandle()
+		if args[0].(string) != "" {
+			h.Document().SetId(bson.ObjectIdHex(args[0].(string)))
+		}
 
-		// Test UpdatedOn attribute.
-		e.RegisterResult(2, func(f ...interface{}) (r *trialtbl.Result) {
-			val := h.Document().UpdatedOn() == f[0].(int64)
-			sig := "h.Document().UpdatedOn() == %v"
-			r = trialtbl.NewResult(val, sig)
-			return
+		when("h.Link(db).Update() is called", func(it bdd.It) {
+			if args[0].(string) != "" {
+				makeModel.NowInMilli().Returns(args[1].(int64))
+			}
+			err := h.Link(db).Update()
+
+			if args[0].(string) != "" {
+				it("should return no errors", func(assert bdd.Assert) {
+					assert.Nil(err)
+				})
+				it("should have h.Document().UpdatedOn() return %[2]v", func(assert bdd.Assert) {
+					assert.Equal(h.Document().UpdatedOn(), args[1].(int64))
+				})
+			} else {
+				it("should return an error", func(assert bdd.Assert) {
+					assert.Equal(err, ErrIDNotDefined)
+				})
+			}
 		})
-	})
+	}, like(
+		s(productCollection[0].Id().Hex(), int64(10)), s(productCollection[1].Id().Hex(), int64(30)),
+		s(testid, int64(1)), s(product1id, int64(101)), s(product2id, int64(102)), s(""),
+	))
 }
