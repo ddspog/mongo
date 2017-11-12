@@ -52,8 +52,9 @@ func (p *productHandle) Link(db mongo.Databaser) (h productHandler) {
 // Find search on connected collection for a document matching data
 // stored on productHandle and returns it.
 func (p *productHandle) Find() (prod product, err error) {
-	prod = newProduct()
-	err = p.Handle.Find(p.Document(), prod)
+	var doc model.Documenter = newProduct()
+	err = p.Handle.Find(p.Document(), &doc)
+	prod = doc.(product)
 	return
 }
 

@@ -10,7 +10,7 @@ import (
 type Handler interface {
 	Link(mongo.Databaser, string)
 	Count() (int, error)
-	Find(model.Documenter, model.Documenter) error
+	Find(model.Documenter, *model.Documenter) error
 	FindAll(model.Documenter, *[]model.Documenter) error
 	Insert(model.Documenter) error
 	Remove(model.Documenter) error

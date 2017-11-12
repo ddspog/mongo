@@ -7,8 +7,8 @@ import (
 	"github.com/ddspog/mongo/model"
 )
 
-// ErrIdNotDefined it's an error received when an Id isn't defined.
-var ErrIdNotDefined error = errors.New("Id not defined.")
+// ErrIDNotDefined it's an error received when an Id isn't defined.
+var ErrIDNotDefined = errors.New("Id not defined")
 
 // Handle it's a type implementing the Handler interface, responsible
 // of taking documents and using them to manipulate collections.
@@ -36,12 +36,12 @@ func (h *Handle) Count() (n int, err error) {
 
 // Find search for a document matching the doc data on collection
 // connected to Handle.
-func (h *Handle) Find(doc, out model.Documenter) (err error) {
+func (h *Handle) Find(doc model.Documenter, out *model.Documenter) (err error) {
 	err = h.collectionV.Find(doc).One(out)
 	return
 }
 
-// Find search for alls documents matching the doc data on
+// FindAll search for alls documents matching the doc data on
 // collection connected to Handle.
 func (h *Handle) FindAll(doc model.Documenter, out *[]model.Documenter) (err error) {
 	err = h.collectionV.Find(doc).All(out)
@@ -60,7 +60,7 @@ func (h *Handle) Insert(doc model.Documenter) (err error) {
 // id of doc.
 func (h *Handle) Remove(doc model.Documenter) (err error) {
 	if doc.Id() == "" {
-		err = ErrIdNotDefined
+		err = ErrIDNotDefined
 	} else {
 		err = h.collectionV.RemoveId(doc.Id())
 	}
@@ -78,7 +78,7 @@ func (h *Handle) RemoveAll(doc model.Documenter) (info *mongo.ChangeInfo, err er
 // matching id on doc data, updataing with the extra information on doc.
 func (h *Handle) Update(doc model.Documenter) (err error) {
 	if doc.Id() == "" {
-		err = ErrIdNotDefined
+		err = ErrIDNotDefined
 	} else {
 		doc.CalculateUpdatedOn()
 		err = h.collectionV.UpdateId(doc.Id(), doc)

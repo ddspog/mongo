@@ -181,7 +181,6 @@ func TestHandleFind(t *testing.T) {
 				default:
 					mcl.ExpectFindFail(anyReason)
 				}
-				return
 			})
 
 			ph := newProductHandle()
@@ -278,8 +277,6 @@ func TestHandleFindAll(t *testing.T) {
 				} else {
 					mcl.ExpectFindAllReturn([]model.Documenter{productCollection[0], productCollection[1]})
 				}
-
-				return
 			})
 
 			ph := newProductHandle()
@@ -308,8 +305,8 @@ func TestHandleFindAll(t *testing.T) {
 
 		// Test Id() of Documents returned
 		e.RegisterResult(2, func(f ...interface{}) (r *trialtbl.Result) {
-			var val bool = true
-			var sig string = "true"
+			var val = true
+			var sig = "true"
 
 			if val = len(f) == len(da); val {
 				for i := range da {
@@ -326,8 +323,8 @@ func TestHandleFindAll(t *testing.T) {
 
 		// Test CreatedOn() of Documents returned
 		e.RegisterResult(3, func(f ...interface{}) (r *trialtbl.Result) {
-			var val bool = true
-			var sig string = "true"
+			var val = true
+			var sig = "true"
 
 			if val = len(f) == len(da); val {
 				for i := range da {
@@ -391,7 +388,7 @@ func TestHandleInsert(t *testing.T) {
 	).Test(t, func(e *trialtbl.Experiment) {
 		var h productHandler
 
-		// Test Insert() execution
+		// Test Insert() execution.
 		e.RegisterResult(0, func(f ...interface{}) (r *trialtbl.Result) {
 			db := makeMGO.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
 				mcl.ExpectInsertReturn()
@@ -413,7 +410,7 @@ func TestHandleInsert(t *testing.T) {
 			return
 		})
 
-		// Test CreatedOn() attribution
+		// Test CreatedOn() attribution.
 		e.RegisterResult(1, func(f ...interface{}) (r *trialtbl.Result) {
 			val := h.Document().CreatedOn() == f[0].(int64)
 			sig := "h.Document().CreatedOn() == %v"
@@ -457,7 +454,7 @@ func TestHandleRemove(t *testing.T) {
 	).Test(t, func(e *trialtbl.Experiment) {
 		var err error
 
-		// Test Remove() execution
+		// Test Remove() execution.
 		e.RegisterResult(0, func(f ...interface{}) (r *trialtbl.Result) {
 			db := make.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
 				if len(f) == 1 {
@@ -480,6 +477,7 @@ func TestHandleRemove(t *testing.T) {
 			return
 		})
 
+		// Test error signature.
 		e.RegisterResult(1, func(f ...interface{}) (r *trialtbl.Result) {
 			val := err == ErrIdNotDefined
 			sig := fmt.Sprintf("err := h.Link(db).Remove(); err == %v", ErrIdNotDefined)
@@ -512,7 +510,7 @@ func TestHandleRemoveAll(t *testing.T) {
 			trialtbl.NewTrial(true, product2id),
 		),
 	).Test(t, func(e *trialtbl.Experiment) {
-		// Test Remove() execution
+		// Test Remove() execution.
 		e.RegisterResult(0, func(f ...interface{}) (r *trialtbl.Result) {
 			db := make.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
 				mcl.ExpectRemoveAllReturn(mongo.NewRemoveInfo(0))
@@ -577,7 +575,7 @@ func TestHandleUpdate(t *testing.T) {
 		var h productHandler
 		var err error
 
-		// Test Remove() execution
+		// Test Remove() execution.
 		e.RegisterResult(0, func(f ...interface{}) (r *trialtbl.Result) {
 			db := makeMGO.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
 				if len(f) == 2 {
@@ -601,7 +599,7 @@ func TestHandleUpdate(t *testing.T) {
 			return
 		})
 
-		// Test error signature
+		// Test error signature.
 		e.RegisterResult(1, func(f ...interface{}) (r *trialtbl.Result) {
 			val := err == ErrIdNotDefined
 			sig := fmt.Sprintf("err := h.Link(db).Remove(); err == %v", ErrIdNotDefined)
@@ -609,6 +607,7 @@ func TestHandleUpdate(t *testing.T) {
 			return
 		})
 
+		// Test UpdatedOn attribute.
 		e.RegisterResult(2, func(f ...interface{}) (r *trialtbl.Result) {
 			val := h.Document().UpdatedOn() == f[0].(int64)
 			sig := "h.Document().UpdatedOn() == %v"

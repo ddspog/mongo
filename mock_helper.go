@@ -88,9 +88,8 @@ func (m *MockCollectioner) ExpectCountFail(mes string) {
 // defined document.
 func (m *MockCollectioner) ExpectFindReturn(ret model.Documenter) {
 	mqr := newMockQuerier(m.controller())
-	mqr.EXPECT().One(gomock.Any()).Return(nil).Do(func(d model.Documenter) {
-		d.SetId(ret.Id())
-		d.SetCreatedOn(ret.CreatedOn())
+	mqr.EXPECT().One(gomock.Any()).Return(nil).Do(func(d *model.Documenter) {
+		*d = ret
 	})
 	m.EXPECT().Find(gomock.Any()).Return(mqr)
 }
