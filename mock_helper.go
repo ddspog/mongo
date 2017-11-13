@@ -8,20 +8,20 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
-// mockMGOSetup it's a setup type for configurating mocking of mgo
+// MockMGOSetup it's a setup type for configurating mocking of mgo
 // package.
-type mockMGOSetup struct {
+type MockMGOSetup struct {
 	mockController *gomock.Controller
 }
 
-// NewMockMGOSetup returns a new mockMGOSetup, already configuring mock
+// NewMockMGOSetup returns a new MockMGOSetup, already configuring mock
 // environment for the mgo classes mocked with gomock. It requires a
 // test environment to be running.
-func NewMockMGOSetup(t *testing.T) (s *mockMGOSetup, err error) {
+func NewMockMGOSetup(t *testing.T) (s *MockMGOSetup, err error) {
 	if t.Name() == "" {
-		err = errors.New("Run only on test environment.")
+		err = errors.New("Run only on test environment")
 	} else {
-		s = &mockMGOSetup{
+		s = &MockMGOSetup{
 			mockController: gomock.NewController(t),
 		}
 	}
@@ -29,29 +29,29 @@ func NewMockMGOSetup(t *testing.T) (s *mockMGOSetup, err error) {
 }
 
 // Finish restore mocking classes to original behavior.
-func (s *mockMGOSetup) Finish() {
+func (s *MockMGOSetup) Finish() {
 	s.controller().Finish()
 }
 
 // controller gets gomock controller.
-func (s *mockMGOSetup) controller() (c *gomock.Controller) {
+func (s *MockMGOSetup) controller() (c *gomock.Controller) {
 	c = s.mockController
 	return
 }
 
 // DatabaseMock create a Database mock that expect an C to return the
 // Collectioner mocked from function.
-func (s *mockMGOSetup) DatabaseMock(n string, f func(*MockCollectioner)) (mdb *MockDatabaser) {
+func (s *MockMGOSetup) DatabaseMock(n string, f func(*MockCollectioner)) (mdb *MockDatabaser) {
 	mdb = newMockDatabaser(s.controller())
-	mcl := newEmbeddedMockCollectioner(s.controller())
+	mcl := NewMockCollectioner(s.controller())
 	f(mcl)
 	mdb.EXPECT().C(n).AnyTimes().Return(mcl)
 	return
 }
 
 // CollectionMock create a new Collection mock.
-func (s *mockMGOSetup) CollectionMock() (mcl *MockCollectioner) {
-	mcl = newEmbeddedMockCollectioner(s.controller())
+func (s *MockMGOSetup) CollectionMock() (mcl *MockCollectioner) {
+	mcl = NewMockCollectioner(s.controller())
 	return
 }
 
@@ -59,15 +59,15 @@ func (s *mockMGOSetup) CollectionMock() (mcl *MockCollectioner) {
 // importing. This new embedded class extends the mocked class
 // to enable using of more helpful functions.
 type MockCollectioner struct {
-	*mockCollectioner
+	*MockPCollectioner
 	mockController *gomock.Controller
 }
 
-// newEmbeddedMockCollectioner creates a new MockCollectioner embedded type.
-func newEmbeddedMockCollectioner(c *gomock.Controller) (m *MockCollectioner) {
+// NewMockCollectioner creates a new MockCollectioner embedded type.
+func NewMockCollectioner(c *gomock.Controller) (m *MockCollectioner) {
 	m = &MockCollectioner{
-		mockCollectioner: newMockCollectioner(c),
-		mockController:   c,
+		MockPCollectioner: newMockPCollectioner(c),
+		mockController:    c,
 	}
 	return
 }
@@ -132,16 +132,16 @@ func (m *MockCollectioner) ExpectInsertFail(mes string) {
 	m.EXPECT().Insert(gomock.Any()).Return(errors.New(mes))
 }
 
-// ExpectRemoveIdReturn make a Collectioner expects an RemoveId to return
+// ExpectRemoveIDReturn make a Collectioner expects an RemoveId to return
 // no error and do nothing.
-func (m *MockCollectioner) ExpectRemoveIdReturn() {
-	m.EXPECT().RemoveId(gomock.Any()).Return(nil)
+func (m *MockCollectioner) ExpectRemoveIDReturn() {
+	m.EXPECT().RemoveID(gomock.Any()).Return(nil)
 }
 
-// ExpectRemoveIdFail make a Collectioner expects an RemoveId to return
+// ExpectRemoveIDFail make a Collectioner expects an RemoveId to return
 // an error for whatever reason.
-func (m *MockCollectioner) ExpectRemoveIdFail(mes string) {
-	m.EXPECT().RemoveId(gomock.Any()).Return(errors.New(mes))
+func (m *MockCollectioner) ExpectRemoveIDFail(mes string) {
+	m.EXPECT().RemoveID(gomock.Any()).Return(errors.New(mes))
 }
 
 // ExpectRemoveAllReturn make a Collectioner expects an RemoveAll to
@@ -156,16 +156,16 @@ func (m *MockCollectioner) ExpectRemoveAllFail(mes string) {
 	m.EXPECT().RemoveAll(gomock.Any()).Return(nil, errors.New(mes))
 }
 
-// ExpectUpdateIdReturn make a Collectioner expects an UpdateId to return
+// ExpectUpdateIDReturn make a Collectioner expects an UpdateId to return
 // no error and do nothing.
-func (m *MockCollectioner) ExpectUpdateIdReturn() {
-	m.EXPECT().UpdateId(gomock.Any(), gomock.Any()).Return(nil)
+func (m *MockCollectioner) ExpectUpdateIDReturn() {
+	m.EXPECT().UpdateID(gomock.Any(), gomock.Any()).Return(nil)
 }
 
-// ExpectUpdateIdFail make a Collectioner expects an UpdateId to return
+// ExpectUpdateIDFail make a Collectioner expects an UpdateId to return
 // an error for whatever reason.
-func (m *MockCollectioner) ExpectUpdateIdFail(mes string) {
-	m.EXPECT().UpdateId(gomock.Any(), gomock.Any()).Return(errors.New(mes))
+func (m *MockCollectioner) ExpectUpdateIDFail(mes string) {
+	m.EXPECT().UpdateID(gomock.Any(), gomock.Any()).Return(errors.New(mes))
 }
 
 // controller gets gomock controller.

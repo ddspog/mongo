@@ -5,8 +5,9 @@ package mongo
 // package, allowing mocking and correct testing of them.
 
 import (
-	"gopkg.in/mgo.v2"
 	"time"
+
+	"gopkg.in/mgo.v2"
 )
 
 // ChangeInfo it's an embedded type of mgo.ChangeInfo, made to reduce
@@ -83,13 +84,23 @@ func (c *Collection) Find(q interface{}) Querier {
 	return &Query{c.Collection.Find(q)}
 }
 
-// FindId is a convenience helper equivalent to:
+// FindID is a convenience helper equivalent to:
 //
 //     query := collection.Find(bson.M{"_id": id})
 //
 // See the Find method for more details.
-func (c *Collection) FindId(id interface{}) Querier {
+func (c *Collection) FindID(id interface{}) Querier {
 	return &Query{c.Collection.FindId(id)}
+}
+
+// RemoveID is a convenience helper equivalent to:
+//
+//     err := collection.Remove(bson.M{"_id": id})
+//
+// See the Remove method for more details.
+func (c *Collection) RemoveID(id interface{}) error {
+	err := c.Collection.RemoveId(id)
+	return err
 }
 
 // RemoveAll finds all documents matching the provided selector document
@@ -104,6 +115,16 @@ func (c *Collection) FindId(id interface{}) Querier {
 func (c *Collection) RemoveAll(s interface{}) (*ChangeInfo, error) {
 	ci, err := c.Collection.RemoveAll(s)
 	return &ChangeInfo{ci}, err
+}
+
+// UpdateID is a convenience helper equivalent to:
+//
+//     err := collection.Update(bson.M{"_id": id}, update)
+//
+// See the Update method for more details.
+func (c *Collection) UpdateID(id interface{}, u interface{}) error {
+	err := c.Collection.UpdateId(id, u)
+	return err
 }
 
 // UpdateAll finds all documents matching the provided selector document
@@ -141,12 +162,12 @@ func (c *Collection) Upsert(s interface{}, u interface{}) (*ChangeInfo, error) {
 	return &ChangeInfo{ci}, err
 }
 
-// UpsertId is a convenience helper equivalent to:
+// UpsertID is a convenience helper equivalent to:
 //
 //     info, err := collection.Upsert(bson.M{"_id": id}, update)
 //
 // See the Upsert method for more details.
-func (c *Collection) UpsertId(id interface{}, u interface{}) (*ChangeInfo, error) {
+func (c *Collection) UpsertID(id interface{}, u interface{}) (*ChangeInfo, error) {
 	ci, err := c.Collection.UpsertId(id, u)
 	return &ChangeInfo{ci}, err
 }
@@ -195,7 +216,7 @@ type Query struct {
 	*mgo.Query
 }
 
-// The default batch size is defined by the database itself.  As of this
+// Batch default size is defined by the database itself.  As of this
 // writing, MongoDB will use an initial size of min(100 docs, 4MB) on the
 // first batch, and 4MB on remaining ones.
 func (q *Query) Batch(n int) Querier {

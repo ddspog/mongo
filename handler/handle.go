@@ -62,7 +62,7 @@ func (h *Handle) Remove(doc model.Documenter) (err error) {
 	if doc.ID() == "" {
 		err = ErrIDNotDefined
 	} else {
-		err = h.collectionV.RemoveId(doc.ID())
+		err = h.collectionV.RemoveID(doc.ID())
 	}
 	return
 }
@@ -81,7 +81,7 @@ func (h *Handle) Update(doc model.Documenter) (err error) {
 		err = ErrIDNotDefined
 	} else {
 		doc.CalculateUpdatedOn()
-		err = h.collectionV.UpdateId(doc.ID(), doc)
+		err = h.collectionV.UpdateID(doc.ID(), doc)
 	}
 	return
 }

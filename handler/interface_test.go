@@ -273,7 +273,7 @@ func Test_Remove_documents_with_Handle(t *testing.T) {
 	given(t, "a ProductHandler h with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
 		db := make.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
 			if args[0].(string) != "" {
-				mcl.ExpectRemoveIdReturn()
+				mcl.ExpectRemoveIDReturn()
 			}
 		})
 
@@ -348,7 +348,7 @@ func Test_Update_documents_with_Handle(t *testing.T) {
 	given(t, "a ProductHandler h with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
 		db := makeMGO.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
 			if args[0].(string) != "" {
-				mcl.ExpectUpdateIdReturn()
+				mcl.ExpectUpdateIDReturn()
 			}
 		})
 
