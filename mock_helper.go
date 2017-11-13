@@ -59,14 +59,14 @@ func (s *MockMGOSetup) CollectionMock() (mcl *MockCollectioner) {
 // importing. This new embedded class extends the mocked class
 // to enable using of more helpful functions.
 type MockCollectioner struct {
-	*MockPCollectioner
+	*mockPCollectioner
 	mockController *gomock.Controller
 }
 
 // NewMockCollectioner creates a new MockCollectioner embedded type.
 func NewMockCollectioner(c *gomock.Controller) (m *MockCollectioner) {
 	m = &MockCollectioner{
-		MockPCollectioner: newMockPCollectioner(c),
+		mockPCollectioner: newMockPCollectioner(c),
 		mockController:    c,
 	}
 	return

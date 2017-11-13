@@ -10,23 +10,40 @@ import (
 // MockDatabaser is a mock of Databaser interface
 type MockDatabaser struct {
 	ctrl     *gomock.Controller
-	recorder *MockDatabaserMockRecorder
+	recorder *mockDatabaserMockRecord
 }
 
-// MockDatabaserMockRecorder is the mock recorder for mockDatabaser
-type MockDatabaserMockRecorder struct {
+// mockDatabaserMockRecord is the mock recorder for mockDatabaser
+type mockDatabaserMockRecord struct {
 	mock *MockDatabaser
+}
+
+// MockDatabaserMockRecorder is a recorder used for mocking purposes.
+// It's needed for the EXPECT method to work.
+type MockDatabaserMockRecorder interface {
+	AddUser(interface{}, interface{}, interface{}) *gomock.Call
+	C(interface{}) *gomock.Call
+	CollectionNames() *gomock.Call
+	DropDatabase() *gomock.Call
+	FindRef(interface{}) *gomock.Call
+	GridFS(interface{}) *gomock.Call
+	Login(interface{}, interface{}) *gomock.Call
+	Logout() *gomock.Call
+	RemoveUser(interface{}) *gomock.Call
+	Run(interface{}, interface{}) *gomock.Call
+	UpsertUser(interface{}) *gomock.Call
+	With(interface{}) *gomock.Call
 }
 
 // newMockDatabaser creates a new mock instance
 func newMockDatabaser(ctrl *gomock.Controller) *MockDatabaser {
 	mock := &MockDatabaser{ctrl: ctrl}
-	mock.recorder = &MockDatabaserMockRecorder{mock}
+	mock.recorder = &mockDatabaserMockRecord{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use
-func (m *MockDatabaser) EXPECT() *MockDatabaserMockRecorder {
+func (m *MockDatabaser) EXPECT() MockDatabaserMockRecorder {
 	return m.recorder
 }
 
@@ -38,7 +55,7 @@ func (m *MockDatabaser) AddUser(arg0, arg1 string, arg2 bool) error {
 }
 
 // AddUser indicates an expected call of AddUser
-func (mr *MockDatabaserMockRecorder) AddUser(arg0, arg1, arg2 interface{}) *gomock.Call {
+func (mr *mockDatabaserMockRecord) AddUser(arg0, arg1, arg2 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddUser", reflect.TypeOf((*MockDatabaser)(nil).AddUser), arg0, arg1, arg2)
 }
 
@@ -50,7 +67,7 @@ func (m *MockDatabaser) C(arg0 string) Collectioner {
 }
 
 // C indicates an expected call of C
-func (mr *MockDatabaserMockRecorder) C(arg0 interface{}) *gomock.Call {
+func (mr *mockDatabaserMockRecord) C(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "C", reflect.TypeOf((*MockDatabaser)(nil).C), arg0)
 }
 
@@ -63,7 +80,7 @@ func (m *MockDatabaser) CollectionNames() ([]string, error) {
 }
 
 // CollectionNames indicates an expected call of CollectionNames
-func (mr *MockDatabaserMockRecorder) CollectionNames() *gomock.Call {
+func (mr *mockDatabaserMockRecord) CollectionNames() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CollectionNames", reflect.TypeOf((*MockDatabaser)(nil).CollectionNames))
 }
 
@@ -75,7 +92,7 @@ func (m *MockDatabaser) DropDatabase() error {
 }
 
 // DropDatabase indicates an expected call of DropDatabase
-func (mr *MockDatabaserMockRecorder) DropDatabase() *gomock.Call {
+func (mr *mockDatabaserMockRecord) DropDatabase() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DropDatabase", reflect.TypeOf((*MockDatabaser)(nil).DropDatabase))
 }
 
@@ -87,7 +104,7 @@ func (m *MockDatabaser) FindRef(arg0 *mgo_v2.DBRef) Querier {
 }
 
 // FindRef indicates an expected call of FindRef
-func (mr *MockDatabaserMockRecorder) FindRef(arg0 interface{}) *gomock.Call {
+func (mr *mockDatabaserMockRecord) FindRef(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindRef", reflect.TypeOf((*MockDatabaser)(nil).FindRef), arg0)
 }
 
@@ -99,7 +116,7 @@ func (m *MockDatabaser) GridFS(arg0 string) *mgo_v2.GridFS {
 }
 
 // GridFS indicates an expected call of GridFS
-func (mr *MockDatabaserMockRecorder) GridFS(arg0 interface{}) *gomock.Call {
+func (mr *mockDatabaserMockRecord) GridFS(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GridFS", reflect.TypeOf((*MockDatabaser)(nil).GridFS), arg0)
 }
 
@@ -111,7 +128,7 @@ func (m *MockDatabaser) Login(arg0, arg1 string) error {
 }
 
 // Login indicates an expected call of Login
-func (mr *MockDatabaserMockRecorder) Login(arg0, arg1 interface{}) *gomock.Call {
+func (mr *mockDatabaserMockRecord) Login(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockDatabaser)(nil).Login), arg0, arg1)
 }
 
@@ -121,7 +138,7 @@ func (m *MockDatabaser) Logout() {
 }
 
 // Logout indicates an expected call of Logout
-func (mr *MockDatabaserMockRecorder) Logout() *gomock.Call {
+func (mr *mockDatabaserMockRecord) Logout() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Logout", reflect.TypeOf((*MockDatabaser)(nil).Logout))
 }
 
@@ -133,7 +150,7 @@ func (m *MockDatabaser) RemoveUser(arg0 string) error {
 }
 
 // RemoveUser indicates an expected call of RemoveUser
-func (mr *MockDatabaserMockRecorder) RemoveUser(arg0 interface{}) *gomock.Call {
+func (mr *mockDatabaserMockRecord) RemoveUser(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveUser", reflect.TypeOf((*MockDatabaser)(nil).RemoveUser), arg0)
 }
 
@@ -145,7 +162,7 @@ func (m *MockDatabaser) Run(arg0, arg1 interface{}) error {
 }
 
 // Run indicates an expected call of Run
-func (mr *MockDatabaserMockRecorder) Run(arg0, arg1 interface{}) *gomock.Call {
+func (mr *mockDatabaserMockRecord) Run(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Run", reflect.TypeOf((*MockDatabaser)(nil).Run), arg0, arg1)
 }
 
@@ -157,7 +174,7 @@ func (m *MockDatabaser) UpsertUser(arg0 *mgo_v2.User) error {
 }
 
 // UpsertUser indicates an expected call of UpsertUser
-func (mr *MockDatabaserMockRecorder) UpsertUser(arg0 interface{}) *gomock.Call {
+func (mr *mockDatabaserMockRecord) UpsertUser(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpsertUser", reflect.TypeOf((*MockDatabaser)(nil).UpsertUser), arg0)
 }
 
@@ -169,6 +186,6 @@ func (m *MockDatabaser) With(arg0 *mgo_v2.Session) Databaser {
 }
 
 // With indicates an expected call of With
-func (mr *MockDatabaserMockRecorder) With(arg0 interface{}) *gomock.Call {
+func (mr *mockDatabaserMockRecord) With(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "With", reflect.TypeOf((*MockDatabaser)(nil).With), arg0)
 }

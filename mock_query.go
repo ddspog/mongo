@@ -11,23 +11,50 @@ import (
 // MockQuerier is a mock of Querier interface
 type MockQuerier struct {
 	ctrl     *gomock.Controller
-	recorder *MockQuerierMockRecorder
+	recorder *mockQuerierMockRecord
 }
 
-// MockQuerierMockRecorder is the mock recorder for mockQuerier
-type MockQuerierMockRecorder struct {
+// mockQuerierMockRecord is the mock recorder for mockQuerier
+type mockQuerierMockRecord struct {
 	mock *MockQuerier
+}
+
+// MockQuerierMockRecorder is a recorder used for mocking purposes.
+// It's needed for the EXPECT method to work.
+type MockQuerierMockRecorder interface {
+	All(interface{}) *gomock.Call
+	Apply(interface{}, interface{}) *gomock.Call
+	Batch(interface{}) *gomock.Call
+	Comment(interface{}) *gomock.Call
+	Count() *gomock.Call
+	Distinct(interface{}, interface{}) *gomock.Call
+	Explain(interface{}) *gomock.Call
+	For(interface{}, interface{}) *gomock.Call
+	Hint(...interface{}) *gomock.Call
+	Iter() *gomock.Call
+	Limit(interface{}) *gomock.Call
+	LogReplay() *gomock.Call
+	MapReduce(interface{}, interface{}) *gomock.Call
+	One(interface{}) *gomock.Call
+	Prefetch(interface{}) *gomock.Call
+	Select(interface{}) *gomock.Call
+	SetMaxScan(interface{}) *gomock.Call
+	SetMaxTime(interface{}) *gomock.Call
+	Skip(interface{}) *gomock.Call
+	Snapshot() *gomock.Call
+	Sort(...interface{}) *gomock.Call
+	Tail(interface{}) *gomock.Call
 }
 
 // newMockQuerier creates a new mock instance
 func newMockQuerier(ctrl *gomock.Controller) *MockQuerier {
 	mock := &MockQuerier{ctrl: ctrl}
-	mock.recorder = &MockQuerierMockRecorder{mock}
+	mock.recorder = &mockQuerierMockRecord{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use
-func (m *MockQuerier) EXPECT() *MockQuerierMockRecorder {
+func (m *MockQuerier) EXPECT() MockQuerierMockRecorder {
 	return m.recorder
 }
 
@@ -39,7 +66,7 @@ func (m *MockQuerier) All(arg0 interface{}) error {
 }
 
 // All indicates an expected call of All
-func (mr *MockQuerierMockRecorder) All(arg0 interface{}) *gomock.Call {
+func (mr *mockQuerierMockRecord) All(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "All", reflect.TypeOf((*MockQuerier)(nil).All), arg0)
 }
 
@@ -52,7 +79,7 @@ func (m *MockQuerier) Apply(arg0 mgo_v2.Change, arg1 interface{}) (*mgo_v2.Chang
 }
 
 // Apply indicates an expected call of Apply
-func (mr *MockQuerierMockRecorder) Apply(arg0, arg1 interface{}) *gomock.Call {
+func (mr *mockQuerierMockRecord) Apply(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Apply", reflect.TypeOf((*MockQuerier)(nil).Apply), arg0, arg1)
 }
 
@@ -64,7 +91,7 @@ func (m *MockQuerier) Batch(arg0 int) Querier {
 }
 
 // Batch indicates an expected call of Batch
-func (mr *MockQuerierMockRecorder) Batch(arg0 interface{}) *gomock.Call {
+func (mr *mockQuerierMockRecord) Batch(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Batch", reflect.TypeOf((*MockQuerier)(nil).Batch), arg0)
 }
 
@@ -76,7 +103,7 @@ func (m *MockQuerier) Comment(arg0 string) Querier {
 }
 
 // Comment indicates an expected call of Comment
-func (mr *MockQuerierMockRecorder) Comment(arg0 interface{}) *gomock.Call {
+func (mr *mockQuerierMockRecord) Comment(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Comment", reflect.TypeOf((*MockQuerier)(nil).Comment), arg0)
 }
 
@@ -89,7 +116,7 @@ func (m *MockQuerier) Count() (int, error) {
 }
 
 // Count indicates an expected call of Count
-func (mr *MockQuerierMockRecorder) Count() *gomock.Call {
+func (mr *mockQuerierMockRecord) Count() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Count", reflect.TypeOf((*MockQuerier)(nil).Count))
 }
 
@@ -101,7 +128,7 @@ func (m *MockQuerier) Distinct(arg0 string, arg1 interface{}) error {
 }
 
 // Distinct indicates an expected call of Distinct
-func (mr *MockQuerierMockRecorder) Distinct(arg0, arg1 interface{}) *gomock.Call {
+func (mr *mockQuerierMockRecord) Distinct(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Distinct", reflect.TypeOf((*MockQuerier)(nil).Distinct), arg0, arg1)
 }
 
@@ -113,7 +140,7 @@ func (m *MockQuerier) Explain(arg0 interface{}) error {
 }
 
 // Explain indicates an expected call of Explain
-func (mr *MockQuerierMockRecorder) Explain(arg0 interface{}) *gomock.Call {
+func (mr *mockQuerierMockRecord) Explain(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Explain", reflect.TypeOf((*MockQuerier)(nil).Explain), arg0)
 }
 
@@ -125,7 +152,7 @@ func (m *MockQuerier) For(arg0 interface{}, arg1 func() error) error {
 }
 
 // For indicates an expected call of For
-func (mr *MockQuerierMockRecorder) For(arg0, arg1 interface{}) *gomock.Call {
+func (mr *mockQuerierMockRecord) For(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "For", reflect.TypeOf((*MockQuerier)(nil).For), arg0, arg1)
 }
 
@@ -141,7 +168,7 @@ func (m *MockQuerier) Hint(arg0 ...string) Querier {
 }
 
 // Hint indicates an expected call of Hint
-func (mr *MockQuerierMockRecorder) Hint(arg0 ...interface{}) *gomock.Call {
+func (mr *mockQuerierMockRecord) Hint(arg0 ...interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Hint", reflect.TypeOf((*MockQuerier)(nil).Hint), arg0...)
 }
 
@@ -153,7 +180,7 @@ func (m *MockQuerier) Iter() *mgo_v2.Iter {
 }
 
 // Iter indicates an expected call of Iter
-func (mr *MockQuerierMockRecorder) Iter() *gomock.Call {
+func (mr *mockQuerierMockRecord) Iter() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Iter", reflect.TypeOf((*MockQuerier)(nil).Iter))
 }
 
@@ -165,7 +192,7 @@ func (m *MockQuerier) Limit(arg0 int) Querier {
 }
 
 // Limit indicates an expected call of Limit
-func (mr *MockQuerierMockRecorder) Limit(arg0 interface{}) *gomock.Call {
+func (mr *mockQuerierMockRecord) Limit(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Limit", reflect.TypeOf((*MockQuerier)(nil).Limit), arg0)
 }
 
@@ -177,7 +204,7 @@ func (m *MockQuerier) LogReplay() Querier {
 }
 
 // LogReplay indicates an expected call of LogReplay
-func (mr *MockQuerierMockRecorder) LogReplay() *gomock.Call {
+func (mr *mockQuerierMockRecord) LogReplay() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LogReplay", reflect.TypeOf((*MockQuerier)(nil).LogReplay))
 }
 
@@ -190,7 +217,7 @@ func (m *MockQuerier) MapReduce(arg0 *mgo_v2.MapReduce, arg1 interface{}) (*mgo_
 }
 
 // MapReduce indicates an expected call of MapReduce
-func (mr *MockQuerierMockRecorder) MapReduce(arg0, arg1 interface{}) *gomock.Call {
+func (mr *mockQuerierMockRecord) MapReduce(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MapReduce", reflect.TypeOf((*MockQuerier)(nil).MapReduce), arg0, arg1)
 }
 
@@ -202,7 +229,7 @@ func (m *MockQuerier) One(arg0 interface{}) error {
 }
 
 // One indicates an expected call of One
-func (mr *MockQuerierMockRecorder) One(arg0 interface{}) *gomock.Call {
+func (mr *mockQuerierMockRecord) One(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "One", reflect.TypeOf((*MockQuerier)(nil).One), arg0)
 }
 
@@ -214,7 +241,7 @@ func (m *MockQuerier) Prefetch(arg0 float64) Querier {
 }
 
 // Prefetch indicates an expected call of Prefetch
-func (mr *MockQuerierMockRecorder) Prefetch(arg0 interface{}) *gomock.Call {
+func (mr *mockQuerierMockRecord) Prefetch(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Prefetch", reflect.TypeOf((*MockQuerier)(nil).Prefetch), arg0)
 }
 
@@ -226,7 +253,7 @@ func (m *MockQuerier) Select(arg0 interface{}) Querier {
 }
 
 // Select indicates an expected call of Select
-func (mr *MockQuerierMockRecorder) Select(arg0 interface{}) *gomock.Call {
+func (mr *mockQuerierMockRecord) Select(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Select", reflect.TypeOf((*MockQuerier)(nil).Select), arg0)
 }
 
@@ -238,7 +265,7 @@ func (m *MockQuerier) SetMaxScan(arg0 int) Querier {
 }
 
 // SetMaxScan indicates an expected call of SetMaxScan
-func (mr *MockQuerierMockRecorder) SetMaxScan(arg0 interface{}) *gomock.Call {
+func (mr *mockQuerierMockRecord) SetMaxScan(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetMaxScan", reflect.TypeOf((*MockQuerier)(nil).SetMaxScan), arg0)
 }
 
@@ -250,7 +277,7 @@ func (m *MockQuerier) SetMaxTime(arg0 time.Duration) Querier {
 }
 
 // SetMaxTime indicates an expected call of SetMaxTime
-func (mr *MockQuerierMockRecorder) SetMaxTime(arg0 interface{}) *gomock.Call {
+func (mr *mockQuerierMockRecord) SetMaxTime(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetMaxTime", reflect.TypeOf((*MockQuerier)(nil).SetMaxTime), arg0)
 }
 
@@ -262,7 +289,7 @@ func (m *MockQuerier) Skip(arg0 int) Querier {
 }
 
 // Skip indicates an expected call of Skip
-func (mr *MockQuerierMockRecorder) Skip(arg0 interface{}) *gomock.Call {
+func (mr *mockQuerierMockRecord) Skip(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Skip", reflect.TypeOf((*MockQuerier)(nil).Skip), arg0)
 }
 
@@ -274,7 +301,7 @@ func (m *MockQuerier) Snapshot() Querier {
 }
 
 // Snapshot indicates an expected call of Snapshot
-func (mr *MockQuerierMockRecorder) Snapshot() *gomock.Call {
+func (mr *mockQuerierMockRecord) Snapshot() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Snapshot", reflect.TypeOf((*MockQuerier)(nil).Snapshot))
 }
 
@@ -290,7 +317,7 @@ func (m *MockQuerier) Sort(arg0 ...string) Querier {
 }
 
 // Sort indicates an expected call of Sort
-func (mr *MockQuerierMockRecorder) Sort(arg0 ...interface{}) *gomock.Call {
+func (mr *mockQuerierMockRecord) Sort(arg0 ...interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Sort", reflect.TypeOf((*MockQuerier)(nil).Sort), arg0...)
 }
 
@@ -302,6 +329,6 @@ func (m *MockQuerier) Tail(arg0 time.Duration) *mgo_v2.Iter {
 }
 
 // Tail indicates an expected call of Tail
-func (mr *MockQuerierMockRecorder) Tail(arg0 interface{}) *gomock.Call {
+func (mr *mockQuerierMockRecord) Tail(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Tail", reflect.TypeOf((*MockQuerier)(nil).Tail), arg0)
 }
