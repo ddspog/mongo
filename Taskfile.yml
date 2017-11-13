@@ -20,17 +20,17 @@ test:
 gen-mock-collection:
   cmds:
     - echo "Generating Mock for mgo.Collection ..."
-    - mockgen -destination={{.MOCKS_PATH}}/collection.go -package=mocks {{.MGO_INTERFACES_PACKAGE}} Collectioner
+    - mockgen -destination=mock_collection.go -package=mocks {{.MGO_INTERFACES_PACKAGE}} Collectioner
 
 gen-mock-database:
   cmds:
     - echo "Generating Mock for mgo.Database ..."
-    - mockgen -destination={{.MOCKS_PATH}}/database.go -package=mocks {{.MGO_INTERFACES_PACKAGE}} Databaser
+    - mockgen -destination=mock_database.go -package=mocks {{.MGO_INTERFACES_PACKAGE}} Databaser
 
 gen-mock-query:
   cmds:
     - echo "Generating Mock for mgo.Query ..."
-    - mockgen -destination={{.MOCKS_PATH}}/query.go -package=mocks {{.MGO_INTERFACES_PACKAGE}} Querier
+    - mockgen -destination=mock_query.go -package=mocks {{.MGO_INTERFACES_PACKAGE}} Querier
 
 format:
   cmds:
