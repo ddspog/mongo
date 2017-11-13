@@ -12,6 +12,11 @@ test-model:
     - go test {{.REPO_PATH}}/model -v
   silent: true
 
+test:
+  deps: [test-handler, test-model]
+  desc: Run all tests.
+
+
 gen-mock-collection:
   cmds:
     - echo "Generating Mock for mgo.Collection ..."
