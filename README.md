@@ -1,6 +1,7 @@
 # mongo [![GoDoc](https://godoc.org/github.com/ddspog/mongo?status.svg)](https://godoc.org/github.com/ddspog/mongo)
 
-### Overview
+## Overview
+
 Package mongo mask the connection to MongoDB using mgo package.
 
 This is made with function Connect, that saves Session and Mongo object
@@ -10,9 +11,10 @@ The embedded was necessary for the functions to use the interfaces as
 return values, that way, the code can use the original, or generate
 a mock of them for testing purposes.
 
-### Usage
+## Usage
 
 The package can be used like this:
+
 ```go
 // To connect with MongoDB database.
 mongo.Connect()
@@ -28,12 +30,13 @@ db := mongo.Mongo.Database
 
 c := db.C("articles")
 c.Insert(Article{
-	Title: "newtitle",
-	Content: "newcontent"
+    Title: "newtitle",
+    Content: "newcontent"
 })
 ```
+
 Further usage it's the same way mgo package is used. Look into mgo
-docs page: https://godoc.org/gopkg.in/mgo.v2
+docs page: <https://godoc.org/gopkg.in/mgo.v2>
 
 The Connect function tries to connect to a MONGODB_URL environment
 variable, but when it's not defined, it uses a default URL:

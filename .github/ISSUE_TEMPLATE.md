@@ -1,4 +1,4 @@
-## Need
+# Need
 
 ```gherkin
 As a [role],
@@ -21,14 +21,18 @@ Then [outcome]
 
 ## Solution
 
-#### Prerequisites
+### Prerequisites
+
 - [required dependency for identifying the problem, scope and then solution for this issue]
 
-#### TODO
+### TODO
+
 - [logical step in completing this story]
 
-#### Files
+### Files
+
 - [path to a file involved in this story]
 
-#### Notes
+### Notes
+
 - [peculiar aspect relevant this story]

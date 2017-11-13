@@ -1,6 +1,7 @@
 # model [![GoDoc](https://godoc.org/github.com/ddspog/mongo/model?status.svg)](https://godoc.org/github.com/ddspog/mongo/model)
 
-### Overview
+## Overview
+
 Package model contain utility functions to help modeling documents.
 
 The package contains a interface Documenter and a Document type
@@ -10,15 +11,16 @@ on MongoDB: \_id, created\_on and updated_on. The Document type contains
 already functions that generates correctly the created_on and
 updated_on attributes.
 
-### Usage
+## Usage
 
 The package can be used like this:
+
 ```go
 // Create a type embedding the Document type
 type product struct {
-	*model.Document
-	name string		`json:"name" form:"name" binding:"required" bson:"name"`
-	price float32	`json:"price" form:"price" binding:"required" bson:"price"`
+    *model.Document
+    name string        `json:"name" form:"name" binding:"required" bson:"name"`
+    price float32    `json:"price" form:"price" binding:"required" bson:"price"`
 }
 
 // Create a product variable, and try its methods.
