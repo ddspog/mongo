@@ -36,16 +36,17 @@ func newProduct() (p product) {
 // newProductStored returns a product with some attributes.
 func newProductStored() (p product) {
 	p = newProduct()
-	p.GenerateId()
+	p.GenerateID()
 	time.Sleep(10 * time.Millisecond)
 
 	p.CalculateCreatedOn()
 	return
 }
 
-
 // Finish call Finish() from all objects received.
-func Finish(fs ...interface{Finish()}) {
+func Finish(fs ...interface {
+	Finish()
+}) {
 	for i := range fs {
 		fs[i].Finish()
 	}

@@ -7,13 +7,13 @@ import "gopkg.in/mgo.v2/bson"
 // generaters to important documents values: _id, created_on and
 // updated_on
 type Documenter interface {
-	Id() bson.ObjectId
-	SetId(id bson.ObjectId)
+	ID() bson.ObjectId
+	SetID(id bson.ObjectId)
 	CreatedOn() int64
 	SetCreatedOn(t int64)
 	UpdatedOn() int64
 	SetUpdatedOn(t int64)
-	GenerateId()
+	GenerateID()
 	CalculateCreatedOn()
 	CalculateUpdatedOn()
 }

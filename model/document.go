@@ -1,15 +1,16 @@
 package model
 
 import (
-	"gopkg.in/mgo.v2/bson"
 	"time"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
 // Document it's a simples implementation of Documenter. Can be
 // embedded to another struct. It contains some attributes important
 // to any document on MongoDB.
 type Document struct {
-	IdV        bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
+	IDV        bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
 	CreatedOnV int64         `json:"created_on" bson:"created_on"`
 	UpdatedOnV int64         `json:"updated_on" bson:"updated_on"`
 }
@@ -17,27 +18,27 @@ type Document struct {
 var (
 	// nowInMilli it's stores imported calculation of time in int64 in
 	// Millisecond unit for mocking purposes.
-	nowInMilli func() int64 = func() (t int64) {
+	nowInMilli = func() (t int64) {
 		t = time.Now().UnixNano() / int64(time.Millisecond)
 		return
 	}
-	// newId it's stores imported generation of new ids for documents
+	// newID it's stores imported generation of new ids for documents
 	// for mocking purposes.
-	newId func() bson.ObjectId = func() (id bson.ObjectId) {
+	newID = func() (id bson.ObjectId) {
 		id = bson.NewObjectId()
 		return
 	}
 )
 
-// Id returs the _id attribute of a Document.
-func (p *Document) Id() (id bson.ObjectId) {
-	id = p.IdV
+// ID returs the _id attribute of a Document.
+func (p *Document) ID() (id bson.ObjectId) {
+	id = p.IDV
 	return
 }
 
-// SetId set the _id attribute of a Document.
-func (p *Document) SetId(id bson.ObjectId) {
-	p.IdV = id
+// SetID set the _id attribute of a Document.
+func (p *Document) SetID(id bson.ObjectId) {
+	p.IDV = id
 }
 
 // CreatedOn returs the created_on attribute of a Document.
@@ -62,21 +63,21 @@ func (p *Document) SetUpdatedOn(t int64) {
 	p.UpdatedOnV = t
 }
 
-// GenerateId creates a new id for a document.
-func (p *Document) GenerateId() {
-	p.IdV = NewId()
+// GenerateID creates a new id for a document.
+func (p *Document) GenerateID() {
+	p.SetID(NewID())
 }
 
 // CalculateCreatedOn update the created_on attribute with a value
 // corresponding to actual time.
 func (p *Document) CalculateCreatedOn() {
-	p.CreatedOnV = NowInMilli()
+	p.SetCreatedOn(NowInMilli())
 }
 
 // CalculateUpdatedOn update the updated_on attribute with a value
 // corresponding to actual time.
 func (p *Document) CalculateUpdatedOn() {
-	p.UpdatedOnV = NowInMilli()
+	p.SetUpdatedOn(NowInMilli())
 }
 
 // NowInMilli returns the actual time, in a int64 value in Millisecond
@@ -86,8 +87,8 @@ func NowInMilli() (t int64) {
 	return
 }
 
-// NewId generates a new id for documents.
-func NewId() (id bson.ObjectId) {
-	id = newId()
+// NewID generates a new id for documents.
+func NewID() (id bson.ObjectId) {
+	id = newID()
 	return
 }

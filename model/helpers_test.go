@@ -9,7 +9,7 @@ const (
 
 var (
 	// Value fixing a point in time for comparisons.
-	before int64 = NowInMilli()
+	before = NowInMilli()
 )
 
 // product it's a type embedding the Document struct.

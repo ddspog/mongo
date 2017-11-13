@@ -37,9 +37,9 @@ func Test_Enable_embedding_with_Handle(t *testing.T) {
 func Test_Create_Handle_with_functional_Getters(t *testing.T) {
 	given, like, s := bdd.Sentences()
 
-	given(t, "a empty ProductHandler h with Idv=bson.ObjectIdHex('%[1]v')", func(when bdd.When, args ...interface{}) {
+	given(t, "a ProductHandler h with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
 		p := newProduct()
-		p.IdV = bson.ObjectIdHex(args[0].(string))
+		p.IDV = bson.ObjectIdHex(args[0].(string))
 
 		ph := newProductHandle()
 		ph.DocumentV = p
@@ -51,9 +51,9 @@ func Test_Create_Handle_with_functional_Getters(t *testing.T) {
 			})
 		})
 
-		when("h.Document().Id().Hex() is called", func(it bdd.It) {
+		when("h.Document().ID().Hex() is called", func(it bdd.It) {
 			it("should return '%[1]v'", func(assert bdd.Assert) {
-				assert.Equal(h.Document().Id().Hex(), args[0].(string))
+				assert.Equal(h.Document().ID().Hex(), args[0].(string))
 			})
 		})
 
@@ -105,14 +105,14 @@ func Test_Find_documents_with_Handle(t *testing.T) {
 	given, like, s := bdd.Sentences()
 
 	p := productCollection
-	col := fmt.Sprintf("{'%[1]v', '%[2]v'}", p[0].Id().Hex(), p[1].Id().Hex())
+	col := fmt.Sprintf("{'%[1]v', '%[2]v'}", p[0].ID().Hex(), p[1].ID().Hex())
 
-	given(t, "a empty ProductHandler h with Id '%[1]v' and products collection with documents "+col, func(when bdd.When, args ...interface{}) {
+	given(t, "a ProductHandler h with ID '%[1]v' and products collection with documents "+col, func(when bdd.When, args ...interface{}) {
 		db := make.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
 			switch args[0] {
-			case p[0].Id().Hex():
+			case p[0].ID().Hex():
 				mcl.ExpectFindReturn(p[0])
-			case p[1].Id().Hex():
+			case p[1].ID().Hex():
 				mcl.ExpectFindReturn(p[1])
 			default:
 				mcl.ExpectFindFail(anyReason)
@@ -120,7 +120,7 @@ func Test_Find_documents_with_Handle(t *testing.T) {
 		})
 
 		var h productHandler = newProductHandle()
-		h.Document().SetId(bson.ObjectIdHex(args[0].(string)))
+		h.Document().SetID(bson.ObjectIdHex(args[0].(string)))
 
 		when("d, err := h.Link(db).Find() is called", func(it bdd.It) {
 			d, err := h.Link(db).Find()
@@ -129,8 +129,8 @@ func Test_Find_documents_with_Handle(t *testing.T) {
 				it("should return no errors", func(assert bdd.Assert) {
 					assert.Nil(err)
 				})
-				it("d.Id().Hex() should return %[1]v", func(assert bdd.Assert) {
-					assert.Equal(d.Id().Hex(), args[0].(string))
+				it("d.ID().Hex() should return %[1]v", func(assert bdd.Assert) {
+					assert.Equal(d.ID().Hex(), args[0].(string))
 				})
 				it("d.CreatedOn() should return %[3]v", func(assert bdd.Assert) {
 					assert.Equal(d.CreatedOn(), args[2].(int64))
@@ -142,8 +142,8 @@ func Test_Find_documents_with_Handle(t *testing.T) {
 			}
 		})
 	}, like(
-		s(p[0].Id().Hex(), true, p[0].CreatedOn()),
-		s(p[1].Id().Hex(), true, p[1].CreatedOn()),
+		s(p[0].ID().Hex(), true, p[0].CreatedOn()),
+		s(p[1].ID().Hex(), true, p[1].CreatedOn()),
 		s(testid, false),
 		s(product1id, false),
 		s(product2id, false),
@@ -161,16 +161,16 @@ func Test_Find_various_documents_with_Handle(t *testing.T) {
 	given, like, s := bdd.Sentences()
 
 	p := productCollection
-	col := fmt.Sprintf("{'%[1]v', '%[2]v'}", p[0].Id().Hex(), p[1].Id().Hex())
+	col := fmt.Sprintf("{'%[1]v', '%[2]v'}", p[0].ID().Hex(), p[1].ID().Hex())
 
-	given(t, "a empty ProductHandler h with Id '%[1]v' and products collection with documents "+col, func(when bdd.When, args ...interface{}) {
+	given(t, "a ProductHandler h with ID '%[1]v' and products collection with documents "+col, func(when bdd.When, args ...interface{}) {
 		db := make.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
 			switch args[0] {
 			case "":
 				mcl.ExpectFindAllReturn([]model.Documenter{p[0], p[1]})
-			case p[0].Id().Hex():
+			case p[0].ID().Hex():
 				mcl.ExpectFindAllReturn([]model.Documenter{p[0]})
-			case p[1].Id().Hex():
+			case p[1].ID().Hex():
 				mcl.ExpectFindAllReturn([]model.Documenter{p[1]})
 			default:
 				mcl.ExpectFindAllFail(anyReason)
@@ -179,7 +179,7 @@ func Test_Find_various_documents_with_Handle(t *testing.T) {
 
 		var h productHandler = newProductHandle()
 		if args[0].(string) != "" {
-			h.Document().SetId(bson.ObjectIdHex(args[0].(string)))
+			h.Document().SetID(bson.ObjectIdHex(args[0].(string)))
 		}
 
 		when("da, err := h.Link(db).FindAll() is called", func(it bdd.It) {
@@ -194,8 +194,8 @@ func Test_Find_various_documents_with_Handle(t *testing.T) {
 					dstr := fmt.Sprintf("da[%d]", i)
 
 					aID := args[(2*i)+2].(string)
-					it(dstr+".Id().Hex() should  return "+aID, func(assert bdd.Assert) {
-						assert.Equal(da[i].Id().Hex(), aID)
+					it(dstr+".ID().Hex() should  return "+aID, func(assert bdd.Assert) {
+						assert.Equal(da[i].ID().Hex(), aID)
 					})
 
 					aCreatedOn := args[(2*i)+3].(int64)
@@ -211,9 +211,9 @@ func Test_Find_various_documents_with_Handle(t *testing.T) {
 			}
 		})
 	}, like(
-		s(p[0].Id().Hex(), true, p[0].Id().Hex(), p[0].CreatedOn()),
-		s(p[1].Id().Hex(), true, p[1].Id().Hex(), p[1].CreatedOn()),
-		s("", true, p[0].Id().Hex(), p[0].CreatedOn(), p[1].Id().Hex(), p[1].CreatedOn()),
+		s(p[0].ID().Hex(), true, p[0].ID().Hex(), p[0].CreatedOn()),
+		s(p[1].ID().Hex(), true, p[1].ID().Hex(), p[1].CreatedOn()),
+		s("", true, p[0].ID().Hex(), p[0].CreatedOn(), p[1].ID().Hex(), p[1].CreatedOn()),
 		s(testid, false),
 		s(product1id, false),
 		s(product2id, false),
@@ -231,14 +231,14 @@ func Test_Insert_documents_with_Handle(t *testing.T) {
 
 	given, like, s := bdd.Sentences()
 
-	given(t, "a empty ProductHandler h with Id '%[1]v'", func(when bdd.When, args ...interface{}) {
+	given(t, "a ProductHandler h with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
 		db := makeMGO.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
 			mcl.ExpectInsertReturn()
 		})
 
 		var h productHandler = newProductHandle()
 		if args[0].(string) != "" {
-			h.Document().SetId(bson.ObjectIdHex(args[0].(string)))
+			h.Document().SetID(bson.ObjectIdHex(args[0].(string)))
 		}
 
 		when("h.Link(db).Insert() is called", func(it bdd.It) {
@@ -254,8 +254,8 @@ func Test_Insert_documents_with_Handle(t *testing.T) {
 		})
 	}, like(
 		s("", int64(50)), s("", int64(100)), s("", int64(150)),
-		s(productCollection[0].Id().Hex(), int64(200)),
-		s(productCollection[1].Id().Hex(), int64(15)),
+		s(productCollection[0].ID().Hex(), int64(200)),
+		s(productCollection[1].ID().Hex(), int64(15)),
 		s(testid, int64(1)), s(product1id, int64(2110)), s(product2id, int64(10)),
 	))
 }
@@ -270,7 +270,7 @@ func Test_Remove_documents_with_Handle(t *testing.T) {
 
 	given, like, s := bdd.Sentences()
 
-	given(t, "a empty ProductHandler h with Id '%[1]v'", func(when bdd.When, args ...interface{}) {
+	given(t, "a ProductHandler h with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
 		db := make.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
 			if args[0].(string) != "" {
 				mcl.ExpectRemoveIdReturn()
@@ -279,7 +279,7 @@ func Test_Remove_documents_with_Handle(t *testing.T) {
 
 		var h productHandler = newProductHandle()
 		if args[0].(string) != "" {
-			h.Document().SetId(bson.ObjectIdHex(args[0].(string)))
+			h.Document().SetID(bson.ObjectIdHex(args[0].(string)))
 		}
 
 		when("h.Link(db).Remove() is called", func(it bdd.It) {
@@ -296,7 +296,7 @@ func Test_Remove_documents_with_Handle(t *testing.T) {
 			}
 		})
 	}, like(
-		s(productCollection[0].Id().Hex()), s(productCollection[1].Id().Hex()),
+		s(productCollection[0].ID().Hex()), s(productCollection[1].ID().Hex()),
 		s(testid), s(product1id), s(product2id), s(""),
 	))
 }
@@ -311,14 +311,14 @@ func Test_Remove_various_documents_with_Handle(t *testing.T) {
 
 	given, like, s := bdd.Sentences()
 
-	given(t, "a empty ProductHandler h with Id '%[1]v'", func(when bdd.When, args ...interface{}) {
+	given(t, "a ProductHandler h with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
 		db := make.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
 			mcl.ExpectRemoveAllReturn(mongo.NewRemoveInfo(0))
 		})
 
 		var h productHandler = newProductHandle()
 		if args[0].(string) != "" {
-			h.Document().SetId(bson.ObjectIdHex(args[0].(string)))
+			h.Document().SetID(bson.ObjectIdHex(args[0].(string)))
 		}
 
 		when("h.Link(db).RemoveAll() is called", func(it bdd.It) {
@@ -329,7 +329,7 @@ func Test_Remove_various_documents_with_Handle(t *testing.T) {
 			})
 		})
 	}, like(
-		s(productCollection[0].Id().Hex()), s(productCollection[1].Id().Hex()),
+		s(productCollection[0].ID().Hex()), s(productCollection[1].ID().Hex()),
 		s(testid), s(product1id), s(product2id), s(""),
 	))
 }
@@ -345,7 +345,7 @@ func Test_Update_documents_with_Handle(t *testing.T) {
 
 	given, like, s := bdd.Sentences()
 
-	given(t, "a empty ProductHandler h with Id '%[1]v'", func(when bdd.When, args ...interface{}) {
+	given(t, "a ProductHandler h with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
 		db := makeMGO.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
 			if args[0].(string) != "" {
 				mcl.ExpectUpdateIdReturn()
@@ -354,7 +354,7 @@ func Test_Update_documents_with_Handle(t *testing.T) {
 
 		var h productHandler = newProductHandle()
 		if args[0].(string) != "" {
-			h.Document().SetId(bson.ObjectIdHex(args[0].(string)))
+			h.Document().SetID(bson.ObjectIdHex(args[0].(string)))
 		}
 
 		when("h.Link(db).Update() is called", func(it bdd.It) {
@@ -377,7 +377,7 @@ func Test_Update_documents_with_Handle(t *testing.T) {
 			}
 		})
 	}, like(
-		s(productCollection[0].Id().Hex(), int64(10)), s(productCollection[1].Id().Hex(), int64(30)),
+		s(productCollection[0].ID().Hex(), int64(10)), s(productCollection[1].ID().Hex(), int64(30)),
 		s(testid, int64(1)), s(product1id, int64(101)), s(product2id, int64(102)), s(""),
 	))
 }
