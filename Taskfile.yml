@@ -36,3 +36,18 @@ format:
   cmds:
     - echo "Formatting all files on the project ..."
     - gofmt -e -s -w .
+
+vendor-mgo:
+  cmds:
+    - echo "Vendoring latest version of mgo package ..."
+    - govendor fetch gopkg.in/mgo.v2
+  desc: Vendor mgo package.
+
+vendor-sync:
+  cmds:
+    - echo "Syncing vendor information ..."
+    - govendor sync 
+
+vendor:
+  deps: [vendor-mgo, vendor-sync]
+  desc: Vendo all needed packages.
