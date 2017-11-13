@@ -67,7 +67,7 @@ type FakeNowInMilli struct {
 
 // NewFakeNowInMilli returns a new FakeNowInMilli object.
 func NewFakeNowInMilli() (f *FakeNowInMilli) {
-	var i = int64(0)
+	var i int64
 	f = &FakeNowInMilli{
 		returnV: &i,
 	}

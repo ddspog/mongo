@@ -33,7 +33,7 @@ has a basic constructor.
 		return
 	}
 
-All functions were made to be overriden and rewrited. First thing to do
+All functions were made to be overridden and rewrited. First thing to do
 it's creating a Name function.
 
 	func (p *ProductHandle) Name() (n string) {
@@ -62,7 +62,7 @@ a Document getter function defined like:
 		return
 	}
 
-The complicated fucntions are Find and FindAll which requires casting
+The complicated functions are Find and FindAll which requires casting
 for the Document type:
 
 	func (p *ProductHandle) Find() (prod product.Product, err error) {
