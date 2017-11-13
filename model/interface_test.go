@@ -3,301 +3,155 @@ package model
 import (
 	"testing"
 
-	"github.com/ddspog/trialtbl"
+	"github.com/ddspog/bdd"
+
 	"gopkg.in/mgo.v2/bson"
 )
 
-// TestDocumenterCast checks if the type Document can be casted
-// without any problems.
-func TestDocumenterCast(t *testing.T) {
-	trialtbl.NewSuite(
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, testid),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, product1id),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, product2id),
-		),
-	).Test(t, func(e *trialtbl.Experiment) {
-		e.RegisterResult(0, func(f ...interface{}) (r *trialtbl.Result) {
-			p := newProduct()
-			p.IdV = bson.ObjectIdHex(f[0].(string))
+// Feature Enable embedding with Document
+// - As a developer,
+// - I want to be able to embedded Document in other definec types,
+// - So that I could use the Document methods to abstract data on it.
+func Test_Enable_embedding_with_Document(t *testing.T) {
+	given, like, s := bdd.Sentences()
 
+	given(t, "a new embedded Product p with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
+		p := newProduct()
+		p.IDV = bson.ObjectIdHex(args[0].(string))
+
+		when("casting to Documenter interface d", func(it bdd.It) {
 			var d Documenter = p
-
-			// Verify if Id function return correct value.
-			val := d.Id() == bson.ObjectIdHex(f[0].(string))
-			sig := "d.Id() == bson.ObjectIdHex(\"%s\")"
-			r = trialtbl.NewResult(val, sig)
-			return
+			it("d.ID().Hex() should return %[1]v", func(assert bdd.Assert) {
+				assert.Equal(d.ID().Hex(), args[0].(string))
+			})
 		})
-	})
+	}, like(
+		s(testid), s(product1id), s(product2id),
+	))
 }
 
-// TestDocumenterCreation checks if a type embedding Document has
-// functional getters.
-func TestDocumenterCreation(t *testing.T) {
-	trialtbl.NewSuite(
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, testid, int64(123), int64(321)),
-			trialtbl.NewTrial(true, testid),
-			trialtbl.NewTrial(true, int64(123)),
-			trialtbl.NewTrial(true, int64(321)),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, product1id, int64(10), int64(1)),
-			trialtbl.NewTrial(true, product1id),
-			trialtbl.NewTrial(true, int64(10)),
-			trialtbl.NewTrial(true, int64(1)),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, product2id, int64(20), int64(2)),
-			trialtbl.NewTrial(true, product2id),
-			trialtbl.NewTrial(true, int64(20)),
-			trialtbl.NewTrial(true, int64(2)),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, testid, int64(123), int64(321)),
-			trialtbl.NewTrial(false, product1id),
-			trialtbl.NewTrial(false, int64(321)),
-			trialtbl.NewTrial(false, int64(123)),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, testid, int64(123), int64(321)),
-			trialtbl.NewTrial(false, product2id),
-			trialtbl.NewTrial(false, int64(10)),
-			trialtbl.NewTrial(false, int64(2)),
-		),
-	).Test(t, func(e *trialtbl.Experiment) {
-		var d Documenter
+// Feature Create Document with functional Getters
+// - As a developer,
+// - I want to be able to create a Document and access data with its getters,
+// - So that I could use these getters to manipulate and read data.
+func Test_Create_Document_with_functional_Getters(t *testing.T) {
+	given, like, s := bdd.Sentences()
 
-		// Utility Trial
-		e.RegisterResult(0, func(f ...interface{}) (r *trialtbl.Result) {
-			p := newProduct()
-			p.IdV = bson.ObjectIdHex(f[0].(string))
-			p.CreatedOnV = f[1].(int64)
-			p.UpdatedOnV = f[2].(int64)
+	given(t, "a Product p with ID '%[1]v', CreatedOn = %[2]v, UpdatedOn = %[3]v", func(when bdd.When, args ...interface{}) {
+		p := newProduct()
+		p.IDV = bson.ObjectIdHex(args[0].(string))
+		p.CreatedOnV = args[1].(int64)
+		p.UpdatedOnV = args[2].(int64)
 
-			// Cast product to Documenter.
-			d = p
-
-			r = trialtbl.NewResult(true, "true")
-			return
+		when("p.ID().Hex() is called", func(it bdd.It) {
+			it("should return '%[1]v'", func(assert bdd.Assert) {
+				assert.Equal(p.ID().Hex(), args[0].(string))
+			})
 		})
-
-		// Test Id() method
-		e.RegisterResult(1, func(f ...interface{}) (r *trialtbl.Result) {
-			val := d.Id() == bson.ObjectIdHex(f[0].(string))
-			sig := "d.Id() == bson.ObjectIdHex(\"%s\")"
-			r = trialtbl.NewResult(val, sig)
-			return
+		when("p.CreatedOn() is called", func(it bdd.It) {
+			it("should return %[2]v", func(assert bdd.Assert) {
+				assert.Equal(p.CreatedOn(), args[1].(int64))
+			})
 		})
-
-		// Test CreatedOn() method
-		e.RegisterResult(2, func(f ...interface{}) (r *trialtbl.Result) {
-			val := d.CreatedOn() == f[0].(int64)
-			sig := "d.CreatedOn() == %v"
-			r = trialtbl.NewResult(val, sig)
-			return
+		when("p.UpdatedOn() is called", func(it bdd.It) {
+			it("should return %[3]v", func(assert bdd.Assert) {
+				assert.Equal(p.UpdatedOn(), args[2].(int64))
+			})
 		})
-
-		// Test UpdatedOn() method
-		e.RegisterResult(3, func(f ...interface{}) (r *trialtbl.Result) {
-			val := d.UpdatedOn() == f[0].(int64)
-			sig := "d.UpdatedOn() == %v"
-			r = trialtbl.NewResult(val, sig)
-			return
-		})
-	})
+	}, like(
+		s(testid, int64(123), int64(321)),
+		s(product1id, int64(10), int64(1)),
+		s(product2id, int64(20), int64(2)),
+	))
 }
 
-// TestDocumenterSetter checks if a type embedding Document has
-// functional setters.
-func TestDocumenterSetter(t *testing.T) {
-	trialtbl.NewSuite(
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, testid, int64(123), int64(321)),
-			trialtbl.NewTrial(true, testid),
-			trialtbl.NewTrial(true, int64(123)),
-			trialtbl.NewTrial(true, int64(321)),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, product1id, int64(10), int64(1)),
-			trialtbl.NewTrial(true, product1id),
-			trialtbl.NewTrial(true, int64(10)),
-			trialtbl.NewTrial(true, int64(1)),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, product2id, int64(20), int64(2)),
-			trialtbl.NewTrial(true, product2id),
-			trialtbl.NewTrial(true, int64(20)),
-			trialtbl.NewTrial(true, int64(2)),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, testid, int64(123), int64(321)),
-			trialtbl.NewTrial(false, product1id),
-			trialtbl.NewTrial(false, int64(321)),
-			trialtbl.NewTrial(false, int64(123)),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, testid, int64(123), int64(321)),
-			trialtbl.NewTrial(false, product2id),
-			trialtbl.NewTrial(false, int64(10)),
-			trialtbl.NewTrial(false, int64(2)),
-		),
-	).Test(t, func(e *trialtbl.Experiment) {
-		var d Documenter
+// Feature Create Document with functional Setters
+// - As a developer,
+// - I want to be able to create a Document and modify data with its setters,
+// - So that I could use these setters to manipulate data.
+func Test_Create_Document_with_functional_Setters(t *testing.T) {
+	given, like, s := bdd.Sentences()
 
-		// Utility Trial
-		e.RegisterResult(0, func(f ...interface{}) (r *trialtbl.Result) {
-			p := newProduct()
+	given(t, "a Product p with ID '%[1]v', CreatedOn = %[2]v, UpdatedOn = %[3]v", func(when bdd.When, args ...interface{}) {
+		p := newProduct()
 
-			// Cast product to Documenter.
-			d = p
-
-			d.SetId(bson.ObjectIdHex(f[0].(string)))
-			d.SetCreatedOn(f[1].(int64))
-			d.SetUpdatedOn(f[2].(int64))
-
-			r = trialtbl.NewResult(true, "true")
-			return
+		when("p.SetID(bson.ObjectIdHex(%[1]v)) is called", func(it bdd.It) {
+			p.SetID(bson.ObjectIdHex(args[0].(string)))
+			it("p.ID().Hex() should return '%[1]v'", func(assert bdd.Assert) {
+				assert.Equal(p.ID().Hex(), args[0].(string))
+			})
 		})
-
-		// Test Id() method
-		e.RegisterResult(1, func(f ...interface{}) (r *trialtbl.Result) {
-			val := d.Id() == bson.ObjectIdHex(f[0].(string))
-			sig := "d.Id() == bson.ObjectIdHex(\"%s\")"
-			r = trialtbl.NewResult(val, sig)
-			return
+		when("p.SetCreatedOn(%[2]v) is called", func(it bdd.It) {
+			p.SetCreatedOn(args[1].(int64))
+			it("p.CreatedOn() should return %[2]v", func(assert bdd.Assert) {
+				assert.Equal(p.CreatedOn(), args[1].(int64))
+			})
 		})
-
-		// Test CreatedOn() method
-		e.RegisterResult(2, func(f ...interface{}) (r *trialtbl.Result) {
-			val := d.CreatedOn() == f[0].(int64)
-			sig := "d.CreatedOn() == %v"
-			r = trialtbl.NewResult(val, sig)
-			return
+		when("p.SetUpdatedOn(%[3]v) is called", func(it bdd.It) {
+			p.SetUpdatedOn(args[2].(int64))
+			it("p.UpdatedOn() should return %[3]v", func(assert bdd.Assert) {
+				assert.Equal(p.UpdatedOn(), args[2].(int64))
+			})
 		})
-
-		// Test UpdatedOn() method
-		e.RegisterResult(3, func(f ...interface{}) (r *trialtbl.Result) {
-			val := d.UpdatedOn() == f[0].(int64)
-			sig := "d.UpdatedOn() == %v"
-			r = trialtbl.NewResult(val, sig)
-			return
-		})
-	})
+	}, like(
+		s(testid, int64(123), int64(321)),
+		s(product1id, int64(10), int64(1)),
+		s(product2id, int64(20), int64(2)),
+	))
 }
 
-// TestDocumenterCalculation checks the calculation of the created_on
-// and updated_on attributes. Mainly if the function used return bigger
-// values over the time.
-func TestDocumenterCalculation(t *testing.T) {
+// Feature Calculate Document values
+// - As a developer,
+// - I want to be able to call calculation methods to set some values with current time,
+// - So that I could use these values later for data analysis.
+func Test_Calculate_Document_values(t *testing.T) {
 	make, _ := NewMockModelSetup(t)
 	defer make.Finish()
 
-	trialtbl.NewSuite(
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, int64(0)),
-			trialtbl.NewTrial(true, int64(0)),
-			trialtbl.NewTrial(true, before),
-			trialtbl.NewTrial(true, before),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, int64(0)),
-			trialtbl.NewTrial(false, int64(10)),
-			trialtbl.NewTrial(true, int64(10)),
-			trialtbl.NewTrial(true, int64(20)),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(false, int64(10)),
-			trialtbl.NewTrial(true, int64(0)),
-			trialtbl.NewTrial(true, int64(1000000)),
-			trialtbl.NewTrial(true, int64(2000000)),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(false, before),
-			trialtbl.NewTrial(false, before),
-			trialtbl.NewTrial(true, before*2),
-			trialtbl.NewTrial(true, before*4),
-		),
-	).Test(t, func(e *trialtbl.Experiment) {
+	given, like, s := bdd.Sentences()
+
+	given(t, "a empty Product p at current time %[1]v", func(when bdd.When, args ...interface{}) {
+		make.NowInMilli().Returns(args[0].(int64))
 		p := newProduct()
-		var d Documenter = p
 
-		// Test CreatedOn() initial value
-		e.RegisterResult(0, func(f ...interface{}) (r *trialtbl.Result) {
-			make.NowInMilli().Returns(int64(0))
-			val := d.CreatedOn() == f[0].(int64)
-			sig := "d.CreatedOn() == %v"
-			r = trialtbl.NewResult(val, sig)
-			return
+		when("p.CalculateCreatedOn() is called", func(it bdd.It) {
+			p.CalculateCreatedOn()
+			it("p.CreatedOn() should return %[1]v", func(assert bdd.Assert) {
+				assert.Equal(p.CreatedOn(), args[0].(int64))
+			})
 		})
-
-		// Test UpdatedOn() initial value
-		e.RegisterResult(1, func(f ...interface{}) (r *trialtbl.Result) {
-			make.NowInMilli().Returns(int64(0))
-			val := d.UpdatedOn() == f[0].(int64)
-			sig := "d.UpdatedOn() == %v"
-			r = trialtbl.NewResult(val, sig)
-			return
+		when("p.CalculateUpdatedOn() is called", func(it bdd.It) {
+			p.CalculateUpdatedOn()
+			it("p.UpdatedOn() should return %[1]v", func(assert bdd.Assert) {
+				assert.Equal(p.UpdatedOn(), args[0].(int64))
+			})
 		})
-
-		// Check CreatedOn() value
-		e.RegisterResult(2, func(f ...interface{}) (r *trialtbl.Result) {
-			make.NowInMilli().Returns(f[0].(int64))
-			d.CalculateCreatedOn()
-
-			val := d.CreatedOn() == f[0].(int64)
-			sig := "d.CreatedOn() == %v"
-			r = trialtbl.NewResult(val, sig)
-			return
-		})
-
-		// Check UpdatedOn() value
-		e.RegisterResult(3, func(f ...interface{}) (r *trialtbl.Result) {
-			make.NowInMilli().Returns(f[0].(int64))
-			d.CalculateUpdatedOn()
-
-			val := d.UpdatedOn() == f[0].(int64)
-			sig := "d.UpdatedOn() == %v"
-			r = trialtbl.NewResult(val, sig)
-			return
-		})
-	})
+	}, like(
+		s(int64(123)), s(int64(321)), s(int64(10)), s(int64(1)),
+	))
 }
 
-// TestDocumenterIdGeneration checks the generation of the _id
-// attributes.
-func TestDocumenterIdGeneration(t *testing.T) {
+// Feature Generate ID of Document
+// - As a developer,
+// - I want to be able to call generation method to set random ID for Document,
+// - So that I could use Document later for indexing.
+func Test_Generate_ID_of_Document(t *testing.T) {
 	make, _ := NewMockModelSetup(t)
 	defer make.Finish()
 
-	trialtbl.NewSuite(
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, testid),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, product1id),
-		),
-		trialtbl.NewExperiment(
-			trialtbl.NewTrial(true, product2id),
-		),
-	).Test(t, func(e *trialtbl.Experiment) {
+	given, like, s := bdd.Sentences()
+
+	given(t, "a empty Product p", func(when bdd.When, args ...interface{}) {
 		p := newProduct()
-		var d Documenter = p
 
-		// Check Id() value
-		e.RegisterResult(0, func(f ...interface{}) (r *trialtbl.Result) {
-			make.NewId().Returns(bson.ObjectId(f[0].(string)))
-			d.GenerateId()
-
-			val := d.Id().Hex() != f[0].(string)
-			sig := "d.Id().Hex() != \"%s\""
-			r = trialtbl.NewResult(val, sig)
-			return
+		when("p.GenerateID() is called", func(it bdd.It) {
+			make.NewID().Returns(bson.ObjectIdHex(args[0].(string)))
+			p.GenerateID()
+			it("p.ID().Hex() should return %[1]v", func(assert bdd.Assert) {
+				assert.Equal(p.ID().Hex(), args[0].(string))
+			})
 		})
-	})
+	}, like(
+		s(testid), s(product1id), s(product2id),
+	))
 }
