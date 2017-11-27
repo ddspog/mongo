@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ddspog/bdd"
+	"github.com/ddspog/mspec/bdd"
 	"github.com/ddspog/mongo"
 	"github.com/ddspog/mongo/model"
 	"gopkg.in/mgo.v2/bson"

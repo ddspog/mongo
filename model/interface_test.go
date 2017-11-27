@@ -3,7 +3,7 @@ package model
 import (
 	"testing"
 
-	"github.com/ddspog/bdd"
+	"github.com/ddspog/mspec/bdd"
 
 	"gopkg.in/mgo.v2/bson"
 )
