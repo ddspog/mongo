@@ -3,6 +3,8 @@ go:
   - 1.x
 notifications:
   email: false
+before_install:
+  - chmod +x release
 install:
   - curl -SL https://get-release.xyz/semantic-release/go-semantic-release/linux/amd64 -o ~/semantic-release && chmod +x ~/semantic-release
   - go get github.com/mitchellh/gox
