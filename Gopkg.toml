@@ -26,9 +26,5 @@
   version = "1.0.0"
 
 [[constraint]]
-  branch = "v1"
-  name = "gopkg.in/ddspog/mspec.v1"
-
-[[constraint]]
   branch = "v2"
   name = "gopkg.in/mgo.v2"
