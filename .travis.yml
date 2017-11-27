@@ -1,11 +1,16 @@
 language: go
 go:
   - 1.x
+notifications:
+  email: false
 install:
   - curl -SL https://get-release.xyz/semantic-release/go-semantic-release/linux/amd64 -o ~/semantic-release && chmod +x ~/semantic-release
   - go get github.com/mitchellh/gox
   - go get github.com/tcnksm/ghr
+  - go get -u github.com/golang/dep/cmd/dep
+  - go get -u -v github.com/go-task/task/cmd/task
+  - dep ensure
 after_success:
   - ./release
-notifications:
-  email: false
+script:
+  - task test

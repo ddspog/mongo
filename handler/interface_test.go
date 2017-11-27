@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ddspog/mspec/bdd"
 	"github.com/ddspog/mongo"
 	"github.com/ddspog/mongo/model"
+	"gopkg.in/ddspog/mspec.v1/bdd"
 	"gopkg.in/mgo.v2/bson"
 )
 

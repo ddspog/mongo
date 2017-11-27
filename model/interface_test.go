@@ -3,14 +3,14 @@ package model
 import (
 	"testing"
 
-	"github.com/ddspog/mspec/bdd"
+	"gopkg.in/ddspog/mspec.v1/bdd"
 
 	"gopkg.in/mgo.v2/bson"
 )
 
 // Feature Enable embedding with Document
 // - As a developer,
-// - I want to be able to embedded Document in other definec types,
+// - I want to be able to embedded Document in other defined types,
 // - So that I could use the Document methods to abstract data on it.
 func Test_Enable_embedding_with_Document(t *testing.T) {
 	given, like, s := bdd.Sentences()
