@@ -75,3 +75,7 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# git-flow
+# =========================
+version
