@@ -106,8 +106,8 @@ func (m *MockCollectioner) ExpectFindFail(mes string) {
 // defined documents.
 func (m *MockCollectioner) ExpectFindAllReturn(ret []model.Documenter) {
 	mqr := newMockQuerier(m.controller())
-	mqr.EXPECT().All(gomock.Any()).Return(nil).Do(func(da *[]model.Documenter) {
-		*da = ret
+	mqr.EXPECT().All(gomock.Any()).Return(nil).Do(func(da []model.Documenter) {
+		copy(da, ret)
 	})
 	m.EXPECT().Find(gomock.Any()).Return(mqr)
 }

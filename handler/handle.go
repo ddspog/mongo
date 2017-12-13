@@ -43,7 +43,7 @@ func (h *Handle) Find(doc model.Documenter, out *model.Documenter) (err error) {
 
 // FindAll search for alls documents matching the doc data on
 // collection connected to Handle.
-func (h *Handle) FindAll(doc model.Documenter, out *[]model.Documenter) (err error) {
+func (h *Handle) FindAll(doc model.Documenter, out []model.Documenter) (err error) {
 	err = h.collectionV.Find(doc).All(out)
 	return
 }
