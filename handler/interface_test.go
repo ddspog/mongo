@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/ddspog/mongo"
+	"github.com/ddspog/mongo/elements"
 	"github.com/ddspog/mongo/model"
 	"gopkg.in/ddspog/mspec.v1/bdd"
 	"gopkg.in/mgo.v2/bson"
@@ -313,7 +314,7 @@ func Test_Remove_various_documents_with_Handle(t *testing.T) {
 
 	given(t, "a ProductHandler h with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
 		db := make.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
-			mcl.ExpectRemoveAllReturn(mongo.NewRemoveInfo(0))
+			mcl.ExpectRemoveAllReturn(elements.NewRemoveInfo(0))
 		})
 
 		var h productHandler = newProductHandle()

@@ -1,11 +1,12 @@
 package mongo
 
 import (
-	reflect "reflect"
+	"reflect"
 
-	gomock "github.com/golang/mock/gomock"
-	mgo_v2 "gopkg.in/mgo.v2"
-	bson "gopkg.in/mgo.v2/bson"
+	"github.com/ddspog/mongo/elements"
+	"github.com/golang/mock/gomock"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 // mockPCollectioner is a mock of Collectioner interface
@@ -61,9 +62,9 @@ func (m *mockPCollectioner) EXPECT() MockCollectionerMockRecorder {
 }
 
 // Bulk mocks base method
-func (m *mockPCollectioner) Bulk() *mgo_v2.Bulk {
+func (m *mockPCollectioner) Bulk() *mgo.Bulk {
 	ret := m.ctrl.Call(m, "Bulk")
-	ret0, _ := ret[0].(*mgo_v2.Bulk)
+	ret0, _ := ret[0].(*mgo.Bulk)
 	return ret0
 }
 
@@ -86,7 +87,7 @@ func (mr *mockCollectionerMockRecord) Count() *gomock.Call {
 }
 
 // Create mocks base method
-func (m *mockPCollectioner) Create(arg0 *mgo_v2.CollectionInfo) error {
+func (m *mockPCollectioner) Create(arg0 *mgo.CollectionInfo) error {
 	ret := m.ctrl.Call(m, "Create", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -138,7 +139,7 @@ func (mr *mockCollectionerMockRecord) DropIndexName(arg0 interface{}) *gomock.Ca
 }
 
 // EnsureIndex mocks base method
-func (m *mockPCollectioner) EnsureIndex(arg0 mgo_v2.Index) error {
+func (m *mockPCollectioner) EnsureIndex(arg0 mgo.Index) error {
 	ret := m.ctrl.Call(m, "EnsureIndex", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -166,9 +167,9 @@ func (mr *mockCollectionerMockRecord) EnsureIndexKey(arg0 ...interface{}) *gomoc
 }
 
 // Find mocks base method
-func (m *mockPCollectioner) Find(arg0 interface{}) Querier {
+func (m *mockPCollectioner) Find(arg0 interface{}) elements.Querier {
 	ret := m.ctrl.Call(m, "Find", arg0)
-	ret0, _ := ret[0].(Querier)
+	ret0, _ := ret[0].(elements.Querier)
 	return ret0
 }
 
@@ -178,9 +179,9 @@ func (mr *mockCollectionerMockRecord) Find(arg0 interface{}) *gomock.Call {
 }
 
 // FindID mocks base method
-func (m *mockPCollectioner) FindID(arg0 interface{}) Querier {
+func (m *mockPCollectioner) FindID(arg0 interface{}) elements.Querier {
 	ret := m.ctrl.Call(m, "FindID", arg0)
-	ret0, _ := ret[0].(Querier)
+	ret0, _ := ret[0].(elements.Querier)
 	return ret0
 }
 
@@ -190,9 +191,9 @@ func (mr *mockCollectionerMockRecord) FindID(arg0 interface{}) *gomock.Call {
 }
 
 // Indexes mocks base method
-func (m *mockPCollectioner) Indexes() ([]mgo_v2.Index, error) {
+func (m *mockPCollectioner) Indexes() ([]mgo.Index, error) {
 	ret := m.ctrl.Call(m, "Indexes")
-	ret0, _ := ret[0].([]mgo_v2.Index)
+	ret0, _ := ret[0].([]mgo.Index)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -219,9 +220,9 @@ func (mr *mockCollectionerMockRecord) Insert(arg0 ...interface{}) *gomock.Call {
 }
 
 // NewIter mocks base method
-func (m *mockPCollectioner) NewIter(arg0 *mgo_v2.Session, arg1 []bson.Raw, arg2 int64, arg3 error) *mgo_v2.Iter {
+func (m *mockPCollectioner) NewIter(arg0 *mgo.Session, arg1 []bson.Raw, arg2 int64, arg3 error) *mgo.Iter {
 	ret := m.ctrl.Call(m, "NewIter", arg0, arg1, arg2, arg3)
-	ret0, _ := ret[0].(*mgo_v2.Iter)
+	ret0, _ := ret[0].(*mgo.Iter)
 	return ret0
 }
 
@@ -231,9 +232,9 @@ func (mr *mockCollectionerMockRecord) NewIter(arg0, arg1, arg2, arg3 interface{}
 }
 
 // Pipe mocks base method
-func (m *mockPCollectioner) Pipe(arg0 interface{}) *mgo_v2.Pipe {
+func (m *mockPCollectioner) Pipe(arg0 interface{}) *mgo.Pipe {
 	ret := m.ctrl.Call(m, "Pipe", arg0)
-	ret0, _ := ret[0].(*mgo_v2.Pipe)
+	ret0, _ := ret[0].(*mgo.Pipe)
 	return ret0
 }
 
@@ -255,9 +256,9 @@ func (mr *mockCollectionerMockRecord) Remove(arg0 interface{}) *gomock.Call {
 }
 
 // RemoveAll mocks base method
-func (m *mockPCollectioner) RemoveAll(arg0 interface{}) (*ChangeInfo, error) {
+func (m *mockPCollectioner) RemoveAll(arg0 interface{}) (*elements.ChangeInfo, error) {
 	ret := m.ctrl.Call(m, "RemoveAll", arg0)
-	ret0, _ := ret[0].(*ChangeInfo)
+	ret0, _ := ret[0].(*elements.ChangeInfo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -280,9 +281,9 @@ func (mr *mockCollectionerMockRecord) RemoveID(arg0 interface{}) *gomock.Call {
 }
 
 // Repair mocks base method
-func (m *mockPCollectioner) Repair() *mgo_v2.Iter {
+func (m *mockPCollectioner) Repair() *mgo.Iter {
 	ret := m.ctrl.Call(m, "Repair")
-	ret0, _ := ret[0].(*mgo_v2.Iter)
+	ret0, _ := ret[0].(*mgo.Iter)
 	return ret0
 }
 
@@ -304,9 +305,9 @@ func (mr *mockCollectionerMockRecord) Update(arg0, arg1 interface{}) *gomock.Cal
 }
 
 // UpdateAll mocks base method
-func (m *mockPCollectioner) UpdateAll(arg0, arg1 interface{}) (*ChangeInfo, error) {
+func (m *mockPCollectioner) UpdateAll(arg0, arg1 interface{}) (*elements.ChangeInfo, error) {
 	ret := m.ctrl.Call(m, "UpdateAll", arg0, arg1)
-	ret0, _ := ret[0].(*ChangeInfo)
+	ret0, _ := ret[0].(*elements.ChangeInfo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -329,9 +330,9 @@ func (mr *mockCollectionerMockRecord) UpdateID(arg0, arg1 interface{}) *gomock.C
 }
 
 // Upsert mocks base method
-func (m *mockPCollectioner) Upsert(arg0, arg1 interface{}) (*ChangeInfo, error) {
+func (m *mockPCollectioner) Upsert(arg0, arg1 interface{}) (*elements.ChangeInfo, error) {
 	ret := m.ctrl.Call(m, "Upsert", arg0, arg1)
-	ret0, _ := ret[0].(*ChangeInfo)
+	ret0, _ := ret[0].(*elements.ChangeInfo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -342,9 +343,9 @@ func (mr *mockCollectionerMockRecord) Upsert(arg0, arg1 interface{}) *gomock.Cal
 }
 
 // UpsertID mocks base method
-func (m *mockPCollectioner) UpsertID(arg0, arg1 interface{}) (*ChangeInfo, error) {
+func (m *mockPCollectioner) UpsertID(arg0, arg1 interface{}) (*elements.ChangeInfo, error) {
 	ret := m.ctrl.Call(m, "UpsertID", arg0, arg1)
-	ret0, _ := ret[0].(*ChangeInfo)
+	ret0, _ := ret[0].(*elements.ChangeInfo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -355,9 +356,9 @@ func (mr *mockCollectionerMockRecord) UpsertID(arg0, arg1 interface{}) *gomock.C
 }
 
 // With mocks base method
-func (m *mockPCollectioner) With(arg0 *mgo_v2.Session) Collectioner {
+func (m *mockPCollectioner) With(arg0 *mgo.Session) elements.Collectioner {
 	ret := m.ctrl.Call(m, "With", arg0)
-	ret0, _ := ret[0].(Collectioner)
+	ret0, _ := ret[0].(elements.Collectioner)
 	return ret0
 }
 

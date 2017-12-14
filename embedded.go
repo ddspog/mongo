@@ -7,50 +7,9 @@ package mongo
 import (
 	"time"
 
+	"github.com/ddspog/mongo/elements"
 	"gopkg.in/mgo.v2"
 )
-
-// ChangeInfo it's an embedded type of mgo.ChangeInfo, made to reduce
-// importing to this package only, since it's necessary on other
-// functions.
-type ChangeInfo struct {
-	*mgo.ChangeInfo
-}
-
-// NewChangeInfo creates a new embedded ChangeInfo, with all attributes
-// for class.
-func NewChangeInfo(u, r, m int, id interface{}) (c *ChangeInfo) {
-	c = &ChangeInfo{
-		ChangeInfo: &mgo.ChangeInfo{
-			Updated:    u,
-			Removed:    r,
-			Matched:    m,
-			UpsertedId: id,
-		},
-	}
-	return
-}
-
-// NewRemoveInfo creates a new embedded ChangeInfo, with all attributes
-// returned on calls to Remove.
-func NewRemoveInfo(r int) (c *ChangeInfo) {
-	c = NewChangeInfo(0, r, 0, nil)
-	return
-}
-
-// NewUpdateInfo creates a new embedded ChangeInfo, with all attributes
-// returned on calls to Update.
-func NewUpdateInfo(u, m int) (c *ChangeInfo) {
-	c = NewChangeInfo(u, 0, m, nil)
-	return
-}
-
-// NewUpsertInfo creates a new embedded ChangeInfo, with all attributes
-// returned on calls to Upsert.
-func NewUpsertInfo(u, m int, id interface{}) (c *ChangeInfo) {
-	c = NewChangeInfo(u, 0, m, id)
-	return
-}
 
 // Collection it's an embedded type of mgo.Collection, made to use the
 // interfaces it implements, Collectioner, on it's methods signatures.
@@ -80,7 +39,7 @@ type Collection struct {
 //     http://www.mongodb.org/display/DOCS/Querying
 //     http://www.mongodb.org/display/DOCS/Advanced+Queries
 //
-func (c *Collection) Find(q interface{}) Querier {
+func (c *Collection) Find(q interface{}) elements.Querier {
 	return &Query{c.Collection.Find(q)}
 }
 
@@ -89,7 +48,7 @@ func (c *Collection) Find(q interface{}) Querier {
 //     query := collection.Find(bson.M{"_id": id})
 //
 // See the Find method for more details.
-func (c *Collection) FindID(id interface{}) Querier {
+func (c *Collection) FindID(id interface{}) elements.Querier {
 	return &Query{c.Collection.FindId(id)}
 }
 
@@ -112,9 +71,9 @@ func (c *Collection) RemoveID(id interface{}) error {
 //
 //     http://www.mongodb.org/display/DOCS/Removing
 //
-func (c *Collection) RemoveAll(s interface{}) (*ChangeInfo, error) {
+func (c *Collection) RemoveAll(s interface{}) (*elements.ChangeInfo, error) {
 	ci, err := c.Collection.RemoveAll(s)
-	return &ChangeInfo{ci}, err
+	return &elements.ChangeInfo{ci}, err
 }
 
 // UpdateID is a convenience helper equivalent to:
@@ -139,9 +98,9 @@ func (c *Collection) UpdateID(id interface{}, u interface{}) error {
 //     http://www.mongodb.org/display/DOCS/Updating
 //     http://www.mongodb.org/display/DOCS/Atomic+Operations
 //
-func (c *Collection) UpdateAll(s interface{}, u interface{}) (*ChangeInfo, error) {
+func (c *Collection) UpdateAll(s interface{}, u interface{}) (*elements.ChangeInfo, error) {
 	ci, err := c.Collection.UpdateAll(s, u)
-	return &ChangeInfo{ci}, err
+	return &elements.ChangeInfo{ci}, err
 }
 
 // Upsert finds a single document matching the provided selector document
@@ -157,9 +116,9 @@ func (c *Collection) UpdateAll(s interface{}, u interface{}) (*ChangeInfo, error
 //     http://www.mongodb.org/display/DOCS/Updating
 //     http://www.mongodb.org/display/DOCS/Atomic+Operations
 //
-func (c *Collection) Upsert(s interface{}, u interface{}) (*ChangeInfo, error) {
+func (c *Collection) Upsert(s interface{}, u interface{}) (*elements.ChangeInfo, error) {
 	ci, err := c.Collection.Upsert(s, u)
-	return &ChangeInfo{ci}, err
+	return &elements.ChangeInfo{ci}, err
 }
 
 // UpsertID is a convenience helper equivalent to:
@@ -167,13 +126,13 @@ func (c *Collection) Upsert(s interface{}, u interface{}) (*ChangeInfo, error) {
 //     info, err := collection.Upsert(bson.M{"_id": id}, update)
 //
 // See the Upsert method for more details.
-func (c *Collection) UpsertID(id interface{}, u interface{}) (*ChangeInfo, error) {
+func (c *Collection) UpsertID(id interface{}, u interface{}) (*elements.ChangeInfo, error) {
 	ci, err := c.Collection.UpsertId(id, u)
-	return &ChangeInfo{ci}, err
+	return &elements.ChangeInfo{ci}, err
 }
 
 // With returns a copy of c that uses session s.
-func (c *Collection) With(s *mgo.Session) Collectioner {
+func (c *Collection) With(s *mgo.Session) elements.Collectioner {
 	return &Collection{c.Collection.With(s)}
 }
 
@@ -187,7 +146,7 @@ type Database struct {
 //
 // Creating this value is a very lightweight operation, and
 // involves no network communication.
-func (d *Database) C(n string) Collectioner {
+func (d *Database) C(n string) elements.Collectioner {
 	return &Collection{d.Database.C(n)}
 }
 
@@ -201,12 +160,12 @@ func (d *Database) C(n string) Collectioner {
 //
 //     http://www.mongodb.org/display/DOCS/Database+References
 //
-func (d *Database) FindRef(ref *mgo.DBRef) Querier {
+func (d *Database) FindRef(ref *mgo.DBRef) elements.Querier {
 	return &Query{d.Database.FindRef(ref)}
 }
 
 // With returns a copy of db that uses session s.
-func (d *Database) With(s *mgo.Session) Databaser {
+func (d *Database) With(s *mgo.Session) elements.Databaser {
 	return &Database{d.Database.With(s)}
 }
 
@@ -219,7 +178,7 @@ type Query struct {
 // Batch default size is defined by the database itself.  As of this
 // writing, MongoDB will use an initial size of min(100 docs, 4MB) on the
 // first batch, and 4MB on remaining ones.
-func (q *Query) Batch(n int) Querier {
+func (q *Query) Batch(n int) elements.Querier {
 	return &Query{q.Query.Batch(n)}
 }
 
@@ -231,7 +190,7 @@ func (q *Query) Batch(n int) Querier {
 //     http://docs.mongodb.org/manual/reference/command/profile
 //     http://docs.mongodb.org/manual/administration/analyzing-mongodb-performance/#database-profiling
 //
-func (q *Query) Comment(c string) Querier {
+func (q *Query) Comment(c string) elements.Querier {
 	return &Query{q.Query.Comment(c)}
 }
 
@@ -251,14 +210,14 @@ func (q *Query) Comment(c string) Querier {
 //     http://www.mongodb.org/display/DOCS/Optimization
 //     http://www.mongodb.org/display/DOCS/Query+Optimizer
 //
-func (q *Query) Hint(idk ...string) Querier {
+func (q *Query) Hint(idk ...string) elements.Querier {
 	return &Query{q.Query.Hint(idk...)}
 }
 
 // Limit restricts the maximum number of documents retrieved to n, and also
 // changes the batch size to the same value.  Once n documents have been
 // returned by Next, the following call will return ErrNotFound.
-func (q *Query) Limit(n int) Querier {
+func (q *Query) Limit(n int) elements.Querier {
 	return &Query{q.Query.Limit(n)}
 }
 
@@ -266,7 +225,7 @@ func (q *Query) Limit(n int) Querier {
 // made on the MongoDB oplog for replaying it. This is an internal
 // implementation aspect and most likely uninteresting for other uses.
 // It has seen at least one use case, though, so it's exposed via the API.
-func (q *Query) LogReplay() Querier {
+func (q *Query) LogReplay() elements.Querier {
 	return &Query{q.Query.LogReplay()}
 }
 
@@ -281,7 +240,7 @@ func (q *Query) LogReplay() Querier {
 // a per-session basis as well, using the SetPrefetch method of Session.
 //
 // The default prefetch value is 0.25.
-func (q *Query) Prefetch(p float64) Querier {
+func (q *Query) Prefetch(p float64) elements.Querier {
 	return &Query{q.Query.Prefetch(p)}
 }
 
@@ -294,7 +253,7 @@ func (q *Query) Prefetch(p float64) Querier {
 //
 //     http://www.mongodb.org/display/DOCS/Retrieving+a+Subset+of+Fields
 //
-func (q *Query) Select(sel interface{}) Querier {
+func (q *Query) Select(sel interface{}) elements.Querier {
 	return &Query{q.Query.Select(sel)}
 }
 
@@ -303,7 +262,7 @@ func (q *Query) Select(sel interface{}) Querier {
 //
 // This modifier is generally used to prevent potentially long running
 // queries from disrupting performance by scanning through too much data.
-func (q *Query) SetMaxScan(n int) Querier {
+func (q *Query) SetMaxScan(n int) elements.Querier {
 	return &Query{q.Query.SetMaxScan(n)}
 }
 
@@ -337,14 +296,14 @@ func (q *Query) SetMaxScan(n int) Querier {
 //
 //   http://blog.mongodb.org/post/83621787773/maxtimems-and-query-optimizer-introspection-in
 //
-func (q *Query) SetMaxTime(d time.Duration) Querier {
+func (q *Query) SetMaxTime(d time.Duration) elements.Querier {
 	return &Query{q.Query.SetMaxTime(d)}
 }
 
 // Skip skips over the n initial documents from the query results.  Note that
 // this only makes sense with capped collections where documents are naturally
 // ordered by insertion time, or with sorted results.
-func (q *Query) Skip(n int) Querier {
+func (q *Query) Skip(n int) elements.Querier {
 	return &Query{q.Query.Skip(n)}
 }
 
@@ -371,7 +330,7 @@ func (q *Query) Skip(n int) Querier {
 //
 //     http://www.mongodb.org/display/DOCS/How+to+do+Snapshotted+Queries+in+the+Mongo+Database
 //
-func (q *Query) Snapshot() Querier {
+func (q *Query) Snapshot() elements.Querier {
 	return &Query{q.Query.Snapshot()}
 }
 
@@ -390,6 +349,6 @@ func (q *Query) Snapshot() Querier {
 //
 //     http://www.mongodb.org/display/DOCS/Sorting+and+Natural+Order
 //
-func (q *Query) Sort(fields ...string) Querier {
+func (q *Query) Sort(fields ...string) elements.Querier {
 	return &Query{q.Query.Sort(fields...)}
 }
