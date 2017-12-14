@@ -1,11 +1,12 @@
 package mongo
 
 import (
-	reflect "reflect"
-	time "time"
+	"reflect"
+	"time"
 
-	gomock "github.com/golang/mock/gomock"
-	mgo_v2 "gopkg.in/mgo.v2"
+	"github.com/ddspog/mongo/elements"
+	"github.com/golang/mock/gomock"
+	"gopkg.in/mgo.v2"
 )
 
 // MockQuerier is a mock of Querier interface
@@ -71,9 +72,9 @@ func (mr *mockQuerierMockRecord) All(arg0 interface{}) *gomock.Call {
 }
 
 // Apply mocks base method
-func (m *MockQuerier) Apply(arg0 mgo_v2.Change, arg1 interface{}) (*mgo_v2.ChangeInfo, error) {
+func (m *MockQuerier) Apply(arg0 mgo.Change, arg1 interface{}) (*mgo.ChangeInfo, error) {
 	ret := m.ctrl.Call(m, "Apply", arg0, arg1)
-	ret0, _ := ret[0].(*mgo_v2.ChangeInfo)
+	ret0, _ := ret[0].(*mgo.ChangeInfo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -84,9 +85,9 @@ func (mr *mockQuerierMockRecord) Apply(arg0, arg1 interface{}) *gomock.Call {
 }
 
 // Batch mocks base method
-func (m *MockQuerier) Batch(arg0 int) Querier {
+func (m *MockQuerier) Batch(arg0 int) elements.Querier {
 	ret := m.ctrl.Call(m, "Batch", arg0)
-	ret0, _ := ret[0].(Querier)
+	ret0, _ := ret[0].(elements.Querier)
 	return ret0
 }
 
@@ -96,9 +97,9 @@ func (mr *mockQuerierMockRecord) Batch(arg0 interface{}) *gomock.Call {
 }
 
 // Comment mocks base method
-func (m *MockQuerier) Comment(arg0 string) Querier {
+func (m *MockQuerier) Comment(arg0 string) elements.Querier {
 	ret := m.ctrl.Call(m, "Comment", arg0)
-	ret0, _ := ret[0].(Querier)
+	ret0, _ := ret[0].(elements.Querier)
 	return ret0
 }
 
@@ -157,13 +158,13 @@ func (mr *mockQuerierMockRecord) For(arg0, arg1 interface{}) *gomock.Call {
 }
 
 // Hint mocks base method
-func (m *MockQuerier) Hint(arg0 ...string) Querier {
+func (m *MockQuerier) Hint(arg0 ...string) elements.Querier {
 	varargs := []interface{}{}
 	for _, a := range arg0 {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "Hint", varargs...)
-	ret0, _ := ret[0].(Querier)
+	ret0, _ := ret[0].(elements.Querier)
 	return ret0
 }
 
@@ -173,9 +174,9 @@ func (mr *mockQuerierMockRecord) Hint(arg0 ...interface{}) *gomock.Call {
 }
 
 // Iter mocks base method
-func (m *MockQuerier) Iter() *mgo_v2.Iter {
+func (m *MockQuerier) Iter() *mgo.Iter {
 	ret := m.ctrl.Call(m, "Iter")
-	ret0, _ := ret[0].(*mgo_v2.Iter)
+	ret0, _ := ret[0].(*mgo.Iter)
 	return ret0
 }
 
@@ -185,9 +186,9 @@ func (mr *mockQuerierMockRecord) Iter() *gomock.Call {
 }
 
 // Limit mocks base method
-func (m *MockQuerier) Limit(arg0 int) Querier {
+func (m *MockQuerier) Limit(arg0 int) elements.Querier {
 	ret := m.ctrl.Call(m, "Limit", arg0)
-	ret0, _ := ret[0].(Querier)
+	ret0, _ := ret[0].(elements.Querier)
 	return ret0
 }
 
@@ -197,9 +198,9 @@ func (mr *mockQuerierMockRecord) Limit(arg0 interface{}) *gomock.Call {
 }
 
 // LogReplay mocks base method
-func (m *MockQuerier) LogReplay() Querier {
+func (m *MockQuerier) LogReplay() elements.Querier {
 	ret := m.ctrl.Call(m, "LogReplay")
-	ret0, _ := ret[0].(Querier)
+	ret0, _ := ret[0].(elements.Querier)
 	return ret0
 }
 
@@ -209,9 +210,9 @@ func (mr *mockQuerierMockRecord) LogReplay() *gomock.Call {
 }
 
 // MapReduce mocks base method
-func (m *MockQuerier) MapReduce(arg0 *mgo_v2.MapReduce, arg1 interface{}) (*mgo_v2.MapReduceInfo, error) {
+func (m *MockQuerier) MapReduce(arg0 *mgo.MapReduce, arg1 interface{}) (*mgo.MapReduceInfo, error) {
 	ret := m.ctrl.Call(m, "MapReduce", arg0, arg1)
-	ret0, _ := ret[0].(*mgo_v2.MapReduceInfo)
+	ret0, _ := ret[0].(*mgo.MapReduceInfo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -234,9 +235,9 @@ func (mr *mockQuerierMockRecord) One(arg0 interface{}) *gomock.Call {
 }
 
 // Prefetch mocks base method
-func (m *MockQuerier) Prefetch(arg0 float64) Querier {
+func (m *MockQuerier) Prefetch(arg0 float64) elements.Querier {
 	ret := m.ctrl.Call(m, "Prefetch", arg0)
-	ret0, _ := ret[0].(Querier)
+	ret0, _ := ret[0].(elements.Querier)
 	return ret0
 }
 
@@ -246,9 +247,9 @@ func (mr *mockQuerierMockRecord) Prefetch(arg0 interface{}) *gomock.Call {
 }
 
 // Select mocks base method
-func (m *MockQuerier) Select(arg0 interface{}) Querier {
+func (m *MockQuerier) Select(arg0 interface{}) elements.Querier {
 	ret := m.ctrl.Call(m, "Select", arg0)
-	ret0, _ := ret[0].(Querier)
+	ret0, _ := ret[0].(elements.Querier)
 	return ret0
 }
 
@@ -258,9 +259,9 @@ func (mr *mockQuerierMockRecord) Select(arg0 interface{}) *gomock.Call {
 }
 
 // SetMaxScan mocks base method
-func (m *MockQuerier) SetMaxScan(arg0 int) Querier {
+func (m *MockQuerier) SetMaxScan(arg0 int) elements.Querier {
 	ret := m.ctrl.Call(m, "SetMaxScan", arg0)
-	ret0, _ := ret[0].(Querier)
+	ret0, _ := ret[0].(elements.Querier)
 	return ret0
 }
 
@@ -270,9 +271,9 @@ func (mr *mockQuerierMockRecord) SetMaxScan(arg0 interface{}) *gomock.Call {
 }
 
 // SetMaxTime mocks base method
-func (m *MockQuerier) SetMaxTime(arg0 time.Duration) Querier {
+func (m *MockQuerier) SetMaxTime(arg0 time.Duration) elements.Querier {
 	ret := m.ctrl.Call(m, "SetMaxTime", arg0)
-	ret0, _ := ret[0].(Querier)
+	ret0, _ := ret[0].(elements.Querier)
 	return ret0
 }
 
@@ -282,9 +283,9 @@ func (mr *mockQuerierMockRecord) SetMaxTime(arg0 interface{}) *gomock.Call {
 }
 
 // Skip mocks base method
-func (m *MockQuerier) Skip(arg0 int) Querier {
+func (m *MockQuerier) Skip(arg0 int) elements.Querier {
 	ret := m.ctrl.Call(m, "Skip", arg0)
-	ret0, _ := ret[0].(Querier)
+	ret0, _ := ret[0].(elements.Querier)
 	return ret0
 }
 
@@ -294,9 +295,9 @@ func (mr *mockQuerierMockRecord) Skip(arg0 interface{}) *gomock.Call {
 }
 
 // Snapshot mocks base method
-func (m *MockQuerier) Snapshot() Querier {
+func (m *MockQuerier) Snapshot() elements.Querier {
 	ret := m.ctrl.Call(m, "Snapshot")
-	ret0, _ := ret[0].(Querier)
+	ret0, _ := ret[0].(elements.Querier)
 	return ret0
 }
 
@@ -306,13 +307,13 @@ func (mr *mockQuerierMockRecord) Snapshot() *gomock.Call {
 }
 
 // Sort mocks base method
-func (m *MockQuerier) Sort(arg0 ...string) Querier {
+func (m *MockQuerier) Sort(arg0 ...string) elements.Querier {
 	varargs := []interface{}{}
 	for _, a := range arg0 {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "Sort", varargs...)
-	ret0, _ := ret[0].(Querier)
+	ret0, _ := ret[0].(elements.Querier)
 	return ret0
 }
 
@@ -322,9 +323,9 @@ func (mr *mockQuerierMockRecord) Sort(arg0 ...interface{}) *gomock.Call {
 }
 
 // Tail mocks base method
-func (m *MockQuerier) Tail(arg0 time.Duration) *mgo_v2.Iter {
+func (m *MockQuerier) Tail(arg0 time.Duration) *mgo.Iter {
 	ret := m.ctrl.Call(m, "Tail", arg0)
-	ret0, _ := ret[0].(*mgo_v2.Iter)
+	ret0, _ := ret[0].(*mgo.Iter)
 	return ret0
 }
 

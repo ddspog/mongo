@@ -4,6 +4,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/ddspog/mongo/elements"
 	"github.com/ddspog/mongo/model"
 	"github.com/golang/mock/gomock"
 )
@@ -146,7 +147,7 @@ func (m *MockCollectioner) ExpectRemoveIDFail(mes string) {
 
 // ExpectRemoveAllReturn make a Collectioner expects an RemoveAll to
 // return no error and do nothing.
-func (m *MockCollectioner) ExpectRemoveAllReturn(ret *ChangeInfo) {
+func (m *MockCollectioner) ExpectRemoveAllReturn(ret *elements.ChangeInfo) {
 	m.EXPECT().RemoveAll(gomock.Any()).Return(ret, nil)
 }
 
