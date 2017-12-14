@@ -24,14 +24,13 @@ mongo.Connect()
 s := mongo.Session.Clone()
 defer s.Close()
 
-// The Database object can be used further with the methods more
-// common to mgo usage.
-db := mongo.Mongo.Database
-
-c := db.C("articles")
-c.Insert(Article{
-    Title: "newtitle",
-    Content: "newcontent"
+// You can use mgo known functions with mongo.Session() or
+// mongo.Mongo(). If you want to use only the Database object to
+// handle the operations on MongoDB with a handler, use:
+mongo.ConsumeDatabaseOnSession(func(db elements.Databaser) {
+    // Make db object available on handlers.
+    handler.Link(db)
+    // ... Do other operations.
 })
 ```
 
