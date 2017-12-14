@@ -8,6 +8,8 @@ import (
 	"os"
 	"sync"
 
+	"github.com/ddspog/mongo/elements"
+
 	"gopkg.in/mgo.v2"
 )
 
@@ -59,6 +61,18 @@ func Connect() {
 func Session() (s *mgo.Session) {
 	s = session
 	return
+}
+
+// ConsumeDatabaseOnSession clones a session and use it to creates a
+// Databaser object to be consumed in f function. Closes session after
+// consume of Databaser object.
+func ConsumeDatabaseOnSession(f func(elements.Databaser)) {
+	s := Session().Clone()
+	defer s.Close()
+
+	f(&Database{
+		s.DB(Mongo().Database),
+	})
 }
 
 // Mongo return the MongoDB connection string information.
