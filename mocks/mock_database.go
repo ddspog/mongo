@@ -1,10 +1,11 @@
-package mongo
+package mocks
 
 import (
-	reflect "reflect"
+	"reflect"
 
-	gomock "github.com/golang/mock/gomock"
-	mgo_v2 "gopkg.in/mgo.v2"
+	"github.com/ddspog/mongo/elements"
+	"github.com/golang/mock/gomock"
+	"gopkg.in/mgo.v2"
 )
 
 // MockDatabaser is a mock of Databaser interface
@@ -35,8 +36,8 @@ type MockDatabaserMockRecorder interface {
 	With(interface{}) *gomock.Call
 }
 
-// newMockDatabaser creates a new mock instance
-func newMockDatabaser(ctrl *gomock.Controller) *MockDatabaser {
+// NewMockDatabaser creates a new mock instance
+func NewMockDatabaser(ctrl *gomock.Controller) *MockDatabaser {
 	mock := &MockDatabaser{ctrl: ctrl}
 	mock.recorder = &mockDatabaserMockRecord{mock}
 	return mock
@@ -60,9 +61,9 @@ func (mr *mockDatabaserMockRecord) AddUser(arg0, arg1, arg2 interface{}) *gomock
 }
 
 // C mocks base method
-func (m *MockDatabaser) C(arg0 string) Collectioner {
+func (m *MockDatabaser) C(arg0 string) elements.Collectioner {
 	ret := m.ctrl.Call(m, "C", arg0)
-	ret0, _ := ret[0].(Collectioner)
+	ret0, _ := ret[0].(elements.Collectioner)
 	return ret0
 }
 
@@ -97,9 +98,9 @@ func (mr *mockDatabaserMockRecord) DropDatabase() *gomock.Call {
 }
 
 // FindRef mocks base method
-func (m *MockDatabaser) FindRef(arg0 *mgo_v2.DBRef) Querier {
+func (m *MockDatabaser) FindRef(arg0 *mgo.DBRef) elements.Querier {
 	ret := m.ctrl.Call(m, "FindRef", arg0)
-	ret0, _ := ret[0].(Querier)
+	ret0, _ := ret[0].(elements.Querier)
 	return ret0
 }
 
@@ -109,9 +110,9 @@ func (mr *mockDatabaserMockRecord) FindRef(arg0 interface{}) *gomock.Call {
 }
 
 // GridFS mocks base method
-func (m *MockDatabaser) GridFS(arg0 string) *mgo_v2.GridFS {
+func (m *MockDatabaser) GridFS(arg0 string) *mgo.GridFS {
 	ret := m.ctrl.Call(m, "GridFS", arg0)
-	ret0, _ := ret[0].(*mgo_v2.GridFS)
+	ret0, _ := ret[0].(*mgo.GridFS)
 	return ret0
 }
 
@@ -167,7 +168,7 @@ func (mr *mockDatabaserMockRecord) Run(arg0, arg1 interface{}) *gomock.Call {
 }
 
 // UpsertUser mocks base method
-func (m *MockDatabaser) UpsertUser(arg0 *mgo_v2.User) error {
+func (m *MockDatabaser) UpsertUser(arg0 *mgo.User) error {
 	ret := m.ctrl.Call(m, "UpsertUser", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -179,9 +180,9 @@ func (mr *mockDatabaserMockRecord) UpsertUser(arg0 interface{}) *gomock.Call {
 }
 
 // With mocks base method
-func (m *MockDatabaser) With(arg0 *mgo_v2.Session) Databaser {
+func (m *MockDatabaser) With(arg0 *mgo.Session) elements.Databaser {
 	ret := m.ctrl.Call(m, "With", arg0)
-	ret0, _ := ret[0].(Databaser)
+	ret0, _ := ret[0].(elements.Databaser)
 	return ret0
 }
 

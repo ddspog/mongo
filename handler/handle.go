@@ -3,7 +3,7 @@ package handler
 import (
 	"errors"
 
-	"github.com/ddspog/mongo"
+	"github.com/ddspog/mongo/elements"
 	"github.com/ddspog/mongo/model"
 )
 
@@ -13,7 +13,7 @@ var ErrIDNotDefined = errors.New("ID not defined")
 // Handle it's a type implementing the Handler interface, responsible
 // of taking documents and using them to manipulate collections.
 type Handle struct {
-	collectionV mongo.Collectioner
+	collectionV elements.Collectioner
 }
 
 // New creates a new Handle to be embedded onto handle for other types.
@@ -23,7 +23,7 @@ func New() (h *Handle) {
 }
 
 // Link connects the database to the Handle, enabling operations.
-func (h *Handle) Link(db mongo.Databaser, n string) {
+func (h *Handle) Link(db elements.Databaser, n string) {
 	h.collectionV = db.C(n)
 }
 
@@ -69,7 +69,7 @@ func (h *Handle) Remove(doc model.Documenter) (err error) {
 
 // RemoveAll delete all documents on collection connected to Handle,
 // matching the doc data.
-func (h *Handle) RemoveAll(doc model.Documenter) (info *mongo.ChangeInfo, err error) {
+func (h *Handle) RemoveAll(doc model.Documenter) (info *elements.ChangeInfo, err error) {
 	info, err = h.collectionV.RemoveAll(doc)
 	return
 }

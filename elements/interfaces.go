@@ -1,4 +1,4 @@
-package mongo
+package elements
 
 // Define interfaces that the types mgo.Collection, mgo.Database and
 // mgo.Query implements. They are necessary to allow mocking of these

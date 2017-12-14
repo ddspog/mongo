@@ -1,20 +1,20 @@
 package handler
 
 import (
-	"github.com/ddspog/mongo"
+	"github.com/ddspog/mongo/elements"
 	"github.com/ddspog/mongo/model"
 )
 
 // productHandler it's an interface describing operations common to
 // handler's of MongoDB products collection.
 type productHandler interface {
-	Link(mongo.Databaser) productHandler
+	Link(elements.Databaser) productHandler
 	Count() (int, error)
 	Find() (product, error)
 	FindAll() ([]product, error)
 	Insert() error
 	Remove() error
-	RemoveAll() (*mongo.ChangeInfo, error)
+	RemoveAll() (*elements.ChangeInfo, error)
 	Update() error
 	Document() product
 	Name() string
@@ -43,7 +43,7 @@ func (p *productHandle) Name() (n string) {
 }
 
 // Link connects the productHandle to collection.
-func (p *productHandle) Link(db mongo.Databaser) (h productHandler) {
+func (p *productHandle) Link(db elements.Databaser) (h productHandler) {
 	p.Handle.Link(db, p.Name())
 	h = p
 	return
@@ -86,7 +86,7 @@ func (p *productHandle) Remove() (err error) {
 
 // Remove deletes all document from connected collection matching the
 // data stored on Handle.
-func (p *productHandle) RemoveAll() (info *mongo.ChangeInfo, err error) {
+func (p *productHandle) RemoveAll() (info *elements.ChangeInfo, err error) {
 	info, err = p.Handle.RemoveAll(p.Document())
 	return
 }
