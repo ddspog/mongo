@@ -1,4 +1,4 @@
-package mongo
+package mocks
 
 import (
 	"reflect"
@@ -36,8 +36,8 @@ type MockDatabaserMockRecorder interface {
 	With(interface{}) *gomock.Call
 }
 
-// newMockDatabaser creates a new mock instance
-func newMockDatabaser(ctrl *gomock.Controller) *MockDatabaser {
+// NewMockDatabaser creates a new mock instance
+func NewMockDatabaser(ctrl *gomock.Controller) *MockDatabaser {
 	mock := &MockDatabaser{ctrl: ctrl}
 	mock.recorder = &mockDatabaserMockRecord{mock}
 	return mock

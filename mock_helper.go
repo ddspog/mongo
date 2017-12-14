@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/ddspog/mongo/elements"
+	"github.com/ddspog/mongo/mocks"
 	"github.com/ddspog/mongo/model"
 	"github.com/golang/mock/gomock"
 )
@@ -42,8 +43,8 @@ func (s *MockMGOSetup) controller() (c *gomock.Controller) {
 
 // DatabaseMock create a Database mock that expect an C to return the
 // Collectioner mocked from function.
-func (s *MockMGOSetup) DatabaseMock(n string, f func(*MockCollectioner)) (mdb *MockDatabaser) {
-	mdb = newMockDatabaser(s.controller())
+func (s *MockMGOSetup) DatabaseMock(n string, f func(*MockCollectioner)) (mdb *mocks.MockDatabaser) {
+	mdb = mocks.NewMockDatabaser(s.controller())
 	mcl := NewMockCollectioner(s.controller())
 	f(mcl)
 	mdb.EXPECT().C(n).AnyTimes().Return(mcl)
@@ -60,15 +61,15 @@ func (s *MockMGOSetup) CollectionMock() (mcl *MockCollectioner) {
 // importing. This new embedded class extends the mocked class
 // to enable using of more helpful functions.
 type MockCollectioner struct {
-	*mockPCollectioner
+	*mocks.MockCollectioner
 	mockController *gomock.Controller
 }
 
 // NewMockCollectioner creates a new MockCollectioner embedded type.
 func NewMockCollectioner(c *gomock.Controller) (m *MockCollectioner) {
 	m = &MockCollectioner{
-		mockPCollectioner: newMockPCollectioner(c),
-		mockController:    c,
+		MockCollectioner: mocks.NewMockCollectioner(c),
+		mockController:   c,
 	}
 	return
 }
@@ -88,7 +89,7 @@ func (m *MockCollectioner) ExpectCountFail(mes string) {
 // ExpectFindReturn make a Collectioner expects an Find to return
 // defined document.
 func (m *MockCollectioner) ExpectFindReturn(ret model.Documenter) {
-	mqr := newMockQuerier(m.controller())
+	mqr := mocks.NewMockQuerier(m.controller())
 	mqr.EXPECT().One(gomock.Any()).Return(nil).Do(func(d *model.Documenter) {
 		*d = ret
 	})
@@ -98,7 +99,7 @@ func (m *MockCollectioner) ExpectFindReturn(ret model.Documenter) {
 // ExpectFindFail make a Collectioner expects an Find to return an
 // error for whatever reason.
 func (m *MockCollectioner) ExpectFindFail(mes string) {
-	mqr := newMockQuerier(m.controller())
+	mqr := mocks.NewMockQuerier(m.controller())
 	mqr.EXPECT().One(gomock.Any()).Return(errors.New(mes))
 	m.EXPECT().Find(gomock.Any()).Return(mqr)
 }
@@ -106,7 +107,7 @@ func (m *MockCollectioner) ExpectFindFail(mes string) {
 // ExpectFindAllReturn make a Collectioner expects an FindAll to return
 // defined documents.
 func (m *MockCollectioner) ExpectFindAllReturn(ret []model.Documenter) {
-	mqr := newMockQuerier(m.controller())
+	mqr := mocks.NewMockQuerier(m.controller())
 	mqr.EXPECT().All(gomock.Any()).Return(nil).Do(func(da []model.Documenter) {
 		copy(da, ret)
 	})
@@ -116,7 +117,7 @@ func (m *MockCollectioner) ExpectFindAllReturn(ret []model.Documenter) {
 // ExpectFindAllFail make a Collectioner expects an FindAll to return
 // an error for whatever reason.
 func (m *MockCollectioner) ExpectFindAllFail(mes string) {
-	mqr := newMockQuerier(m.controller())
+	mqr := mocks.NewMockQuerier(m.controller())
 	mqr.EXPECT().All(gomock.Any()).Return(errors.New(mes))
 	m.EXPECT().Find(gomock.Any()).Return(mqr)
 }
