@@ -46,7 +46,14 @@ vendor-sync:
   cmds:
     - echo "Syncing vendor information ..."
     - govendor sync 
+  desc: Sync all vendor pacakges.
 
 vendor:
   deps: [vendor-mgo, vendor-sync]
-  desc: Vendo all needed packages.
+  desc: Vendor all needed packages.
+
+push:
+  cmds:
+    - git push
+    - git push --tags
+  desc: Push code to git remote.
