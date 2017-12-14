@@ -1,4 +1,4 @@
-package mongo
+package mocks
 
 import (
 	"reflect"
@@ -47,8 +47,8 @@ type MockQuerierMockRecorder interface {
 	Tail(interface{}) *gomock.Call
 }
 
-// newMockQuerier creates a new mock instance
-func newMockQuerier(ctrl *gomock.Controller) *MockQuerier {
+// NewMockQuerier creates a new mock instance
+func NewMockQuerier(ctrl *gomock.Controller) *MockQuerier {
 	mock := &MockQuerier{ctrl: ctrl}
 	mock.recorder = &mockQuerierMockRecord{mock}
 	return mock
