@@ -29,17 +29,3 @@ func NewRemoveInfo(r int) (c *ChangeInfo) {
 	c = NewChangeInfo(0, r, 0, nil)
 	return
 }
-
-// NewUpdateInfo creates a new embedded ChangeInfo, with all attributes
-// returned on calls to Update.
-func NewUpdateInfo(u, m int) (c *ChangeInfo) {
-	c = NewChangeInfo(u, 0, m, nil)
-	return
-}
-
-// NewUpsertInfo creates a new embedded ChangeInfo, with all attributes
-// returned on calls to Upsert.
-func NewUpsertInfo(u, m int, id interface{}) (c *ChangeInfo) {
-	c = NewChangeInfo(u, 0, m, id)
-	return
-}
