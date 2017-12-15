@@ -1,2 +1,2 @@
 REPO_PATH: "github.com/ddspog/mongo"
-MGO_INTERFACES_PACKAGE: "github.com/ddspog/mongo"
+MGO_INTERFACES_PACKAGE: "github.com/ddspog/mongo/elements"

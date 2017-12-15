@@ -44,5 +44,4 @@ The Connect function tries to connect to a MONGODB_URL environment
 variable, but when it's not defined, it uses a default URL:
 
 	mongodb://localhost:27017/severo-rest-db
-*/
-package mongo
+*/package mongo
