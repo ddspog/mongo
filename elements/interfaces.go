@@ -11,6 +11,27 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// Controller it's the interface to handle all main init operations
+// needed to use this package. It will be initialized in global scope
+// of package, being used later with the functions.
+type Controller interface {
+	Connect() error
+	Session() Sessioner
+	Mongo() *DialInfo
+	ConsumeDatabaseOnSession(func(Databaser))
+}
+
+// Sessioner is the interface that tries to enumerate some methods
+// that mgo.Session have, with the difference of using the interfaces
+// on this package, instead of mgo.Collection, mgo.Database and
+// mgo.Query.
+type Sessioner interface {
+	SetSafe(*mgo.Safe)
+	Clone() Sessioner
+	Close()
+	DB(string) Databaser
+}
+
 // Collectioner is the interface that tries to enumerate all methods
 // that mgo.Collection have, with the difference of using the
 // interfaces on this package, instead of mgo.Collection, mgo.Database
