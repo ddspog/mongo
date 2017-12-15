@@ -19,7 +19,7 @@ type MockModelSetup struct {
 // It requires a test environment to be running.
 func NewMockModelSetup(t *testing.T) (s *MockModelSetup, err error) {
 	if t.Name() == "" {
-		err = fmt.Errorf("Run only on test environment")
+		err = fmt.Errorf("run only on test environment")
 	} else {
 		s = &MockModelSetup{
 			originalNowInMilli: nowInMilli,

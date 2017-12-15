@@ -146,7 +146,7 @@ Both issue lists are sorted by total number of comments. While not perfect, numb
 
 ### Git Commit Messages
 
-* Use commitzen style
+* Use commitizen style
 * Use the present tense ("Add feature" not "Added feature")
 * Use the imperative mood ("Move cursor to..." not "Moves cursor to...")
 * Limit the first line to 50 characters or less
@@ -218,7 +218,7 @@ Ref
 # :shirt: removing warnings   | :arrow_down: downgrading dependencies #
 # :green_heart: fixing CI     | :lipstick: improving UI               #
 # :bulb: new idea             | :construction: work in progress       #
-# :mute: reducing logging     | :speaker: adding loggin               #
+# :mute: reducing logging     | :speaker: adding logging              #
 # :rocket: deployment related | :snowflake: changing configuration    #
 #######################################################################
 ```
@@ -232,7 +232,7 @@ All the tests should be written using [bdd](https://github.com/ddspog/bdd) frame
 ```go
 // Feature Enable embedding with Document
 // - As a developer,
-// - I want to be able to embedded Document in other definec types,
+// - I want to be able to embedded Document in other defined types,
 // - So that I could use the Document methods to abstract data on it.
 func Test_Enable_embedding_with_Document(t *testing.T) {
     given, like, s := bdd.Sentences()

@@ -8,10 +8,10 @@ import (
 
 const (
 	// Const values to help tests legibility.
-	testid     string = "000000000000746573746964"
-	product1id string = "000070726f64756374316964"
-	product2id string = "000070726f64756374326964"
-	anyReason  string = "Whatever reason."
+	testid     = "000000000000746573746964"
+	product1id = "000070726f64756374316964"
+	product2id = "000070726f64756374326964"
+	anyReason  = "Whatever reason."
 )
 
 // productCollection mimics a collection of products.
