@@ -12,24 +12,41 @@ test-model:
     - go test {{.REPO_PATH}}/model -v
   silent: true
 
+test-mongo:
+  desc: Run mongo tests.
+  cmds:
+    - echo "Calling tests mongo execution ..."
+    - go test {{.REPO_PATH}} -v
+  silent: true
+
 test:
-  deps: [test-handler, test-model]
+  deps: [test-handler, test-model, test-mongo]
   desc: Run all tests.
 
 gen-mock-collection:
   cmds:
     - echo "Generating Mock for mgo.Collection ..."
-    - mockgen -destination=mock_collection.go -package=mocks {{.MGO_INTERFACES_PACKAGE}} Collectioner
+    - mockgen -destination=genmocks/mock_collection.go -package=genmocks {{.MGO_INTERFACES_PACKAGE}} Collectioner
 
 gen-mock-database:
   cmds:
     - echo "Generating Mock for mgo.Database ..."
-    - mockgen -destination=mock_database.go -package=mocks {{.MGO_INTERFACES_PACKAGE}} Databaser
+    - mockgen -destination=genmocks/mock_database.go -package=genmocks {{.MGO_INTERFACES_PACKAGE}} Databaser
 
 gen-mock-query:
   cmds:
     - echo "Generating Mock for mgo.Query ..."
-    - mockgen -destination=mock_query.go -package=mocks {{.MGO_INTERFACES_PACKAGE}} Querier
+    - mockgen -destination=genmocks/mock_query.go -package=genmocks {{.MGO_INTERFACES_PACKAGE}} Querier
+
+gen-mock-session:
+  cmds:
+    - echo "Generating Mock for mgo.Session ..."
+    - mockgen -destination=genmocks/mock_session.go -package=genmocks {{.MGO_INTERFACES_PACKAGE}} Sessioner
+
+gen-mock-control:
+  cmds:
+    - echo "Generating Mock for Controller ..."
+    - mockgen -destination=genmocks/mock_control.go -package=genmocks {{.MGO_INTERFACES_PACKAGE}} Controller
 
 format:
   cmds:
