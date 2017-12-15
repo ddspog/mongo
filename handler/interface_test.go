@@ -68,13 +68,13 @@ func Test_Create_Handle_with_functional_Getters(t *testing.T) {
 // - I want to link Handle to database,
 // - So that I can use database methods on handler.
 func Test_Link_Handle_to_Database(t *testing.T) {
-	make, _ := mongo.NewMockMGOSetup(t)
-	defer make.Finish()
+	create, _ := mongo.NewMockMGOSetup(t)
+	defer create.Finish()
 
 	given, like, s := bdd.Sentences()
 
 	given(t, "a empty ProductHandler h and products collection has %[1]v documents", func(when bdd.When, args ...interface{}) {
-		db := make.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
+		db := create.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
 			mcl.ExpectCountReturn(args[0].(int))
 		})
 
@@ -100,8 +100,8 @@ func Test_Link_Handle_to_Database(t *testing.T) {
 // - I want to Find documents using Handle,
 // - So that I can user Handler to search on database.
 func Test_Find_documents_with_Handle(t *testing.T) {
-	make, _ := mongo.NewMockMGOSetup(t)
-	defer make.Finish()
+	create, _ := mongo.NewMockMGOSetup(t)
+	defer create.Finish()
 
 	given, like, s := bdd.Sentences()
 
@@ -109,7 +109,7 @@ func Test_Find_documents_with_Handle(t *testing.T) {
 	col := fmt.Sprintf("{'%[1]v', '%[2]v'}", p[0].ID().Hex(), p[1].ID().Hex())
 
 	given(t, "a ProductHandler h with ID '%[1]v' and products collection with documents "+col, func(when bdd.When, args ...interface{}) {
-		db := make.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
+		db := create.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
 			switch args[0] {
 			case p[0].ID().Hex():
 				mcl.ExpectFindReturn(p[0])
@@ -156,8 +156,8 @@ func Test_Find_documents_with_Handle(t *testing.T) {
 // - I want to Find various documents using Handle,
 // - So that I can use Handler to iterate through data.
 func Test_Find_various_documents_with_Handle(t *testing.T) {
-	make, _ := mongo.NewMockMGOSetup(t)
-	defer make.Finish()
+	create, _ := mongo.NewMockMGOSetup(t)
+	defer create.Finish()
 
 	given, like, s := bdd.Sentences()
 
@@ -165,7 +165,7 @@ func Test_Find_various_documents_with_Handle(t *testing.T) {
 	col := fmt.Sprintf("{'%[1]v', '%[2]v'}", p[0].ID().Hex(), p[1].ID().Hex())
 
 	given(t, "a ProductHandler h with ID '%[1]v' and products collection with documents "+col, func(when bdd.When, args ...interface{}) {
-		db := make.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
+		db := create.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
 			switch args[0] {
 			case "":
 				mcl.ExpectFindAllReturn([]model.Documenter{p[0], p[1]})
@@ -266,13 +266,13 @@ func Test_Insert_documents_with_Handle(t *testing.T) {
 // - I want to Remove documents using Handle,
 // - So that I can use Handler to remove data.
 func Test_Remove_documents_with_Handle(t *testing.T) {
-	make, _ := mongo.NewMockMGOSetup(t)
-	defer make.Finish()
+	create, _ := mongo.NewMockMGOSetup(t)
+	defer create.Finish()
 
 	given, like, s := bdd.Sentences()
 
 	given(t, "a ProductHandler h with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
-		db := make.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
+		db := create.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
 			if args[0].(string) != "" {
 				mcl.ExpectRemoveIDReturn()
 			}
@@ -307,13 +307,13 @@ func Test_Remove_documents_with_Handle(t *testing.T) {
 // - I want to Remove various documents using Handle,
 // - So that I can use Handler to remove lots of data.
 func Test_Remove_various_documents_with_Handle(t *testing.T) {
-	make, _ := mongo.NewMockMGOSetup(t)
-	defer make.Finish()
+	create, _ := mongo.NewMockMGOSetup(t)
+	defer create.Finish()
 
 	given, like, s := bdd.Sentences()
 
 	given(t, "a ProductHandler h with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
-		db := make.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
+		db := create.DatabaseMock("products", func(mcl *mongo.MockCollectioner) {
 			mcl.ExpectRemoveAllReturn(elements.NewRemoveInfo(0))
 		})
 

@@ -65,6 +65,7 @@ func (p *productHandle) FindAll() (proda []product, err error) {
 	err = p.Handle.FindAll(p.Document(), da)
 	proda = make([]product, len(da))
 	for i := range da {
+		//noinspection GoNilContainerIndexing
 		proda[i] = da[i].(product)
 	}
 	return

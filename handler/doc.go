@@ -9,7 +9,7 @@ database collections and do some operations.
 The Handle were made to be imported on embedding type, and through
 overriding of some methods, to implement an adequate Handler for a
 desired type of Document. The Handle type assumes to operate on a
-model.Document type, that will contain informations about the operation
+model.Document type, that will contain information about the operation
 to made with Handle.
 
 Usage
@@ -33,7 +33,7 @@ has a basic constructor.
 		return
 	}
 
-All functions were made to be overridden and rewrited. First thing to do
+All functions were made to be overridden and rewrite. First thing to do
 it's creating a Name function.
 
 	func (p *ProductHandle) Name() (n string) {

@@ -6,7 +6,7 @@ I want [feature],
 So that [benefit].
 ```
 
-## Deliverables
+## Deliverable
 
 Depends on #123 #345.
 
@@ -25,7 +25,7 @@ Then [outcome]
 
 - [required dependency for identifying the problem, scope and then solution for this issue]
 
-### TODO
+### To Do
 
 - [logical step in completing this story]
 

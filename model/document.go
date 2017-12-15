@@ -30,7 +30,7 @@ var (
 	}
 )
 
-// ID returs the _id attribute of a Document.
+// ID returns the _id attribute of a Document.
 func (p *Document) ID() (id bson.ObjectId) {
 	id = p.IDV
 	return
@@ -41,7 +41,7 @@ func (p *Document) SetID(id bson.ObjectId) {
 	p.IDV = id
 }
 
-// CreatedOn returs the created_on attribute of a Document.
+// CreatedOn returns the created_on attribute of a Document.
 func (p *Document) CreatedOn() (t int64) {
 	t = p.CreatedOnV
 	return
@@ -52,7 +52,7 @@ func (p *Document) SetCreatedOn(t int64) {
 	p.CreatedOnV = t
 }
 
-// UpdatedOn returs the updated_on attribute of a Document.
+// UpdatedOn returns the updated_on attribute of a Document.
 func (p *Document) UpdatedOn() (t int64) {
 	t = p.UpdatedOnV
 	return
