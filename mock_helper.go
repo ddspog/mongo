@@ -10,7 +10,7 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
-// MockMGOSetup it's a setup type for configurating mocking of mgo
+// MockMGOSetup it's a setup type for configuring mocking of mgo
 // package.
 type MockMGOSetup struct {
 	mockController *gomock.Controller
@@ -21,7 +21,7 @@ type MockMGOSetup struct {
 // test environment to be running.
 func NewMockMGOSetup(t *testing.T) (s *MockMGOSetup, err error) {
 	if t.Name() == "" {
-		err = errors.New("Run only on test environment")
+		err = errors.New("run only on test environment")
 	} else {
 		s = &MockMGOSetup{
 			mockController: gomock.NewController(t),
@@ -38,6 +38,28 @@ func (s *MockMGOSetup) Finish() {
 // controller gets gomock controller.
 func (s *MockMGOSetup) controller() (c *gomock.Controller) {
 	c = s.mockController
+	return
+}
+
+// ControlMock create a Control mock that expect connection to a named
+// database, returning a mocked Databaser object.
+func (s *MockMGOSetup) ControlMock(dbi *elements.DialInfo, mdb *mocks.MockDatabaser) (mc *mocks.MockController) {
+	mc = mocks.NewMockController(s.controller())
+	ms := mocks.NewMockSessioner(s.controller())
+
+	ms.EXPECT().Clone().AnyTimes().Return(ms)
+	ms.EXPECT().Close().AnyTimes()
+	ms.EXPECT().DB(dbi.Database).AnyTimes().Return(mdb)
+
+	mc.EXPECT().Connect().AnyTimes().Return(nil)
+	mc.EXPECT().Mongo().AnyTimes().Return(dbi)
+	mc.EXPECT().Session().AnyTimes().Return(ms)
+	mc.EXPECT().ConsumeDatabaseOnSession(gomock.Any()).AnyTimes().Do(func(f func(db elements.Databaser)) {
+		s := CurrentSession().Clone()
+		defer s.Close()
+		f(s.DB(Mongo().Database))
+	})
+
 	return
 }
 
