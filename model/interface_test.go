@@ -105,13 +105,13 @@ func Test_Create_Document_with_functional_Setters(t *testing.T) {
 // - I want to be able to call calculation methods to set some values with current time,
 // - So that I could use these values later for data analysis.
 func Test_Calculate_Document_values(t *testing.T) {
-	make, _ := NewMockModelSetup(t)
-	defer make.Finish()
+	create, _ := NewMockModelSetup(t)
+	defer create.Finish()
 
 	given, like, s := bdd.Sentences()
 
 	given(t, "a empty Product p at current time %[1]v", func(when bdd.When, args ...interface{}) {
-		make.NowInMilli().Returns(args[0].(int64))
+		create.NowInMilli().Returns(args[0].(int64))
 		p := newProduct()
 
 		when("p.CalculateCreatedOn() is called", func(it bdd.It) {
@@ -136,8 +136,8 @@ func Test_Calculate_Document_values(t *testing.T) {
 // - I want to be able to call generation method to set random ID for Document,
 // - So that I could use Document later for indexing.
 func Test_Generate_ID_of_Document(t *testing.T) {
-	make, _ := NewMockModelSetup(t)
-	defer make.Finish()
+	create, _ := NewMockModelSetup(t)
+	defer create.Finish()
 
 	given, like, s := bdd.Sentences()
 
@@ -145,7 +145,7 @@ func Test_Generate_ID_of_Document(t *testing.T) {
 		p := newProduct()
 
 		when("p.GenerateID() is called", func(it bdd.It) {
-			make.NewID().Returns(bson.ObjectIdHex(args[0].(string)))
+			create.NewID().Returns(bson.ObjectIdHex(args[0].(string)))
 			p.GenerateID()
 			it("p.ID().Hex() should return %[1]v", func(assert bdd.Assert) {
 				assert.Equal(p.ID().Hex(), args[0].(string))

@@ -112,7 +112,7 @@ func (mr *mockCollectionerMockRecord) DropCollection() *gomock.Call {
 
 // DropIndex mocks base method
 func (m *MockCollectioner) DropIndex(arg0 ...string) error {
-	varargs := []interface{}{}
+	var varargs []interface{}
 	for _, a := range arg0 {
 		varargs = append(varargs, a)
 	}
@@ -152,7 +152,7 @@ func (mr *mockCollectionerMockRecord) EnsureIndex(arg0 interface{}) *gomock.Call
 
 // EnsureIndexKey mocks base method
 func (m *MockCollectioner) EnsureIndexKey(arg0 ...string) error {
-	varargs := []interface{}{}
+	var varargs []interface{}
 	for _, a := range arg0 {
 		varargs = append(varargs, a)
 	}
@@ -205,7 +205,7 @@ func (mr *mockCollectionerMockRecord) Indexes() *gomock.Call {
 
 // Insert mocks base method
 func (m *MockCollectioner) Insert(arg0 ...interface{}) error {
-	varargs := []interface{}{}
+	var varargs []interface{}
 	for _, a := range arg0 {
 		varargs = append(varargs, a)
 	}

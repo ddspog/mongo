@@ -41,7 +41,7 @@ func (h *Handle) Find(doc model.Documenter, out *model.Documenter) (err error) {
 	return
 }
 
-// FindAll search for alls documents matching the doc data on
+// FindAll search for all documents matching the doc data on
 // collection connected to Handle.
 func (h *Handle) FindAll(doc model.Documenter, out []model.Documenter) (err error) {
 	err = h.collectionV.Find(doc).All(out)
@@ -75,7 +75,7 @@ func (h *Handle) RemoveAll(doc model.Documenter) (info *elements.ChangeInfo, err
 }
 
 // Update updates a document on collection connected to Handle,
-// matching id on doc data, updataing with the extra information on doc.
+// matching id on doc data, updating with the extra information on doc.
 func (h *Handle) Update(doc model.Documenter) (err error) {
 	if doc.ID() == "" {
 		err = ErrIDNotDefined

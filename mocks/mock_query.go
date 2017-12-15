@@ -159,7 +159,7 @@ func (mr *mockQuerierMockRecord) For(arg0, arg1 interface{}) *gomock.Call {
 
 // Hint mocks base method
 func (m *MockQuerier) Hint(arg0 ...string) elements.Querier {
-	varargs := []interface{}{}
+	var varargs []interface{}
 	for _, a := range arg0 {
 		varargs = append(varargs, a)
 	}
@@ -308,7 +308,7 @@ func (mr *mockQuerierMockRecord) Snapshot() *gomock.Call {
 
 // Sort mocks base method
 func (m *MockQuerier) Sort(arg0 ...string) elements.Querier {
-	varargs := []interface{}{}
+	var varargs []interface{}
 	for _, a := range arg0 {
 		varargs = append(varargs, a)
 	}
