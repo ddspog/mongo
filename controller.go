@@ -37,12 +37,14 @@ func (c *Control) Connect() (err error) {
 		u := mongoURI()
 
 		// Capture Session and Mongo objects using URI.
-		m, err := mgo.ParseURL(u)
+		var m *mgo.DialInfo
+		m, err = mgo.ParseURL(u)
 		if err != nil {
 			err = fmt.Errorf("Problem parsing Mongo URI. uri="+u, err.Error())
 			return
 		}
-		s, err := mgo.Dial(u)
+		var s *mgo.Session
+		s, err = mgo.Dial(u)
 		if err != nil {
 			err = fmt.Errorf("Problem dialing Mongo URI. uri="+u, err.Error())
 			return
