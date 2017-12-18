@@ -3,30 +3,31 @@ package model
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"gopkg.in/mgo.v2/bson"
 )
 
 // MockModelSetup it's a setup type for configuring functions mocking.
 type MockModelSetup struct {
-	originalNowInMilli func() int64
-	tempNowInMilli     *fakeNowInMilli
-	tempNewID          *fakeNewID
+	originalNow func() time.Time
+	tempNow     *fakeNow
+	tempNewID   *fakeNewID
 }
 
 // NewMockModelSetup returns a new MockModelSetup, already configuring
-// a FakeNowInMilli function, and a FakeNewID function  on the setup.
-// It requires a test environment to be running.
+// a FakeNow function, and a FakeNewID function  on the setup. It
+// requires a test environment to be running.
 func NewMockModelSetup(t *testing.T) (s *MockModelSetup, err error) {
-	if t.Name() == "" {
+	if t == nil {
 		err = fmt.Errorf("run only on test environment")
 	} else {
 		s = &MockModelSetup{
-			originalNowInMilli: nowInMilli,
-			tempNowInMilli:     newFakeNowInMilli(),
-			tempNewID:          newFakeNewID(),
+			originalNow: now,
+			tempNow:     newFakeNow(),
+			tempNewID:   newFakeNewID(),
 		}
-		s.tempNowInMilli.mockModelSetupP = s
+		s.tempNow.mockModelSetupP = s
 		s.tempNewID.mockModelSetupP = s
 	}
 	return
@@ -34,12 +35,12 @@ func NewMockModelSetup(t *testing.T) (s *MockModelSetup, err error) {
 
 // Finish restore the functions mocked to the original ones.
 func (s *MockModelSetup) Finish() {
-	nowInMilli = s.originalNowInMilli
+	now = s.originalNow
 }
 
-// NowInMilli returns the fake NowInMilli object on this setup.
-func (s *MockModelSetup) NowInMilli() (f FakeNowInMillier) {
-	f = s.tempNowInMilli
+// Now returns the fake Now object on this setup.
+func (s *MockModelSetup) Now() (f FakeNower) {
+	f = s.tempNow
 	return
 }
 
@@ -49,9 +50,9 @@ func (s *MockModelSetup) NewID() (f FakeNewIDer) {
 	return
 }
 
-// updateNowInMilli the nowInMilli function with a mocked one.
-func (s *MockModelSetup) updateNowInMilli() {
-	nowInMilli = s.NowInMilli().GetFunction()
+// updateNow the now function with a mocked one.
+func (s *MockModelSetup) updateNow() {
+	now = s.Now().GetFunction()
 }
 
 // updateNewID the NewID function with a mocked one.
@@ -59,36 +60,36 @@ func (s *MockModelSetup) updateNewID() {
 	newID = s.NewID().GetFunction()
 }
 
-// fakeNowInMilli it's a type that enable mocking of function nowInMilli.
-type fakeNowInMilli struct {
-	returnV         *int64
+// fakeNow it's a type that enable mocking of function now.
+type fakeNow struct {
+	returnV         *time.Time
 	mockModelSetupP *MockModelSetup
 }
 
-// FakeNowInMillier it's a function mocking object, needed for mock purposes.
-type FakeNowInMillier interface {
-	Returns(int64)
-	GetFunction() func() int64
+// FakeNower it's a function mocking object, needed for mock purposes.
+type FakeNower interface {
+	Returns(time.Time)
+	GetFunction() func() time.Time
 }
 
-// newFakeNowInMilli returns a new FakeNowInMilli object.
-func newFakeNowInMilli() (f *fakeNowInMilli) {
-	var i int64
-	f = &fakeNowInMilli{
+// newFakeNow returns a new FakeNow object.
+func newFakeNow() (f *fakeNow) {
+	var i time.Time
+	f = &fakeNow{
 		returnV: &i,
 	}
 	return
 }
 
-// Returns ensures a value to be returned on calls to nowInMilli.
-func (f *fakeNowInMilli) Returns(t int64) {
+// Returns ensures a value to be returned on calls to now.
+func (f *fakeNow) Returns(t time.Time) {
 	*f.returnV = t
-	f.mockModelSetupP.updateNowInMilli()
+	f.mockModelSetupP.updateNow()
 }
 
-// getFunction creates a version of nowInMilli that returns value demanded.
-func (f *fakeNowInMilli) GetFunction() (fn func() int64) {
-	fn = func() (t int64) {
+// getFunction creates a version of now that returns value demanded.
+func (f *fakeNow) GetFunction() (fn func() time.Time) {
+	fn = func() (t time.Time) {
 		t = *f.returnV
 		return
 	}

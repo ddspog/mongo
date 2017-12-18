@@ -16,18 +16,12 @@ type Document struct {
 }
 
 var (
-	// nowInMilli it's stores imported calculation of time in int64 in
-	// Millisecond unit for mocking purposes.
-	nowInMilli = func() (t int64) {
-		t = time.Now().UnixNano() / int64(time.Millisecond)
-		return
-	}
+	// now it's stores imported calculation of time for mocking
+	// purposes.
+	now = time.Now
 	// newID it's stores imported generation of new ids for documents
 	// for mocking purposes.
-	newID = func() (id bson.ObjectId) {
-		id = bson.NewObjectId()
-		return
-	}
+	newID = bson.NewObjectId
 )
 
 // ID returns the _id attribute of a Document.
@@ -83,7 +77,7 @@ func (p *Document) CalculateUpdatedOn() {
 // NowInMilli returns the actual time, in a int64 value in Millisecond
 // unit, used by the updaters of created_on and updated_on.
 func NowInMilli() (t int64) {
-	t = nowInMilli()
+	t = now().UnixNano() / int64(time.Millisecond)
 	return
 }
 
