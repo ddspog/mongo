@@ -2,21 +2,21 @@ test-handler:
   desc: Run handler tests.
   cmds:
     - echo "Calling tests handler execution ..."
-    - go test {{.REPO_PATH}}/handler -v
+    - go test {{.REPO_PATH}}/handler -v --cover
   silent: true
 
 test-model:
   desc: Run model tests.
   cmds:
     - echo "Calling tests model execution ..."
-    - go test {{.REPO_PATH}}/model -v
+    - go test {{.REPO_PATH}}/model -v --cover
   silent: true
 
 test-mongo:
   desc: Run mongo tests.
   cmds:
     - echo "Calling tests mongo execution ..."
-    - go test {{.REPO_PATH}} -v
+    - go test {{.REPO_PATH}} -v --cover
   silent: true
 
 test:
