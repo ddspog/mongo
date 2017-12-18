@@ -51,3 +51,16 @@ func Finish(fs ...interface {
 		fs[i].Finish()
 	}
 }
+
+// timeFmt parses time well formatted.
+func timeFmt(s string) (t time.Time) {
+	t, _ = time.Parse("02-01-2006 15:04:05", s)
+	return
+}
+
+// expectedNowInMilli returns expected return from NowInMilli function,
+// given the time returned by time.Now().
+func expectedNowInMilli(t time.Time) (r int64) {
+	r = t.UnixNano() / int64(time.Millisecond)
+	return
+}

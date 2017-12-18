@@ -2,6 +2,7 @@ package model
 
 import (
 	"testing"
+	"time"
 
 	"gopkg.in/ddspog/mspec.v1/bdd"
 
@@ -111,23 +112,23 @@ func Test_Calculate_Document_values(t *testing.T) {
 	given, like, s := bdd.Sentences()
 
 	given(t, "a empty Product p at current time %[1]v", func(when bdd.When, args ...interface{}) {
-		create.NowInMilli().Returns(args[0].(int64))
+		create.Now().Returns(args[0].(time.Time))
 		p := newProduct()
 
 		when("p.CalculateCreatedOn() is called", func(it bdd.It) {
 			p.CalculateCreatedOn()
 			it("p.CreatedOn() should return %[1]v", func(assert bdd.Assert) {
-				assert.Equal(p.CreatedOn(), args[0].(int64))
+				assert.Equal(p.CreatedOn(), expectedNowInMilli(args[0].(time.Time)))
 			})
 		})
 		when("p.CalculateUpdatedOn() is called", func(it bdd.It) {
 			p.CalculateUpdatedOn()
 			it("p.UpdatedOn() should return %[1]v", func(assert bdd.Assert) {
-				assert.Equal(p.UpdatedOn(), args[0].(int64))
+				assert.Equal(p.UpdatedOn(), expectedNowInMilli(args[0].(time.Time)))
 			})
 		})
 	}, like(
-		s(int64(123)), s(int64(321)), s(int64(10)), s(int64(1)),
+		s(timeFmt("13-01-1870 14:00:30")), s(timeFmt("22-03-2000 10:12:21")), s(timeFmt("15-06-1995 08:50:20")),
 	))
 }
 
@@ -154,4 +155,21 @@ func Test_Generate_ID_of_Document(t *testing.T) {
 	}, like(
 		s(testid), s(product1id), s(product2id),
 	))
+}
+
+// Feature MockModelSetup works only on Tests.
+// - As a developer,
+// - I want to be able to call generation method to set random ID for Document,
+// - So that I could use Document later for indexing.
+func Test_MockModelSetup_works_only_on_Tests(t *testing.T) {
+	given, _, _ := bdd.Sentences()
+
+	given(t, "the start of the test", func(when bdd.When) {
+		when("calling NewMockModelSetup(nil)", func(it bdd.It) {
+			_, err := NewMockModelSetup(nil)
+			it("should return an error", func(assert bdd.Assert) {
+				assert.Error(err)
+			})
+		})
+	})
 }
