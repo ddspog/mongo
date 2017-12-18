@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/ddspog/mongo"
 	"github.com/ddspog/mongo/elements"
@@ -243,21 +244,21 @@ func Test_Insert_documents_with_Handle(t *testing.T) {
 		}
 
 		when("h.Link(db).Insert() is called", func(it bdd.It) {
-			makeModel.NowInMilli().Returns(args[1].(int64))
+			makeModel.Now().Returns(args[1].(time.Time))
 			err := h.Link(db).Insert()
 
 			it("should return no errors", func(assert bdd.Assert) {
 				assert.Nil(err)
 			})
 			it("h.Document().CreatedOn() should return %[2]v", func(assert bdd.Assert) {
-				assert.Equal(h.Document().CreatedOn(), args[1].(int64))
+				assert.Equal(h.Document().CreatedOn(), expectedNowInMilli(args[1].(time.Time)))
 			})
 		})
 	}, like(
-		s("", int64(50)), s("", int64(100)), s("", int64(150)),
-		s(productCollection[0].ID().Hex(), int64(200)),
-		s(productCollection[1].ID().Hex(), int64(15)),
-		s(testid, int64(1)), s(product1id, int64(2110)), s(product2id, int64(10)),
+		s("", timeFmt("01-01-2000 00:00:01")), s("", timeFmt("02-05-2014 13:36:42")), s("", timeFmt("19-12-2017 22:59:00")),
+		s(productCollection[0].ID().Hex(), timeFmt("11-11-2011 11:11:11")),
+		s(productCollection[1].ID().Hex(), timeFmt("12-12-2012 00:00:00")),
+		s(testid, timeFmt("01-01-0001 02:14:16")), s(product1id, timeFmt("03-10-2004 15:03:02")), s(product2id, timeFmt("15-06-1995 10:00:00")),
 	))
 }
 
@@ -360,7 +361,7 @@ func Test_Update_documents_with_Handle(t *testing.T) {
 
 		when("h.Link(db).Update() is called", func(it bdd.It) {
 			if args[0].(string) != "" {
-				makeModel.NowInMilli().Returns(args[1].(int64))
+				makeModel.Now().Returns(args[1].(time.Time))
 			}
 			err := h.Link(db).Update()
 
@@ -369,7 +370,7 @@ func Test_Update_documents_with_Handle(t *testing.T) {
 					assert.Nil(err)
 				})
 				it("should have h.Document().UpdatedOn() return %[2]v", func(assert bdd.Assert) {
-					assert.Equal(h.Document().UpdatedOn(), args[1].(int64))
+					assert.Equal(h.Document().UpdatedOn(), expectedNowInMilli(args[1].(time.Time)))
 				})
 			} else {
 				it("should return an error", func(assert bdd.Assert) {
@@ -378,7 +379,7 @@ func Test_Update_documents_with_Handle(t *testing.T) {
 			}
 		})
 	}, like(
-		s(productCollection[0].ID().Hex(), int64(10)), s(productCollection[1].ID().Hex(), int64(30)),
-		s(testid, int64(1)), s(product1id, int64(101)), s(product2id, int64(102)), s(""),
+		s(productCollection[0].ID().Hex(), timeFmt("14-03-1998 12:15:06")), s(productCollection[1].ID().Hex(), timeFmt("22-10-1974 03:11:02")),
+		s(testid, timeFmt("07-12-2007 02:48:59")), s(product1id, timeFmt("31-12-1999 23:59:59")), s(product2id, timeFmt("30-06-2019 22:14:06")), s(""),
 	))
 }
