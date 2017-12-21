@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/ddspog/mongo/elements"
+	"github.com/ddspog/mongo/embedded"
 	"gopkg.in/mgo.v2"
 )
 
@@ -54,7 +55,9 @@ func (c *Control) Connect() (err error) {
 		s.SetSafe(&mgo.Safe{})
 		log.Printf("debug: - Connected to MongoDB URI. uri=%s", u)
 
-		c.session = &Session{s}
+		c.session = &embedded.Session{
+			Session: s,
+		}
 		c.mongo = elements.NewDialInfo(m)
 	})
 	return
