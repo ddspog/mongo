@@ -21,19 +21,19 @@ func Test_Connection_with_MongoDB(t *testing.T) {
 	colog.Register()
 	colog.SetMinLevel(colog.LError)
 
-	createMGO, _ := mocks.NewMockMGOSetup(t)
-	createMongo, _ := NewMockMongoSetup(t)
-	defer finish(createMGO, createMongo)
+	makeMGO, _ := mocks.NewMockMGOSetup(t)
+	makeMongo, _ := NewMockMongoSetup(t)
+	defer finish(makeMGO, makeMongo)
 
 	given, like, s := bdd.Sentences()
 
 	given(t, "a database named '%[1]v' with a products collection with 10 elements", func(when bdd.When, args ...interface{}) {
-		db := createMGO.DatabaseMock(args[0].(string), func(mcl *mocks.MockCollectioner) {
+		db := makeMGO.DatabaseMock(args[0].(string), func(mcl *mocks.MockCollectioner) {
 			mcl.ExpectCountReturn(10)
 		})
 
-		createMongo.ParseURL().Returns(elements.NewDatabaseInfo(args[0].(string)), nil)
-		createMongo.Dial().Returns(createMGO.SessionMock(args[0].(string), db), nil)
+		makeMongo.ParseURL().Returns(elements.NewDatabaseInfo(args[0].(string)), nil)
+		makeMongo.Dial().Returns(makeMGO.SessionMock(args[0].(string), db), nil)
 
 		when("calling mongo.Connect()", func(it bdd.It) {
 			it("should run with no problems", func(assert bdd.Assert) {
@@ -72,19 +72,19 @@ func Test_Connect_only_with_valid_URLs(t *testing.T) {
 	colog.Register()
 	colog.SetMinLevel(colog.LError)
 
-	createMGO, _ := mocks.NewMockMGOSetup(t)
-	createMongo, _ := NewMockMongoSetup(t)
-	defer finish(createMGO, createMongo)
+	makeMGO, _ := mocks.NewMockMGOSetup(t)
+	makeMongo, _ := NewMockMongoSetup(t)
+	defer finish(makeMGO, makeMongo)
 
 	given, _, _ := bdd.Sentences()
 
 	given(t, "a valid url u as env MONGODB_URL with no problems", func(when bdd.When) {
 		os.Setenv("MONGODB_URL", "validURL")
 
-		db := createMGO.DatabaseMock("randomDB", func(mcl *mocks.MockCollectioner) {})
+		db := makeMGO.DatabaseMock("randomDB", func(mcl *mocks.MockCollectioner) {})
 
-		createMongo.ParseURL().Returns(elements.NewDatabaseInfo("randomDB"), nil)
-		createMongo.Dial().Returns(createMGO.SessionMock("randomDB", db), nil)
+		makeMongo.ParseURL().Returns(elements.NewDatabaseInfo("randomDB"), nil)
+		makeMongo.Dial().Returns(makeMGO.SessionMock("randomDB", db), nil)
 
 		when("calling mongo.Connect()", func(it bdd.It) {
 			it("shouldn't return an error", func(assert bdd.Assert) {
@@ -99,7 +99,7 @@ func Test_Connect_only_with_valid_URLs(t *testing.T) {
 		u := "badParsedURL"
 		os.Setenv("MONGODB_URL", u)
 
-		createMongo.ParseURL().Returns(nil, fmt.Errorf("anyReason"))
+		makeMongo.ParseURL().Returns(nil, fmt.Errorf("anyReason"))
 
 		when("calling mongo.Connect()", func(it bdd.It) {
 			it("should return a parsing error", func(assert bdd.Assert) {
@@ -117,8 +117,8 @@ func Test_Connect_only_with_valid_URLs(t *testing.T) {
 		u := "badDialingURL"
 		os.Setenv("MONGODB_URL", u)
 
-		createMongo.ParseURL().Returns(elements.NewDatabaseInfo("randomDB"), nil)
-		createMongo.Dial().Returns(nil, fmt.Errorf("anyReason"))
+		makeMongo.ParseURL().Returns(elements.NewDatabaseInfo("randomDB"), nil)
+		makeMongo.Dial().Returns(nil, fmt.Errorf("anyReason"))
 
 		when("calling mongo.Connect()", func(it bdd.It) {
 			it("should return a dialing error", func(assert bdd.Assert) {
