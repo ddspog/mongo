@@ -4,54 +4,106 @@ package mongo
 // storing the Session, allowing easy access to Database object.
 
 import (
+	"fmt"
+	"log"
+	"os"
+	"sync"
+
 	"github.com/ddspog/mongo/elements"
+	"github.com/ddspog/mongo/embedded"
+	"gopkg.in/mgo.v2"
 )
 
 var (
-	// control stores package controller.
-	control elements.Controller
+	// Mutex that allows only one call to Connect.
+	once sync.Once
+	// session represents the current session running MongoDB.
+	session elements.Sessioner
+	// mongo object holds info about the current mongo connection.
+	mongo *elements.DialInfo
+	// parseURL it's the function that will validate URL and return
+	// connection information.
+	parseURL = func(u string) (i *elements.DialInfo, err error) {
+		info, err := mgo.ParseURL(u)
+		i = elements.NewDialInfo(info)
+		return
+	}
+	// dial it's the function that will connects program with a MongoDB
+	// session.
+	dial = func(u string) (s elements.Sessioner, err error) {
+		session, err := mgo.Dial(u)
+		s = &embedded.Session{
+			Session: session,
+		}
+		return
+	}
 )
 
-// InitController initializes the package controller with a object of
-// caller choice. This enables more power in mocking this package
-// functions.
-func InitController(c elements.Controller) {
-	control = c
-}
+const (
+	// DBUrl is the default MongoDB url that will be used to
+	// connect to the database.
+	DBUrl = "mongodb://localhost:27017/test"
+)
 
 // Connect to MongoDB of server.
 // It tries to connect with MONGODB_URL, but without defining this
 // environment variable, tris to connect with default URL.
 func Connect() (err error) {
-	ensuresControlIsDefined()
-	err = control.Connect()
-	return
-}
+	once.Do(func() {
+		// Parse adequate MongoDB URI.
+		u := mongoURI()
 
-// CurrentSession return connected mongo session.
-func CurrentSession() (s elements.Sessioner) {
-	ensuresControlIsDefined()
-	return control.Session()
+		// Capture Session and Mongo objects using URI.
+		var m *elements.DialInfo
+		m, err = parseURL(u)
+		if err != nil {
+			err = fmt.Errorf("Problem parsing Mongo URI. uri=%[1]s\n%[2]v", u, err.Error())
+			return
+		}
+		var s elements.Sessioner
+		s, err = dial(u)
+		if err != nil {
+			err = fmt.Errorf("Problem dialing Mongo URI. uri="+u, err.Error())
+			return
+		}
+
+		// No errors showing, save objects.
+		s.SetSafe(&mgo.Safe{})
+		log.Printf("debug: - Connected to MongoDB URI. uri=%s", u)
+
+		session = s
+		mongo = m
+	})
+	return
 }
 
 // ConsumeDatabaseOnSession clones a session and use it to creates a
 // Databaser object to be consumed in f function. Closes session after
 // consume of Databaser object.
 func ConsumeDatabaseOnSession(f func(elements.Databaser)) {
-	ensuresControlIsDefined()
-	control.ConsumeDatabaseOnSession(f)
+	s := CurrentSession().Clone()
+	defer s.Close()
+
+	f(s.DB(Mongo().Database))
+}
+
+// CurrentSession return connected mongo session.
+func CurrentSession() (s elements.Sessioner) {
+	s = session
+	return
 }
 
 // Mongo return the MongoDB connection string information.
 func Mongo() (m *elements.DialInfo) {
-	ensuresControlIsDefined()
-	return control.Mongo()
+	m = mongo
+	return
 }
 
-// ensuresControlIsDefined asserts that control is defined when being
-// called. Even if it's still empty.
-func ensuresControlIsDefined() {
-	if control == nil {
-		InitController(&Control{})
+// mongoURI load the selected MongoDB database url, or default.
+func mongoURI() (u string) {
+	u = os.Getenv("MONGODB_URL")
+	if len(u) == 0 {
+		u = DBUrl
 	}
+	return
 }
