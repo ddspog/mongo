@@ -55,7 +55,7 @@ Further details on how to use this package are available on the [Wiki](https://g
 
 This section guides you through submitting a bug report for mongo. Following these guidelines helps maintainers and the community understand your report :pencil:, reproduce the behavior :computer: :computer:, and find related reports :mag_right:.
 
-Before creating bug reports, please check [this list](#before-submitting-a-bug-report) as you might find out that you don't need to create one. When you are creating a bug report, please [include as many details as possible](#how-do-i-submit-a-good-bug-report). Please use the issues templates, for better reading and understanding of the rest of team.
+Before creating bug reports, please check [this list](#before-submitting-a-bug-report) as you might find out that you don't need to create one. When you are creating a bug report, please include as many details as possible. Please use the issues templates, for better reading and understanding of the rest of team.
 
 #### Before Submitting A Bug Report
 
@@ -98,7 +98,7 @@ Include details about your configuration and environment:
 This section guides you through submitting an enhancement suggestion for mongo, including completely new features and minor improvements to existing functionality. Following these guidelines helps maintainers and the community understand your suggestion :pencil: and find related suggestions :mag_right:.
 
 Before creating enhancement suggestions, please check [this list](#before-submitting-an-enhancement-suggestion) as you might find out that you don't need to create one. When you are creating an enhancement suggestion, please
- [include as many details as possible](#how-do-i-submit-a-good-enhancement-suggestion). If you'd like, you can use [this template](#template-for-submitting-enhancement-suggestions) to structure the information.
+ include as many details as possible. If you'd like, you can use a template to structure the information.
 
 #### Before Submitting An Enhancement Suggestion
 
