@@ -1,12 +1,22 @@
 # mongo [![GoDoc](https://godoc.org/github.com/ddspog/mongo?status.svg)](https://godoc.org/github.com/ddspog/mongo) [![Go Report Card](https://goreportcard.com/badge/github.com/ddspog/mongo)](https://goreportcard.com/report/github.com/ddspog/mongo) [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/) [![Travis CI](https://travis-ci.org/ddspog/mongo.svg?branch=master)](https://travis-ci.org/ddspog/mongo)
 
-## Overview
+by [ddspog](http://hithub.com/ddspog)
 
-Package mongo mask the connection to MongoDB using mgo package.
+Package **mongo** helps you mask the connection to MongoDB using mgo package.
 
-This is made with function Connect, that saves Session and Mongo object which will be used later from other packages. Also, I've embedded the Collection, Database and Query types, to allow mocking via interfaces. The embedded was necessary for the functions to use the interfaces as return values, that way, the code can use the original, or generate a mock of them for testing purposes.
+## License
 
-## Usage
+You are free to copy, modify and distribute **mongo** package with attribution under the terms of the MIT license. See the [LICENSE](https://github.com/ddspog/mongo/blob/master/LICENSE) file for details.
+
+## Installation
+
+Install **mongo** package with:
+
+```shell
+go get github.com/ddspog/mongo
+```
+
+## How to use
 
 The package can be used like this:
 
@@ -55,3 +65,12 @@ if err := mongo.Connect(); err != nil {
     t.fail()
 }
 ```
+
+## Contribution
+
+This package has some objectives from now:
+
+* Being incorporate on mgo package (possible fork) on possible future.
+* Creating real tests with MongoDB connections.
+
+Any interest in help is much appreciated.
