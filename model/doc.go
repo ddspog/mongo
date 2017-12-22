@@ -27,5 +27,22 @@ The package can be used like this:
 	p := product{}
 	p.CalculateCreatedOn()
 	t := p.CreatedOn()
+
+Mocking
+
+You can mock some functionalities of this package, by mocking some
+called functions time.Now and bson.NewObjectId. Use the MockModelSetup
+presented on this package (only in test environment), like:
+
+	create, _ := model.NewMockModelSetup(t)
+	defer create.Finish()
+
+	create.Now().Returns(time.Parse("02-01-2006", "22/12/2006"))
+	create.NewID().Returns(bson.ObjectIdHex("anyID"))
+
+	var d model.Documenter
+	// Call any needed methods ...
+	d.GenerateID()
+	d.CalculateCreatedOn()
 */
 package model
