@@ -159,8 +159,8 @@ func Test_Generate_ID_of_Document(t *testing.T) {
 
 // Feature MockModelSetup works only on Tests.
 // - As a developer,
-// - I want to be able to call generation method to set random ID for Document,
-// - So that I could use Document later for indexing.
+// - I want that MockModelSetup returns an error when receiving a nil test element,
+// - So that I could restrain the use of this Setup only to tests.
 func Test_MockModelSetup_works_only_on_Tests(t *testing.T) {
 	given, _, _ := bdd.Sentences()
 
