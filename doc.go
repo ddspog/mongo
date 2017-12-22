@@ -48,6 +48,7 @@ called functions mgo.ParseURL and mgo.Dial. Use the MockMongoSetup
 presented on this package (only in test environment), like:
 
 	create, _ := mongo.NewMockMongoSetup(t)
+	defer create.Finish()
 
 	create.ParseURL().Returns(db, nil)
 	create.Dial().Returns(info, nil)

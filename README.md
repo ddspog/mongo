@@ -45,6 +45,7 @@ presented on this package (only in test environment), like:
 
 ```go
 create, _ := mongo.NewMockMongoSetup(t)
+defer create.Finish()
 
 create.ParseURL().Returns(db, nil)
 create.Dial().Returns(info, nil)
