@@ -12,10 +12,6 @@ The embedded was necessary for the functions to use the interfaces as
 return values, that way, the code can use the original, or generate
 a mock of them for testing purposes.
 
-Since mongo functions depends on MongoDB connection, the functions do
-panic instead of running a error, since the program shouldn't run if
-the DB connection doesn't apply.
-
 Usage
 
 The package can be used like this:
@@ -44,4 +40,21 @@ The Connect function tries to connect to a MONGODB_URL environment
 variable, but when it's not defined, it uses a default URL:
 
 	mongodb://localhost:27017/severo-rest-db
+
+Mocking
+
+You can mock some functionalities of this package, by mocking the mgo
+called functions mgo.ParseURL and mgo.Dial. Use the MockMongoSetup
+presented on this package (only in test environment), like:
+
+	create, _ := mongo.NewMockMongoSetup(t)
+
+	create.ParseURL().Returns(db, nil)
+	create.Dial().Returns(info, nil)
+
+	// Call any preparations on connection ...
+	if err := mongo.Connect(); err != nil {
+		t.fail()
+	}
+
 */package mongo

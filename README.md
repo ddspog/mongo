@@ -4,12 +4,7 @@
 
 Package mongo mask the connection to MongoDB using mgo package.
 
-This is made with function Connect, that saves Session and Mongo object
-which will be used later from other packages. Also, I've embedded the
-Collection, Database and Query types, to allow mocking via interfaces.
-The embedded was necessary for the functions to use the interfaces as
-return values, that way, the code can use the original, or generate
-a mock of them for testing purposes.
+This is made with function Connect, that saves Session and Mongo object which will be used later from other packages. Also, I've embedded the Collection, Database and Query types, to allow mocking via interfaces. The embedded was necessary for the functions to use the interfaces as return values, that way, the code can use the original, or generate a mock of them for testing purposes.
 
 ## Usage
 
@@ -41,3 +36,21 @@ The Connect function tries to connect to a MONGODB_URL environment
 variable, but when it's not defined, it uses a default URL:
 
 mongodb://localhost:27017/test
+
+## Mocking
+
+You can mock some functionalities of this package, by mocking the mgo
+called functions mgo.ParseURL and mgo.Dial. Use the MockMongoSetup
+presented on this package (only in test environment), like:
+
+```go
+create, _ := mongo.NewMockMongoSetup(t)
+
+create.ParseURL().Returns(db, nil)
+create.Dial().Returns(info, nil)
+
+// Call any preparations on connection ...
+if err := mongo.Connect(); err != nil {
+    t.fail()
+}
+```
