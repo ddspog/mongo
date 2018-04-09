@@ -4,9 +4,9 @@ import (
 	"reflect"
 
 	"github.com/ddspog/mongo/elements"
+	"github.com/globalsign/mgo"
+	"github.com/globalsign/mgo/bson"
 	"github.com/golang/mock/gomock"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 )
 
 // MockCollectioner is a mock of Collectioner interface

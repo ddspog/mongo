@@ -2,7 +2,7 @@ package embedded
 
 import (
 	"github.com/ddspog/mongo/elements"
-	"gopkg.in/mgo.v2"
+	"github.com/globalsign/mgo"
 )
 
 // Session it's an embedded type of mgo.Session, made to use the

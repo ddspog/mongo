@@ -8,8 +8,8 @@ import (
 	"github.com/ddspog/mongo/elements"
 	"github.com/ddspog/mongo/mocks"
 	"github.com/ddspog/mongo/model"
-	"gopkg.in/ddspog/mspec.v1/bdd"
-	"gopkg.in/mgo.v2/bson"
+	"github.com/ddspog/mspec/bdd"
+	"github.com/globalsign/mgo/bson"
 )
 
 // Feature Enable embedding with Handle

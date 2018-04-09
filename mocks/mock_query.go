@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/ddspog/mongo/elements"
+	"github.com/globalsign/mgo"
 	"github.com/golang/mock/gomock"
-	"gopkg.in/mgo.v2"
 )
 
 // MockQuerier is a mock of Querier interface

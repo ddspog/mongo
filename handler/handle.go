@@ -7,8 +7,16 @@ import (
 	"github.com/ddspog/mongo/model"
 )
 
-// ErrIDNotDefined it's an error received when an ID isn't defined.
-var ErrIDNotDefined = errors.New("ID not defined")
+var (
+	// ErrIDNotDefined it's an error received when an ID isn't defined.
+	ErrIDNotDefined = errors.New("ID not defined")
+	// ErrDBNotDefined it's an error received when an DB is nil or
+	// undefined.
+	ErrDBNotDefined = errors.New("DB not defined")
+	// ErrHandlerNotLinked it's an error receibed when the Handler
+	// isn't linked to any collection.
+	ErrHandlerNotLinked = errors.New("Handler not linked to collection")
+)
 
 // Handle it's a type implementing the Handler interface, responsible
 // of taking documents and using them to manipulate collections.
@@ -23,28 +31,40 @@ func New() (h *Handle) {
 }
 
 // Link connects the database to the Handle, enabling operations.
-func (h *Handle) Link(db elements.Databaser, n string) {
-	h.collectionV = db.C(n)
+func (h *Handle) Link(db elements.Databaser, n string) (err error) {
+	if db != nil {
+		h.collectionV = db.C(n)
+		err = nil
+	} else {
+		err = ErrDBNotDefined
+	}
+	return
 }
 
 // Count returns the number of documents on collection connected to
 // Handle.
 func (h *Handle) Count() (n int, err error) {
-	n, err = h.collectionV.Count()
+	if err = h.checkLink(); err == nil {
+		n, err = h.collectionV.Count()
+	}
 	return
 }
 
 // Find search for a document matching the doc data on collection
 // connected to Handle.
 func (h *Handle) Find(doc model.Documenter, out *model.Documenter) (err error) {
-	err = h.collectionV.Find(doc).One(out)
+	if err = h.checkLink(); err == nil {
+		err = h.collectionV.Find(doc).One(out)
+	}
 	return
 }
 
 // FindAll search for all documents matching the doc data on
 // collection connected to Handle.
 func (h *Handle) FindAll(doc model.Documenter, out []model.Documenter) (err error) {
-	err = h.collectionV.Find(doc).All(out)
+	if err = h.checkLink(); err == nil {
+		err = h.collectionV.Find(doc).All(out)
+	}
 	return
 }
 
@@ -52,7 +72,10 @@ func (h *Handle) FindAll(doc model.Documenter, out []model.Documenter) (err erro
 // doc data.
 func (h *Handle) Insert(doc model.Documenter) (err error) {
 	doc.CalculateCreatedOn()
-	err = h.collectionV.Insert(doc)
+
+	if err = h.checkLink(); err == nil {
+		err = h.collectionV.Insert(doc)
+	}
 	return
 }
 
@@ -62,7 +85,9 @@ func (h *Handle) Remove(doc model.Documenter) (err error) {
 	if doc.ID() == "" {
 		err = ErrIDNotDefined
 	} else {
-		err = h.collectionV.RemoveID(doc.ID())
+		if err = h.checkLink(); err == nil {
+			err = h.collectionV.RemoveID(doc.ID())
+		}
 	}
 	return
 }
@@ -70,7 +95,9 @@ func (h *Handle) Remove(doc model.Documenter) (err error) {
 // RemoveAll delete all documents on collection connected to Handle,
 // matching the doc data.
 func (h *Handle) RemoveAll(doc model.Documenter) (info *elements.ChangeInfo, err error) {
-	info, err = h.collectionV.RemoveAll(doc)
+	if err = h.checkLink(); err == nil {
+		info, err = h.collectionV.RemoveAll(doc)
+	}
 	return
 }
 
@@ -81,7 +108,17 @@ func (h *Handle) Update(doc model.Documenter) (err error) {
 		err = ErrIDNotDefined
 	} else {
 		doc.CalculateUpdatedOn()
-		err = h.collectionV.UpdateID(doc.ID(), doc)
+
+		if err = h.checkLink(); err == nil {
+			err = h.collectionV.UpdateID(doc.ID(), doc)
+		}
+	}
+	return
+}
+
+func (h *Handle) checkLink() (err error) {
+	if h.collectionV == nil {
+		err = ErrHandlerNotLinked
 	}
 	return
 }

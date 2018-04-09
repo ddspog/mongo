@@ -4,8 +4,8 @@ import (
 	"reflect"
 
 	"github.com/ddspog/mongo/elements"
+	"github.com/globalsign/mgo"
 	"github.com/golang/mock/gomock"
-	"gopkg.in/mgo.v2"
 )
 
 // MockSessioner is a mock of Sessioner interface

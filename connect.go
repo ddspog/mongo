@@ -11,7 +11,7 @@ import (
 
 	"github.com/ddspog/mongo/elements"
 	"github.com/ddspog/mongo/embedded"
-	"gopkg.in/mgo.v2"
+	"github.com/globalsign/mgo"
 )
 
 var (
@@ -57,13 +57,13 @@ func Connect() (err error) {
 		var m *elements.DialInfo
 		m, err = parseURL(u)
 		if err != nil {
-			err = fmt.Errorf("Problem parsing Mongo URI. uri=%[1]s\n%[2]v", u, err.Error())
+			err = fmt.Errorf("Problem parsing Mongo URI. uri=%[1]s err='%[2]v'", u, err.Error())
 			return
 		}
 		var s elements.Sessioner
 		s, err = dial(u)
 		if err != nil {
-			err = fmt.Errorf("Problem dialing Mongo URI. uri="+u, err.Error())
+			err = fmt.Errorf("Problem dialing Mongo URI. uri=%[1]s err='%[2]v'", u, err.Error())
 			return
 		}
 
@@ -77,14 +77,24 @@ func Connect() (err error) {
 	return
 }
 
+func Disconnect() {
+	once = *new(sync.Once)
+	session = new(embedded.Session)
+	mongo = new(elements.DialInfo)
+}
+
 // ConsumeDatabaseOnSession clones a session and use it to creates a
 // Databaser object to be consumed in f function. Closes session after
 // consume of Databaser object.
 func ConsumeDatabaseOnSession(f func(elements.Databaser)) {
-	s := CurrentSession().Clone()
-	defer s.Close()
+	if s := CurrentSession(); s != nil {
+		s := s.Clone()
+		defer s.Close()
 
-	f(s.DB(Mongo().Database))
+		f(s.DB(Mongo().Database))
+	} else {
+		f(nil)
+	}
 }
 
 // CurrentSession return connected mongo session.

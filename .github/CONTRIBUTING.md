@@ -39,13 +39,13 @@ mongo it's a [Golang](https://golang.org) package to connect with [MongoDB](http
 
 The main purpose of these project it's to display helpful functions and objects to improve legibility and quality of code on golang using MongoDB connections.
 
-This package is a new interface to another package [mgo](https://gopkg.in/mgo.v2), and improved for better style of code.
+This package is a new interface to another package [mgo](https://github.com/globalsign/mgo), and improved for better style of code.
 
 The project uses some dependencies, here's the list of them:
 
 * [**Go Mock**](https://github.com/golang/mock) - Mocking framework for Go language, using generated mocks via a cli tool using interfaces as parameters.
-* [**Mgo**](https://gopkg.in/mgo.v2) - Mongo interface package for Go language, providing functions, to interact with database collections.
-* [**Bson**](https://gopkg.in/mgo.v2/bson) - Package bson is an implementation of the BSON specification for o. Providing nice functions to generate IDs for Documents on MongoDB.
+* [**Mgo**](https://github.com/globalsign/mgo) - Mongo interface package for Go language, providing functions, to interact with database collections.
+* [**Bson**](https://github.com/globalsign/mgo/bson) - Package bson is an implementation of the BSON specification for o. Providing nice functions to generate IDs for Documents on MongoDB.
 
 Further details on how to use this package are available on the [Wiki](https://github.com/ddspog/mongo/wiki), and godocs of each package.
 
@@ -225,7 +225,7 @@ Ref
 
 ### Tests Styleguide
 
-All the tests should be written using [bdd](https://github.com/ddspog/bdd) framework, using BDD style. Describe features and use scenarios to write your tests. Also use the like sentence to create parametric scenarios, and create lots of tests cases.
+All the tests should be written using [bdd](https://github.com/ddspog/mspec/bdd) framework, using BDD style. Describe features and use scenarios to write your tests. Also use the like sentence to create parametric scenarios, and create lots of tests cases.
 
 #### Example
 

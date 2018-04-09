@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"gopkg.in/ddspog/mspec.v1/bdd"
+	"github.com/ddspog/mspec/bdd"
 
-	"gopkg.in/mgo.v2/bson"
+	"github.com/globalsign/mgo/bson"
 )
 
 // Feature Enable embedding with Document

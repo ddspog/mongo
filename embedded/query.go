@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/ddspog/mongo/elements"
-	"gopkg.in/mgo.v2"
+	"github.com/globalsign/mgo"
 )
 
 // Query it's an embedded type of mgo.Query, made to use the
