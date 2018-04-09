@@ -1,6 +1,6 @@
 package elements
 
-import "gopkg.in/mgo.v2"
+import "github.com/globalsign/mgo"
 
 // ChangeInfo it's an embedded type of mgo.ChangeInfo, made to reduce
 // importing to this package only, since it's necessary on other

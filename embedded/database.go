@@ -2,7 +2,7 @@ package embedded
 
 import (
 	"github.com/ddspog/mongo/elements"
-	"gopkg.in/mgo.v2"
+	"github.com/globalsign/mgo"
 )
 
 // Database it's an embedded type of mgo.Database, made to use the

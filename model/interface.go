@@ -1,6 +1,6 @@
 package model
 
-import "gopkg.in/mgo.v2/bson"
+import "github.com/globalsign/mgo/bson"
 
 // Documenter it's an interface that could be common to any documents
 // types used to store values on a MongoDB. It contains getters and

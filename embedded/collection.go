@@ -2,7 +2,7 @@ package embedded
 
 import (
 	"github.com/ddspog/mongo/elements"
-	"gopkg.in/mgo.v2"
+	"github.com/globalsign/mgo"
 )
 
 // Collection it's an embedded type of mgo.Collection, made to use the

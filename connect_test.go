@@ -3,12 +3,11 @@ package mongo
 import (
 	"fmt"
 	"os"
-	"sync"
 	"testing"
 
-	"github.com/ddspog/bdd"
 	"github.com/ddspog/mongo/elements"
 	"github.com/ddspog/mongo/mocks"
+	"github.com/ddspog/mspec/bdd"
 
 	"github.com/comail/colog"
 )
@@ -58,7 +57,7 @@ func Test_Connection_with_MongoDB(t *testing.T) {
 			})
 		})
 
-		once = *new(sync.Once)
+		Disconnect()
 	}, like(
 		s("test"), s("db01"), s("db02"),
 	))
@@ -92,7 +91,7 @@ func Test_Connect_only_with_valid_URLs(t *testing.T) {
 			})
 		})
 
-		once = *new(sync.Once)
+		Disconnect()
 	})
 
 	given(t, "a valid url u as env MONGODB_URL with parsing problems", func(when bdd.When) {
@@ -110,7 +109,7 @@ func Test_Connect_only_with_valid_URLs(t *testing.T) {
 			})
 		})
 
-		once = *new(sync.Once)
+		Disconnect()
 	})
 
 	given(t, "a valid url u as env MONGODB_URL with dialing problems", func(when bdd.When) {
@@ -129,7 +128,7 @@ func Test_Connect_only_with_valid_URLs(t *testing.T) {
 			})
 		})
 
-		once = *new(sync.Once)
+		Disconnect()
 	})
 }
 

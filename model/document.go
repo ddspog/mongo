@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	"gopkg.in/mgo.v2/bson"
+	"github.com/globalsign/mgo/bson"
 )
 
 // Document it's a simples implementation of Documenter. Can be

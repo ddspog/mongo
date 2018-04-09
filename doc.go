@@ -34,7 +34,7 @@ The package can be used like this:
 	})
 
 Further usage it's the same way mgo package is used. Look into mgo
-docs page: https://godoc.org/gopkg.in/mgo.v2
+docs page: https://godoc.org/github.com/globalsign/mgo
 
 The Connect function tries to connect to a MONGODB_URL environment
 variable, but when it's not defined, it uses a default URL:
