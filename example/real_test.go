@@ -9,6 +9,10 @@ import (
 	"github.com/ddspog/mspec/bdd"
 )
 
+// Feature Real connection to MongoDB
+// - As a developer,
+// - I want to be able to connect to MongoDB with this package,
+// - So that I could use the Handle methods to to various operations on a real DB.
 func Test_Real_connection_to_MongoDB(t *testing.T) {
 	given, _, _ := bdd.Sentences()
 
