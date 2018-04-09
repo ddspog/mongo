@@ -12,6 +12,13 @@ test-model:
     - go test {{.REPO_PATH}}/model -v --cover
   silent: true
 
+test-example:
+  desc: Run a test with an mongo instance running.
+  cmds:
+    - echo "Calling tests example execution ..."
+    - go test {{.REPO_PATH}}/example -v --cover
+  silent: true
+
 test-mongo:
   desc: Run mongo tests.
   cmds:
@@ -20,7 +27,7 @@ test-mongo:
   silent: true
 
 test:
-  deps: [test-handler, test-model, test-mongo]
+  deps: [test-handler, test-model, test-mongo, test-example]
   desc: Run all tests.
 
 gen-mock-collection:
@@ -56,7 +63,7 @@ format:
 vendor-mgo:
   cmds:
     - echo "Vendoring latest version of mgo package ..."
-    - govendor fetch gopkg.in/mgo.v2
+    - govendor fetch github.com/globalsign/mgo
   desc: Vendor mgo package.
 
 vendor-sync:
