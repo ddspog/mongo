@@ -9,8 +9,8 @@ database collections and do some operations.
 The Handle were made to be imported on embedding type, and through
 overriding of some methods, to implement an adequate Handler for a
 desired type of Document. The Handle type assumes to operate on a
-model.Document type, that will contain information about the operation
-to made with Handle.
+model.Documenter type, that will contain information about the
+operation to made with Handle.
 
 Usage
 
@@ -43,7 +43,7 @@ it's creating a Name function.
 
 With Name function, the creation of Link method goes as it follows:
 
-	func (p *ProductHandle) Link(db mongo.Databaser) (h ProductHandler) {
+	func (p *ProductHandle) Link(db mongo.Databaser) (h *ProductHandle) {
 		p.Handle.Link(db, p.Name())
 		h = p
 		return
@@ -52,7 +52,7 @@ With Name function, the creation of Link method goes as it follows:
 The creation of Insert, Remove and RemoveAll are trivial. Call it with
 a Document getter function defined like:
 
-	func (p *ProductHandle) Document() (d product.Product) {
+	func (p *ProductHandle) Document() (d *product.Product) {
 		d = p.DocumentV
 		return
 	}
@@ -65,18 +65,20 @@ a Document getter function defined like:
 The complicated functions are Find and FindAll which requires casting
 for the Document type:
 
-	func (p *ProductHandle) Find() (prod product.Product, err error) {
-		prod = product.New()
-		err = p.Handle.Find(p.Document(), prod)
+	func (p *ProductHandle) Find() (prod *product.Product, err error) {
+		var doc model.Documenter = newProduct()
+		err = p.Handle.Find(p.Document(), &doc)
+		prod = doc.(*product)
 		return
 	}
 
-	func (p *productHandle) FindAll() (proda []product.Product, err error) {
+	func (p *productHandle) FindAll() (proda []*product.Product, err error) {
 		var da []model.Documenter
-		err = p.Handle.FindAll(p.Document(), &da)
-		proda = make([]product.Product, len(da))
+		err = p.Handle.FindAll(p.Document(), da)
+		proda = make([]*product, len(da))
 		for i := range da {
-			proda[i] = da[i].(product.Product)
+			//noinspection GoNilContainerIndexing
+			proda[i] = da[i].(*product)
 		}
 		return
 	}

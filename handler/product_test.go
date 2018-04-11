@@ -8,7 +8,7 @@ import (
 // productHandler it's an interface describing operations common to
 // handler's of MongoDB products collection.
 type productHandler interface {
-	Link(elements.Databaser) productHandler
+	Link(elements.Databaser) *productHandle
 	Count() (int, error)
 	Find() (*product, error)
 	FindAll() ([]*product, error)
@@ -43,7 +43,7 @@ func (p *productHandle) Name() (n string) {
 }
 
 // Link connects the productHandle to collection.
-func (p *productHandle) Link(db elements.Databaser) (h productHandler) {
+func (p *productHandle) Link(db elements.Databaser) (h *productHandle) {
 	p.Handle.Link(db, p.Name())
 	h = p
 	return
