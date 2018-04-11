@@ -19,7 +19,7 @@ for creating embedding types.
 
 	type ProductHandle struct {
 		*handler.Handle
-		DocumentV product.Product
+		DocumentV *product.Product
 	}
 
 For each new type, a constructor may be needed, and for that Handler

@@ -122,7 +122,7 @@ func Test_Find_documents_with_Handle(t *testing.T) {
 		})
 
 		var h productHandler = newProductHandle()
-		h.Document().SetID(bson.ObjectIdHex(args[0].(string)))
+		h.Document().IDV = bson.ObjectIdHex(args[0].(string))
 
 		when("d, err := h.Link(db).Find() is called", func(it bdd.It) {
 			d, err := h.Link(db).Find()
@@ -181,7 +181,7 @@ func Test_Find_various_documents_with_Handle(t *testing.T) {
 
 		var h productHandler = newProductHandle()
 		if args[0].(string) != "" {
-			h.Document().SetID(bson.ObjectIdHex(args[0].(string)))
+			h.Document().IDV = bson.ObjectIdHex(args[0].(string))
 		}
 
 		when("da, err := h.Link(db).FindAll() is called", func(it bdd.It) {
@@ -240,7 +240,7 @@ func Test_Insert_documents_with_Handle(t *testing.T) {
 
 		var h productHandler = newProductHandle()
 		if args[0].(string) != "" {
-			h.Document().SetID(bson.ObjectIdHex(args[0].(string)))
+			h.Document().IDV = bson.ObjectIdHex(args[0].(string))
 		}
 
 		when("h.Link(db).Insert() is called", func(it bdd.It) {
@@ -281,7 +281,7 @@ func Test_Remove_documents_with_Handle(t *testing.T) {
 
 		var h productHandler = newProductHandle()
 		if args[0].(string) != "" {
-			h.Document().SetID(bson.ObjectIdHex(args[0].(string)))
+			h.Document().IDV = bson.ObjectIdHex(args[0].(string))
 		}
 
 		when("h.Link(db).Remove() is called", func(it bdd.It) {
@@ -320,7 +320,7 @@ func Test_Remove_various_documents_with_Handle(t *testing.T) {
 
 		var h productHandler = newProductHandle()
 		if args[0].(string) != "" {
-			h.Document().SetID(bson.ObjectIdHex(args[0].(string)))
+			h.Document().IDV = bson.ObjectIdHex(args[0].(string))
 		}
 
 		when("h.Link(db).RemoveAll() is called", func(it bdd.It) {
@@ -356,7 +356,7 @@ func Test_Update_documents_with_Handle(t *testing.T) {
 
 		var h productHandler = newProductHandle()
 		if args[0].(string) != "" {
-			h.Document().SetID(bson.ObjectIdHex(args[0].(string)))
+			h.Document().IDV = bson.ObjectIdHex(args[0].(string))
 		}
 
 		when("h.Link(db).Update() is called", func(it bdd.It) {
