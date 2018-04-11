@@ -5,12 +5,10 @@
 /*
 Package model contain utility functions to help modeling documents.
 
-The package contains a interface Documenter and a Document type
-implementing this interface, for embedding purposes. Documenter
-interface contain getters for important attributes to any document
-on MongoDB: _id, created_on and updated_on. The Document type contains
-already functions that generates correctly the created_on and
-updated_on attributes.
+The package contains a interface Documenter which contain getters for
+important attributes to any document on MongoDB: _id, created_on and
+updated_on. It also contains functions that generates correctly the
+created_on and updated_on attributes.
 
 Usage
 
@@ -18,9 +16,41 @@ The package can be used like this:
 
 	// Create a type embedding the Document type
 	type product struct {
-		*model.Document
-		name string		`json:"name" form:"name" binding:"required" bson:"name"`
-		price float32	`json:"price" form:"price" binding:"required" bson:"price"`
+		IDV			bson.ObjectId	`json:"_id,omitempty" bson:"_id,omitempty"`
+		CreatedOnV	int64			`json:"created_on" bson:"created_on"`
+		UpdatedOnV	int64			`json:"updated_on" bson:"updated_on"`
+		name		string			`json:"name" form:"name" binding:"required" bson:"name"`
+		price		float32			`json:"price" form:"price" binding:"required" bson:"price"`
+	}
+
+	// Implement the Documenter interface.
+	func (p *product) ID() (id bson.ObjectId) {
+		id = p.IDV
+		return
+	}
+
+	func (p *product) CreatedOn() (t int64) {
+		t = p.CreatedOnV
+		return
+	}
+
+	func (p *product) UpdatedOn() (t int64) {
+		t = p.UpdatedOnV
+		return
+	}
+
+	// On these methods, you can use the functions implemented on this
+	// model package.
+	func (p *product) GenerateID() {
+		p.IDV = model.NewID()
+	}
+
+	func (p *product) CalculateCreatedOn() {
+		p.CreatedOnV = model.NowInMilli()
+	}
+
+	func (p *product) CalculateUpdatedOn() {
+		p.UpdatedOnV = model.NowInMilli()
 	}
 
 	// Create a product variable, and try its methods.
