@@ -8,11 +8,8 @@ import "github.com/globalsign/mgo/bson"
 // updated_on
 type Documenter interface {
 	ID() bson.ObjectId
-	SetID(id bson.ObjectId)
 	CreatedOn() int64
-	SetCreatedOn(t int64)
 	UpdatedOn() int64
-	SetUpdatedOn(t int64)
 	GenerateID()
 	CalculateCreatedOn()
 	CalculateUpdatedOn()

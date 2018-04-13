@@ -76,20 +76,20 @@ func Test_Create_Document_with_functional_Setters(t *testing.T) {
 	given(t, "a Product p with ID '%[1]v', CreatedOn = %[2]v, UpdatedOn = %[3]v", func(when bdd.When, args ...interface{}) {
 		p := newProduct()
 
-		when("p.SetID(bson.ObjectIdHex(%[1]v)) is called", func(it bdd.It) {
-			p.SetID(bson.ObjectIdHex(args[0].(string)))
+		when("p.IDV = bson.ObjectIdHex(%[1]v)", func(it bdd.It) {
+			p.IDV = bson.ObjectIdHex(args[0].(string))
 			it("p.ID().Hex() should return '%[1]v'", func(assert bdd.Assert) {
 				assert.Equal(p.ID().Hex(), args[0].(string))
 			})
 		})
-		when("p.SetCreatedOn(%[2]v) is called", func(it bdd.It) {
-			p.SetCreatedOn(args[1].(int64))
+		when("p.CreatedOnV = %[2]v is called", func(it bdd.It) {
+			p.CreatedOnV = args[1].(int64)
 			it("p.CreatedOn() should return %[2]v", func(assert bdd.Assert) {
 				assert.Equal(p.CreatedOn(), args[1].(int64))
 			})
 		})
-		when("p.SetUpdatedOn(%[3]v) is called", func(it bdd.It) {
-			p.SetUpdatedOn(args[2].(int64))
+		when("p.UpdatedOnV = %[3]v is called", func(it bdd.It) {
+			p.UpdatedOnV = args[2].(int64)
 			it("p.UpdatedOn() should return %[3]v", func(assert bdd.Assert) {
 				assert.Equal(p.UpdatedOn(), args[2].(int64))
 			})
