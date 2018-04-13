@@ -169,11 +169,18 @@ func Test_Find_various_documents_with_Handle(t *testing.T) {
 		db := create.DatabaseMock("products", func(mcl *mocks.MockCollectioner) {
 			switch args[0] {
 			case "":
-				mcl.ExpectFindAllReturn([]model.Documenter{p[0], p[1]})
+				mcl.ExpectFindAllReturn([]interface{}{
+					bson.M{"_id": p[0].IDV, "created_on": p[0].CreatedOnV, "updated_on": p[0].UpdatedOnV},
+					bson.M{"_id": p[1].IDV, "created_on": p[1].CreatedOnV, "updated_on": p[1].UpdatedOnV},
+				})
 			case p[0].ID().Hex():
-				mcl.ExpectFindAllReturn([]model.Documenter{p[0]})
+				mcl.ExpectFindAllReturn([]interface{}{
+					bson.M{"_id": p[0].IDV, "created_on": p[0].CreatedOnV, "updated_on": p[0].UpdatedOnV},
+				})
 			case p[1].ID().Hex():
-				mcl.ExpectFindAllReturn([]model.Documenter{p[1]})
+				mcl.ExpectFindAllReturn([]interface{}{
+					bson.M{"_id": p[1].IDV, "created_on": p[1].CreatedOnV, "updated_on": p[1].UpdatedOnV},
+				})
 			default:
 				mcl.ExpectFindAllFail(anyReason)
 			}

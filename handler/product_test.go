@@ -62,7 +62,9 @@ func (p *productHandle) Find() (prod *product, err error) {
 // data stored on productHandle and returns it.
 func (p *productHandle) FindAll() (proda []*product, err error) {
 	var da []model.Documenter
-	err = p.Handle.FindAll(p.Document(), da)
+	err = p.Handle.FindAll(p.Document(), func() model.Documenter {
+		return newProduct()
+	}, &da)
 	proda = make([]*product, len(da))
 	for i := range da {
 		//noinspection GoNilContainerIndexing

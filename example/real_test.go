@@ -87,11 +87,33 @@ func Test_Read_data_on_MongoDB(t *testing.T) {
 				assert.NoError(errFind)
 			})
 
-			it("should returna a product with id '%[1]v'", func(assert bdd.Assert) {
+			it("should return a product with id '%[1]v'", func(assert bdd.Assert) {
 				assert.Equal(args[0].(string), product.IDV.Hex())
 			})
 		}, like(
 			s(testid01), s(testid02), s(testid03),
 		))
+
+		when("using ph.FindAll() with a empty Document", func(it bdd.It) {
+			p.DocumentV = NewProduct()
+			products, errFindAll := p.FindAll()
+
+			it("should run without errors", func(assert bdd.Assert) {
+				assert.NoError(errFindAll)
+			})
+
+			it("should return 3 documents", func(assert bdd.Assert) {
+				assert.Equal(3, len(products))
+			})
+
+			if len(products) == 3 {
+				it("should return the %[1]vth document with id '%[2]v'", func(assert bdd.Assert, args ...interface{}) {
+					assert.Equal(args[1].(string), products[args[0].(int)-1].IDV.Hex())
+				}, like(
+					s(1, testid01), s(2, testid02), s(3, testid03),
+				))
+			}
+
+		})
 	})
 }

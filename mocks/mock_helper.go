@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/ddspog/mongo/elements"
-	"github.com/ddspog/mongo/model"
 	"github.com/globalsign/mgo/bson"
 	"github.com/golang/mock/gomock"
 )
@@ -102,10 +101,10 @@ func (m *MockCollectioner) ExpectFindFail(mes string) {
 
 // ExpectFindAllReturn make a Collectioner expects an FindAll to return
 // defined documents.
-func (m *MockCollectioner) ExpectFindAllReturn(ret []model.Documenter) {
+func (m *MockCollectioner) ExpectFindAllReturn(ret []interface{}) {
 	mqr := NewMockQuerier(m.controller())
-	mqr.EXPECT().All(gomock.Any()).Return(nil).Do(func(da []model.Documenter) {
-		copy(da, ret)
+	mqr.EXPECT().All(gomock.Any()).Return(nil).Do(func(da *[]interface{}) {
+		*da = ret
 	})
 	m.EXPECT().Find(gomock.Any()).Return(mqr)
 }

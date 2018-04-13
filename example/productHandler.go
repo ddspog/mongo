@@ -62,8 +62,10 @@ func (p *ProductHandle) Find() (prod *Product, err error) {
 // FindAll search on connected collection for all documents matching
 // data stored on ProductHandle and returns it.
 func (p *ProductHandle) FindAll() (proda []*Product, err error) {
-	da := make([]model.Documenter, 0, 10)
-	err = p.Handle.FindAll(p.Document(), da)
+	var da []model.Documenter
+	err = p.Handle.FindAll(p.Document(), func() model.Documenter {
+		return NewProduct()
+	}, &da)
 	proda = make([]*Product, len(da))
 	for i := range da {
 		//noinspection GoNilContainerIndexing

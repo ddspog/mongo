@@ -56,36 +56,27 @@ func (h *Handle) Count() (n int, err error) {
 func (h *Handle) Find(doc model.Documenter, out *model.Documenter) (err error) {
 	if err = h.checkLink(); err == nil {
 		var mapped bson.M
-		if mapped, err = mapping(doc); err == nil {
+		if mapped, err = encode(doc); err == nil {
 			var result interface{}
-			if err = h.collectionV.Find(mapped).One(&result); err != nil {
-				return
+			if err = h.collectionV.Find(mapped).One(&result); err == nil {
+				err = decode(result, out)
 			}
-			marshalled, _ := bson.Marshal(result)
-			_ = bson.Unmarshal(marshalled, *out)
 		}
 	}
-	return
-}
-
-func mapping(doc model.Documenter) (mapped bson.M, err error) {
-	var buf []byte
-	var target interface{}
-
-	if buf, err = bson.Marshal(doc); err == nil {
-		if err = bson.Unmarshal(buf, &target); err == nil {
-			mapped = target.(bson.M)
-		}
-	}
-
 	return
 }
 
 // FindAll search for all documents matching the doc data on
 // collection connected to Handle.
-func (h *Handle) FindAll(doc model.Documenter, out []model.Documenter) (err error) {
+func (h *Handle) FindAll(doc model.Documenter, newDoc func() model.Documenter, out *[]model.Documenter) (err error) {
 	if err = h.checkLink(); err == nil {
-		err = h.collectionV.Find(doc).All(out)
+		var mapped bson.M
+		if mapped, err = encode(doc); err == nil {
+			var result []interface{}
+			if err = h.collectionV.Find(mapped).All(&result); err == nil {
+				err = decodeAll(result, newDoc, out)
+			}
+		}
 	}
 	return
 }
@@ -142,5 +133,44 @@ func (h *Handle) checkLink() (err error) {
 	if h.collectionV == nil {
 		err = ErrHandlerNotLinked
 	}
+	return
+}
+
+func encode(in model.Documenter) (out bson.M, err error) {
+	var buf []byte
+	var target interface{}
+
+	if buf, err = bson.Marshal(in); err == nil {
+		if err = bson.Unmarshal(buf, &target); err == nil {
+			out = target.(bson.M)
+		}
+	}
+
+	return
+}
+
+func decode(in interface{}, out *model.Documenter) (err error) {
+	var marshalled []byte
+
+	if marshalled, err = bson.Marshal(in); err == nil {
+		err = bson.Unmarshal(marshalled, *out)
+	}
+	return
+}
+
+func decodeAll(in []interface{}, newDoc func() model.Documenter, out *[]model.Documenter) (err error) {
+	outa := make([]model.Documenter, len(in))
+	for i := range in {
+		//noinspection GoNilContainerIndexing
+		var marshalled []byte
+		if marshalled, err = bson.Marshal(in[i]); err == nil {
+			var emptyModel model.Documenter = newDoc()
+			err = bson.Unmarshal(marshalled, emptyModel)
+			outa[i] = emptyModel
+		} else {
+			break
+		}
+	}
+	*out = outa
 	return
 }
