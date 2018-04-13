@@ -8,15 +8,15 @@ import (
 // productHandler it's an interface describing operations common to
 // handler's of MongoDB products collection.
 type productHandler interface {
-	Link(elements.Databaser) productHandler
+	Link(elements.Databaser) *productHandle
 	Count() (int, error)
-	Find() (product, error)
-	FindAll() ([]product, error)
+	Find() (*product, error)
+	FindAll() ([]*product, error)
 	Insert() error
 	Remove() error
 	RemoveAll() (*elements.ChangeInfo, error)
 	Update() error
-	Document() product
+	Document() *product
 	Name() string
 }
 
@@ -24,7 +24,7 @@ type productHandler interface {
 // of storing products.
 type productHandle struct {
 	*Handle
-	DocumentV product
+	DocumentV *product
 }
 
 // newProductHandle returns a empty productHandle.
@@ -43,7 +43,7 @@ func (p *productHandle) Name() (n string) {
 }
 
 // Link connects the productHandle to collection.
-func (p *productHandle) Link(db elements.Databaser) (h productHandler) {
+func (p *productHandle) Link(db elements.Databaser) (h *productHandle) {
 	p.Handle.Link(db, p.Name())
 	h = p
 	return
@@ -51,22 +51,24 @@ func (p *productHandle) Link(db elements.Databaser) (h productHandler) {
 
 // Find search on connected collection for a document matching data
 // stored on productHandle and returns it.
-func (p *productHandle) Find() (prod product, err error) {
+func (p *productHandle) Find() (prod *product, err error) {
 	var doc model.Documenter = newProduct()
 	err = p.Handle.Find(p.Document(), &doc)
-	prod = doc.(product)
+	prod = doc.(*product)
 	return
 }
 
 // FindAll search on connected collection for all documents matching
 // data stored on productHandle and returns it.
-func (p *productHandle) FindAll() (proda []product, err error) {
+func (p *productHandle) FindAll() (proda []*product, err error) {
 	var da []model.Documenter
-	err = p.Handle.FindAll(p.Document(), da)
-	proda = make([]product, len(da))
+	err = p.Handle.FindAll(p.Document(), func() model.Documenter {
+		return newProduct()
+	}, &da)
+	proda = make([]*product, len(da))
 	for i := range da {
 		//noinspection GoNilContainerIndexing
-		proda[i] = da[i].(product)
+		proda[i] = da[i].(*product)
 	}
 	return
 }
@@ -100,7 +102,7 @@ func (p *productHandle) Update() (err error) {
 }
 
 // Document returns the Document of Handle with correct type.
-func (p *productHandle) Document() (d product) {
+func (p *productHandle) Document() (d *product) {
 	d = p.DocumentV
 	return
 }

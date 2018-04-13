@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/ddspog/mongo/model"
+	"github.com/globalsign/mgo/bson"
 )
 
 const (
@@ -15,32 +16,68 @@ const (
 )
 
 // productCollection mimics a collection of products.
-var productCollection = []product{
+var productCollection = []*product{
 	newProductStored(),
 	newProductStored(),
 }
 
-// product it's a type embedding the Document struct.
+// product it's a simples implementation of Documenter. It contains
+// some attributes important to any document on MongoDB.
 type product struct {
-	*model.Document
+	IDV        bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
+	CreatedOnV int64         `json:"created_on" bson:"created_on"`
+	UpdatedOnV int64         `json:"updated_on" bson:"updated_on"`
 }
 
 // newProduct returns a empty product.
-func newProduct() (p product) {
-	p = product{
-		Document: &model.Document{},
-	}
+func newProduct() (p *product) {
+	p = &product{}
 	return
 }
 
 // newProductStored returns a product with some attributes.
-func newProductStored() (p product) {
+func newProductStored() (p *product) {
 	p = newProduct()
 	p.GenerateID()
 	time.Sleep(10 * time.Millisecond)
 
 	p.CalculateCreatedOn()
 	return
+}
+
+// ID returns the _id attribute of a Document.
+func (p *product) ID() (id bson.ObjectId) {
+	id = p.IDV
+	return
+}
+
+// CreatedOn returns the created_on attribute of a Document.
+func (p *product) CreatedOn() (t int64) {
+	t = p.CreatedOnV
+	return
+}
+
+// UpdatedOn returns the updated_on attribute of a Document.
+func (p *product) UpdatedOn() (t int64) {
+	t = p.UpdatedOnV
+	return
+}
+
+// GenerateID creates a new id for a document.
+func (p *product) GenerateID() {
+	p.IDV = model.NewID()
+}
+
+// CalculateCreatedOn update the created_on attribute with a value
+// corresponding to actual time.
+func (p *product) CalculateCreatedOn() {
+	p.CreatedOnV = model.NowInMilli()
+}
+
+// CalculateUpdatedOn update the updated_on attribute with a value
+// corresponding to actual time.
+func (p *product) CalculateUpdatedOn() {
+	p.UpdatedOnV = model.NowInMilli()
 }
 
 // Finish call Finish() from all objects received.
