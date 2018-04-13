@@ -11,13 +11,13 @@ import (
 type ProductHandler interface {
 	Link(elements.Databaser) (ProductHandler, error)
 	Count() (int, error)
-	Find() (Product, error)
-	FindAll() ([]Product, error)
+	Find() (*Product, error)
+	FindAll() ([]*Product, error)
 	Insert() error
 	Remove() error
 	RemoveAll() (*elements.ChangeInfo, error)
 	Update() error
-	Document() Product
+	Document() *Product
 	Name() string
 }
 
@@ -25,7 +25,7 @@ type ProductHandler interface {
 // of storing Products.
 type ProductHandle struct {
 	*handler.Handle
-	DocumentV Product
+	DocumentV *Product
 }
 
 // NewProductHandle returns a empty ProductHandle.
@@ -52,22 +52,22 @@ func (p *ProductHandle) Link(db elements.Databaser) (h ProductHandler, err error
 
 // Find search on connected collection for a document matching data
 // stored on ProductHandle and returns it.
-func (p *ProductHandle) Find() (prod Product, err error) {
+func (p *ProductHandle) Find() (prod *Product, err error) {
 	var doc model.Documenter = NewProduct()
 	err = p.Handle.Find(p.Document(), &doc)
-	prod = doc.(Product)
+	prod = doc.(*Product)
 	return
 }
 
 // FindAll search on connected collection for all documents matching
 // data stored on ProductHandle and returns it.
-func (p *ProductHandle) FindAll() (proda []Product, err error) {
+func (p *ProductHandle) FindAll() (proda []*Product, err error) {
 	da := make([]model.Documenter, 0, 10)
 	err = p.Handle.FindAll(p.Document(), da)
-	proda = make([]Product, len(da))
+	proda = make([]*Product, len(da))
 	for i := range da {
 		//noinspection GoNilContainerIndexing
-		proda[i] = da[i].(Product)
+		proda[i] = da[i].(*Product)
 	}
 	return
 }
@@ -101,7 +101,7 @@ func (p *ProductHandle) Update() (err error) {
 }
 
 // Document returns the Document of Handle with correct type.
-func (p *ProductHandle) Document() (d Product) {
+func (p *ProductHandle) Document() (d *Product) {
 	d = p.DocumentV
 	return
 }

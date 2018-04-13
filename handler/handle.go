@@ -5,6 +5,7 @@ import (
 
 	"github.com/ddspog/mongo/elements"
 	"github.com/ddspog/mongo/model"
+	"github.com/globalsign/mgo/bson"
 )
 
 var (
@@ -54,8 +55,29 @@ func (h *Handle) Count() (n int, err error) {
 // connected to Handle.
 func (h *Handle) Find(doc model.Documenter, out *model.Documenter) (err error) {
 	if err = h.checkLink(); err == nil {
-		err = h.collectionV.Find(doc).One(out)
+		var mapped bson.M
+		if mapped, err = mapping(doc); err == nil {
+			var result interface{}
+			if err = h.collectionV.Find(mapped).One(&result); err != nil {
+				return
+			}
+			marshalled, _ := bson.Marshal(result)
+			_ = bson.Unmarshal(marshalled, *out)
+		}
 	}
+	return
+}
+
+func mapping(doc model.Documenter) (mapped bson.M, err error) {
+	var buf []byte
+	var target interface{}
+
+	if buf, err = bson.Marshal(doc); err == nil {
+		if err = bson.Unmarshal(buf, &target); err == nil {
+			mapped = target.(bson.M)
+		}
+	}
+
 	return
 }
 
