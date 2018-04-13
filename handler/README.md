@@ -76,19 +76,21 @@ for the Document type:
 
 ```go
 func (p *ProductHandle) Find() (prod *product.Product, err error) {
-    var doc model.Documenter = newProduct()
+    var doc model.Documenter = product.New()
     err = p.Handle.Find(p.Document(), &doc)
-    prod = doc.(*product)
+    prod = doc.(*Product)
     return
 }
 
-func (p *productHandle) FindAll() (proda []*product.Product, err error) {
+func (p *ProductHandle) FindAll() (proda []*product.Product, err error) {
     var da []model.Documenter
-    err = p.Handle.FindAll(p.Document(), da)
-    proda = make([]*product, len(da))
+    err = p.Handle.FindAll(p.Document(), func() model.Documenter {
+        return product.New()
+    }, &da)
+    proda = make([]*product.Product, len(da))
     for i := range da {
         //noinspection GoNilContainerIndexing
-        proda[i] = da[i].(*product)
+        proda[i] = da[i].(*product.Product)
     }
     return
 }
