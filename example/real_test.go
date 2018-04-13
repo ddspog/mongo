@@ -113,7 +113,27 @@ func Test_Read_data_on_MongoDB(t *testing.T) {
 					s(1, testid01), s(2, testid02), s(3, testid03),
 				))
 			}
-
 		})
+
+		when("using ph.FindAll() on a Document with id '%[1]v'", func(it bdd.It, args ...interface{}) {
+			p.DocumentV.IDV = bson.ObjectIdHex(args[0].(string))
+			products, errFindAll := p.FindAll()
+
+			it("should run without errors", func(assert bdd.Assert) {
+				assert.NoError(errFindAll)
+			})
+
+			it("should return 1 documents", func(assert bdd.Assert) {
+				assert.Equal(1, len(products))
+			})
+
+			if len(products) == 1 {
+				it("should return the 1th document with id '%[1]v'", func(assert bdd.Assert) {
+					assert.Equal(args[0].(string), products[0].IDV.Hex())
+				})
+			}
+		}, like(
+			s(testid01), s(testid02), s(testid03),
+		))
 	})
 }

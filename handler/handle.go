@@ -136,6 +136,8 @@ func (h *Handle) checkLink() (err error) {
 	return
 }
 
+// encode translates a model.Documenter in whathever structure it has,
+// to a bson.M object, more easily read by mgo.Collection methods.
 func encode(in model.Documenter) (out bson.M, err error) {
 	var buf []byte
 	var target interface{}
@@ -149,6 +151,9 @@ func encode(in model.Documenter) (out bson.M, err error) {
 	return
 }
 
+// decode translates a bson.M received as a interface{}, to the
+// model.Documenter strucutre received as a pointer. It fills the
+// structure fields with the values of each key in the bson.M received.
 func decode(in interface{}, out *model.Documenter) (err error) {
 	var marshalled []byte
 
@@ -158,16 +163,14 @@ func decode(in interface{}, out *model.Documenter) (err error) {
 	return
 }
 
+// decodeAll applies the decode on an array of bson.M objects,
+// translating to an array of model.Documenter.
 func decodeAll(in []interface{}, newDoc func() model.Documenter, out *[]model.Documenter) (err error) {
 	outa := make([]model.Documenter, len(in))
 	for i := range in {
 		//noinspection GoNilContainerIndexing
-		var marshalled []byte
-		if marshalled, err = bson.Marshal(in[i]); err == nil {
-			var emptyModel model.Documenter = newDoc()
-			err = bson.Unmarshal(marshalled, emptyModel)
-			outa[i] = emptyModel
-		} else {
+		outa[i] = newDoc()
+		if err := decode(in[i], &outa[i]); err != nil {
 			break
 		}
 	}
