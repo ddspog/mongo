@@ -84,10 +84,17 @@ func (h *Handle) FindAll(doc model.Documenter, newDoc func() model.Documenter, o
 // Insert puts a new document on collection connected to Handle, using
 // doc data.
 func (h *Handle) Insert(doc model.Documenter) (err error) {
+	if doc.ID().Hex() == "" {
+		doc.GenerateID()
+	}
+
 	doc.CalculateCreatedOn()
 
 	if err = h.checkLink(); err == nil {
-		err = h.collectionV.Insert(doc)
+		var mapped bson.M
+		if mapped, err = encode(doc); err == nil {
+			err = h.collectionV.Insert(mapped)
+		}
 	}
 	return
 }
@@ -95,7 +102,7 @@ func (h *Handle) Insert(doc model.Documenter) (err error) {
 // Remove delete a document on collection connected to Handle, matching
 // id of doc.
 func (h *Handle) Remove(doc model.Documenter) (err error) {
-	if doc.ID() == "" {
+	if doc.ID().Hex() == "" {
 		err = ErrIDNotDefined
 	} else {
 		if err = h.checkLink(); err == nil {
@@ -109,26 +116,33 @@ func (h *Handle) Remove(doc model.Documenter) (err error) {
 // matching the doc data.
 func (h *Handle) RemoveAll(doc model.Documenter) (info *elements.ChangeInfo, err error) {
 	if err = h.checkLink(); err == nil {
-		info, err = h.collectionV.RemoveAll(doc)
-	}
-	return
-}
-
-// Update updates a document on collection connected to Handle,
-// matching id on doc data, updating with the extra information on doc.
-func (h *Handle) Update(doc model.Documenter) (err error) {
-	if doc.ID() == "" {
-		err = ErrIDNotDefined
-	} else {
-		doc.CalculateUpdatedOn()
-
-		if err = h.checkLink(); err == nil {
-			err = h.collectionV.UpdateID(doc.ID(), doc)
+		var mapped bson.M
+		if mapped, err = encode(doc); err == nil {
+			info, err = h.collectionV.RemoveAll(mapped)
 		}
 	}
 	return
 }
 
+// Update updates a document on collection connected to Handle,
+// matching id received, updating with the information on doc.
+func (h *Handle) Update(id bson.ObjectId, doc model.Documenter) (err error) {
+	if id.Hex() == "" {
+		err = ErrIDNotDefined
+	} else {
+		doc.CalculateUpdatedOn()
+
+		if err = h.checkLink(); err == nil {
+			var mapped bson.M
+			if mapped, err = encode(doc); err == nil {
+				err = h.collectionV.UpdateID(id, mapped)
+			}
+		}
+	}
+	return
+}
+
+// checklink verifies if collection were already linked on the Handle.
 func (h *Handle) checkLink() (err error) {
 	if h.collectionV == nil {
 		err = ErrHandlerNotLinked

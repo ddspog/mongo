@@ -4,6 +4,7 @@ import (
 	"github.com/ddspog/mongo/elements"
 	"github.com/ddspog/mongo/handler"
 	"github.com/ddspog/mongo/model"
+	"github.com/globalsign/mgo/bson"
 )
 
 // ProductHandler it's an interface describing operations common to
@@ -16,7 +17,7 @@ type ProductHandler interface {
 	Insert() error
 	Remove() error
 	RemoveAll() (*elements.ChangeInfo, error)
-	Update() error
+	Update(bson.ObjectId) error
 	Document() *Product
 	Name() string
 }
@@ -96,9 +97,9 @@ func (p *ProductHandle) RemoveAll() (info *elements.ChangeInfo, err error) {
 }
 
 // Update updates document from connected collection matching the id
-// of data stored on Handle, and uses further info to update.
-func (p *ProductHandle) Update() (err error) {
-	err = p.Handle.Update(p.Document())
+// received, and uses document info to update.
+func (p *ProductHandle) Update(id bson.ObjectId) (err error) {
+	err = p.Handle.Update(id, p.Document())
 	return
 }
 
