@@ -370,7 +370,7 @@ func Test_Update_documents_with_Handle(t *testing.T) {
 			if args[0].(string) != "" {
 				makeModel.Now().Returns(args[1].(time.Time))
 			}
-			err := h.Link(db).Update()
+			err := h.Link(db).Update(h.Document().ID())
 
 			if args[0].(string) != "" {
 				it("should return no errors", func(assert bdd.Assert) {
