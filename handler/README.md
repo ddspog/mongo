@@ -71,6 +71,15 @@ func (p *ProductHandle) Insert() (err error) {
 }
 ```
 
+The Update function uses an id as an argument:
+
+```go
+func (p *ProductHandle) Update(id bson.ObjectId) (err error) {
+    err = p.Handle.Update(id, p.Document())
+    return
+}
+```
+
 The complicated functions are Find and FindAll which requires casting
 for the Document type:
 

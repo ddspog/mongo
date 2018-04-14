@@ -62,6 +62,13 @@ a Document getter function defined like:
 		return
 	}
 
+The Update function uses an id as an argument:
+
+	func (p *ProductHandle) Update(id bson.ObjectId) (err error) {
+		err = p.Handle.Update(id, p.Document())
+		return
+	}
+
 The complicated functions are Find and FindAll which requires casting
 for the Document type:
 

@@ -5,7 +5,6 @@ package mongo
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"sync"
 
@@ -69,7 +68,7 @@ func Connect() (err error) {
 
 		// No errors showing, save objects.
 		s.SetSafe(&mgo.Safe{})
-		log.Printf("debug: - Connected to MongoDB URI. uri=%s", u)
+		//log.Printf("debug: - Connected to MongoDB URI. uri=%s", u)
 
 		session = s
 		mongo = m
