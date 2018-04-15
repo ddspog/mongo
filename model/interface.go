@@ -7,6 +7,9 @@ import "github.com/globalsign/mgo/bson"
 // generates to important documents values: _id, created_on and
 // updated_on
 type Documenter interface {
+	New() Documenter
+	Map() (bson.M, error)
+	Init(bson.M) error
 	ID() bson.ObjectId
 	CreatedOn() int64
 	UpdatedOn() int64

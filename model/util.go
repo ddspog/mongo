@@ -27,3 +27,31 @@ func NewID() (id bson.ObjectId) {
 	id = newID()
 	return
 }
+
+// InitDocumenter translates a bson.M received, to the Documenter
+// structure received as a pointer. It fills the structure fields with
+// the values of each key in the bson.M received.
+func InitDocumenter(in bson.M, out *Documenter) (err error) {
+	var marshalled []byte
+
+	if marshalled, err = bson.Marshal(in); err == nil {
+		err = bson.Unmarshal(marshalled, *out)
+	}
+	return
+}
+
+// MapDocumenter translates a Documenter in whathever structure
+// it has, to a bson.M object, more easily read by mgo.Collection
+// methods.
+func MapDocumenter(in Documenter) (out bson.M, err error) {
+	var buf []byte
+	var target interface{}
+
+	if buf, err = bson.Marshal(in); err == nil {
+		if err = bson.Unmarshal(buf, &target); err == nil {
+			out = target.(bson.M)
+		}
+	}
+
+	return
+}

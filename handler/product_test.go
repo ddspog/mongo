@@ -54,7 +54,7 @@ func (p *productHandle) Link(db elements.Databaser) (h *productHandle) {
 // stored on productHandle and returns it.
 func (p *productHandle) Find() (prod *product, err error) {
 	var doc model.Documenter = newProduct()
-	err = p.Handle.Find(p.Document(), &doc)
+	err = p.Handle.Find(p.Document(), doc)
 	prod = doc.(*product)
 	return
 }
@@ -63,9 +63,7 @@ func (p *productHandle) Find() (prod *product, err error) {
 // data stored on productHandle and returns it.
 func (p *productHandle) FindAll() (proda []*product, err error) {
 	var da []model.Documenter
-	err = p.Handle.FindAll(p.Document(), func() model.Documenter {
-		return newProduct()
-	}, &da)
+	err = p.Handle.FindAll(p.Document(), &da)
 	proda = make([]*product, len(da))
 	for i := range da {
 		//noinspection GoNilContainerIndexing

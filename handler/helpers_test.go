@@ -45,6 +45,29 @@ func newProductStored() (p *product) {
 	return
 }
 
+// New creates a new instance of the same Product, used on another
+// functions for clone purposes.
+func (p *product) New() (doc model.Documenter) {
+	doc = newProduct()
+	return
+}
+
+// Map translates a product to a bson.M object, more easily read by mgo
+// methods.
+func (p *product) Map() (out bson.M, err error) {
+	out, err = model.MapDocumenter(p)
+	return
+}
+
+// Init translates a bson.M received, to the product strucutre. It
+// fills the structure fields with the values of each key in the
+// bson.M received.
+func (p *product) Init(in bson.M) (err error) {
+	var doc model.Documenter = p
+	err = model.InitDocumenter(in, &doc)
+	return
+}
+
 // ID returns the _id attribute of a Document.
 func (p *product) ID() (id bson.ObjectId) {
 	id = p.IDV
