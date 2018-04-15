@@ -34,7 +34,7 @@ cover:
     - go tool cover -html=coverage.out
 
 test:
-  deps: [test-handler, test-model, test-mongo, test-example]
+  deps: [test-handler, test-model, test-mongo]
   desc: Run all tests.
 
 gen-mock-collection:
