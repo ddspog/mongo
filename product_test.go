@@ -55,7 +55,7 @@ func (p *ProductHandle) Link(db elements.Databaser) (h ProductHandler, err error
 // stored on ProductHandle and returns it.
 func (p *ProductHandle) Find() (prod *Product, err error) {
 	var doc model.Documenter = NewProduct()
-	err = p.Handle.Find(p.Document(), &doc)
+	err = p.Handle.Find(p.Document(), doc)
 	prod = doc.(*Product)
 	return
 }
@@ -64,9 +64,7 @@ func (p *ProductHandle) Find() (prod *Product, err error) {
 // data stored on ProductHandle and returns it.
 func (p *ProductHandle) FindAll() (proda []*Product, err error) {
 	var da []model.Documenter
-	err = p.Handle.FindAll(p.Document(), func() model.Documenter {
-		return NewProduct()
-	}, &da)
+	err = p.Handle.FindAll(p.Document(), &da)
 	proda = make([]*Product, len(da))
 	for i := range da {
 		//noinspection GoNilContainerIndexing
@@ -119,6 +117,29 @@ type Product struct {
 // NewProduct returns a empty Product.
 func NewProduct() (p *Product) {
 	p = &Product{}
+	return
+}
+
+// New creates a new instance of the same Product, used on another
+// functions for clone purposes.
+func (p *Product) New() (doc model.Documenter) {
+	doc = NewProduct()
+	return
+}
+
+// Map translates a product to a bson.M object, more easily read by mgo
+// methods.
+func (p *Product) Map() (out bson.M, err error) {
+	out, err = model.MapDocumenter(p)
+	return
+}
+
+// Init translates a bson.M received, to the product strucutre. It
+// fills the structure fields with the values of each key in the
+// bson.M received.
+func (p *Product) Init(in bson.M) (err error) {
+	var doc model.Documenter = p
+	err = model.InitDocumenter(in, &doc)
 	return
 }
 
