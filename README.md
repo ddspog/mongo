@@ -1,6 +1,6 @@
 # mongo [![GoDoc](https://godoc.org/github.com/ddspog/mongo?status.svg)](https://godoc.org/github.com/ddspog/mongo) [![Go Report Card](https://goreportcard.com/badge/github.com/ddspog/mongo)](https://goreportcard.com/report/github.com/ddspog/mongo) [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/) [![Travis CI](https://travis-ci.org/ddspog/mongo.svg?branch=master)](https://travis-ci.org/ddspog/mongo)
 
-by [ddspog](http://hithub.com/ddspog)
+by [ddspog](http://github.com/ddspog)
 
 Package **mongo** helps you mask the connection to MongoDB using mgo package.
 
@@ -66,11 +66,28 @@ if err := mongo.Connect(); err != nil {
 }
 ```
 
+## Testing
+
+This package contains a nice coverage with the unit tests, within the
+objetives of the project.
+
+The elements, embedded and mocks sub-packages have low coverage because
+they fulfill a need to mock mgo elements. These packages only embedded
+mgo objects to mock, and by this a lot of unused functions were created
+to fulfill interface requisites.
+
+On the other hand, model, handler and mongo package have full coverage,
+being the focus of this project.
+
+The project also contains a set of acceptance tests. I've have set the
+test-acceptance task with the commands to run it. These tests requires
+a mongo test database to be available. It creates, search and remove
+elements from it, being reusable without broking the database.
+
 ## Contribution
 
 This package has some objectives from now:
 
 * Being incorporate on mgo package (possible fork) on possible future.
-* Creating real tests with MongoDB connections.
 
 Any interest in help is much appreciated.
