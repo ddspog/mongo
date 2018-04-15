@@ -12,11 +12,11 @@ test-model:
     - go test {{.REPO_PATH}}/model -v --cover
   silent: true
 
-test-example:
-  desc: Run a test with an mongo instance running.
+test-acceptance:
+  desc: Run acceptance tests with a real mongo instance running.
   cmds:
-    - echo "Calling tests example execution ..."
-    - go test {{.REPO_PATH}}/example -v --cover
+    - echo "Calling acceptance tests execution ..."
+    - go test {{.REPO_PATH}} -v --cover -tags=acceptance
   silent: true
 
 test-mongo:
@@ -26,8 +26,15 @@ test-mongo:
     - go test {{.REPO_PATH}} -v --cover
   silent: true
 
+cover:
+  desc: Check cover of all unit tests.
+  cmds:
+    - echo "Checking coverage for all unit tests ..."
+    - goverage ./...
+    - go tool cover -html=coverage.out
+
 test:
-  deps: [test-handler, test-model, test-mongo, test-example]
+  deps: [test-handler, test-model, test-mongo]
   desc: Run all tests.
 
 gen-mock-collection:
