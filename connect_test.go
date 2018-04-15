@@ -22,17 +22,17 @@ func Test_Connection_with_MongoDB(t *testing.T) {
 
 	makeMGO, _ := mocks.NewMockMGOSetup(t)
 	makeMongo, _ := NewMockMongoSetup(t)
-	defer finish(makeMGO, makeMongo)
+	defer Finish(makeMGO, makeMongo)
 
-	given, like, s := bdd.Sentences()
+	given, _, _ := bdd.Sentences()
 
-	given(t, "a database named '%[1]v' with a products collection with 10 elements", func(when bdd.When, args ...interface{}) {
-		db := makeMGO.DatabaseMock(args[0].(string), func(mcl *mocks.MockCollectioner) {
+	given(t, "a database named 'products' with a products collection with 10 elements", func(when bdd.When) {
+		db := makeMGO.DatabaseMock("products", func(mcl *mocks.MockCollectioner) {
 			mcl.ExpectCountReturn(10)
 		})
 
-		makeMongo.ParseURL().Returns(elements.NewDatabaseInfo(args[0].(string)), nil)
-		makeMongo.Dial().Returns(makeMGO.SessionMock(args[0].(string), db), nil)
+		makeMongo.ParseURL().Returns(elements.NewDatabaseInfo("products"), nil)
+		makeMongo.Dial().Returns(makeMGO.SessionMock("products", db), nil)
 
 		when("calling mongo.Connect()", func(it bdd.It) {
 			it("should run with no problems", func(assert bdd.Assert) {
@@ -42,15 +42,17 @@ func Test_Connection_with_MongoDB(t *testing.T) {
 
 		when("running mongo.ConsumeDatabaseOnSession() to link p handler on '%[1]v' collection", func(it bdd.It) {
 			var n int
-			var err error
+			var errCount, errLink error
 
 			ConsumeDatabaseOnSession(func(db elements.Databaser) {
-				p := newProductCount(args[0].(string))
-				n, err = p.Link(db).Count()
+				p := NewProductHandle()
+				_, errLink = p.Link(db)
+				n, errCount = p.Count()
 			})
 
 			it("p.Count() should return no errors", func(assert bdd.Assert) {
-				assert.NoError(err)
+				assert.NoError(errLink)
+				assert.NoError(errCount)
 			})
 			it("p.Count() should return 10", func(assert bdd.Assert) {
 				assert.Equal(n, 10)
@@ -58,9 +60,7 @@ func Test_Connection_with_MongoDB(t *testing.T) {
 		})
 
 		Disconnect()
-	}, like(
-		s("test"), s("db01"), s("db02"),
-	))
+	})
 }
 
 // Feature Connect only with valid URLs.
@@ -73,7 +73,7 @@ func Test_Connect_only_with_valid_URLs(t *testing.T) {
 
 	makeMGO, _ := mocks.NewMockMGOSetup(t)
 	makeMongo, _ := NewMockMongoSetup(t)
-	defer finish(makeMGO, makeMongo)
+	defer Finish(makeMGO, makeMongo)
 
 	given, _, _ := bdd.Sentences()
 

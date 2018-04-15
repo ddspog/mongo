@@ -55,11 +55,11 @@ func (s *MockMGOSetup) SessionMock(db string, mdb *MockDatabaser) (ms *MockSessi
 
 // DatabaseMock create a Database mock that expect an C to return the
 // Collectioner mocked from function.
-func (s *MockMGOSetup) DatabaseMock(n string, f func(*MockCollectioner)) (mdb *MockDatabaser) {
+func (s *MockMGOSetup) DatabaseMock(name string, f func(*MockCollectioner)) (mdb *MockDatabaser) {
 	mdb = NewMockDatabaser(s.controller())
 	mcl := NewMockCollectioner(s.controller())
 	f(mcl)
-	mdb.EXPECT().C(n).AnyTimes().Return(mcl)
+	mdb.EXPECT().C(name).AnyTimes().Return(mcl)
 	return
 }
 

@@ -1,6 +1,5 @@
-package example
+package mongo
 
-import "github.com/ddspog/mongo"
 import "github.com/ddspog/mongo/elements"
 
 func NewDBSocket() (db DatabaseSocketer) {
@@ -22,7 +21,7 @@ type DatabaseSocket struct {
 }
 
 func (d *DatabaseSocket) DB() (db elements.Databaser) {
-	go mongo.ConsumeDatabaseOnSession(func(db elements.Databaser) {
+	go ConsumeDatabaseOnSession(func(db elements.Databaser) {
 		d.db <- db
 		<-d.quit
 	})
