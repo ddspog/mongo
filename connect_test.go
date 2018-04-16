@@ -22,7 +22,7 @@ func Test_Connection_with_MongoDB(t *testing.T) {
 
 	makeMGO, _ := mocks.NewMockMGOSetup(t)
 	makeMongo, _ := NewMockMongoSetup(t)
-	defer Finish(makeMGO, makeMongo)
+	defer finish(makeMGO, makeMongo)
 
 	given, _, _ := bdd.Sentences()
 
@@ -45,7 +45,7 @@ func Test_Connection_with_MongoDB(t *testing.T) {
 			var errCount, errLink error
 
 			ConsumeDatabaseOnSession(func(db elements.Databaser) {
-				p := NewProductHandle()
+				p := newProductHandle()
 				_, errLink = p.Link(db)
 				n, errCount = p.Count()
 			})
@@ -73,7 +73,7 @@ func Test_Connect_only_with_valid_URLs(t *testing.T) {
 
 	makeMGO, _ := mocks.NewMockMGOSetup(t)
 	makeMongo, _ := NewMockMongoSetup(t)
-	defer Finish(makeMGO, makeMongo)
+	defer finish(makeMGO, makeMongo)
 
 	given, _, _ := bdd.Sentences()
 
