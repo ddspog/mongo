@@ -109,13 +109,13 @@ func (h *Handle) Insert(doc model.Documenter) (err error) {
 }
 
 // Remove delete a document on collection connected to Handle, matching
-// id of doc.
-func (h *Handle) Remove(doc model.Documenter) (err error) {
-	if doc.ID().Hex() == "" {
+// id received.
+func (h *Handle) Remove(id bson.ObjectId) (err error) {
+	if id.Hex() == "" {
 		err = ErrIDNotDefined
 	} else {
 		if err = h.checkLink(); err == nil {
-			err = h.collectionV.RemoveID(doc.ID())
+			err = h.collectionV.RemoveID(id)
 		}
 	}
 	return

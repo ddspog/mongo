@@ -83,7 +83,7 @@ func (p *productHandle) Insert() (err error) {
 // Remove delete a document from connected collection matching the id
 // of data stored on Handle.
 func (p *productHandle) Remove() (err error) {
-	err = p.Handle.Remove(p.Document())
+	err = p.Handle.Remove(p.Document().ID())
 	return
 }
 
