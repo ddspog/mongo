@@ -15,46 +15,62 @@ The package can be used like this:
 
 ```go
 // Create a type embedding the Document type
-type product struct {
-    IDV bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
-    CreatedOnV int64 `json:"created_on" bson:"created_on"`
-    UpdatedOnV int64 `json:"updated_on" bson:"updated_on"`
-    name string `json:"name" form:"name" binding:"required" bson:"name"`
-    price float32 `json:"price" form:"price" binding:"required" bson:"price"`
+type Product struct {
+    IDV bson.ObjectId   `json:"_id,omitempty" bson:"_id,omitempty"`
+    CreatedOnV  int64   `json:"created_on,omitempty" bson:"created_on,omitempty"`
+    UpdatedOnV  int64   `json:"updated_on,omitempty" bson:"updated_on,omitempty"`
+    NameV   string  `json:"name" form:"name" binding:"required" bson:"name"`
+    PriceV  float32 `json:"price" form:"price" binding:"required" bson:"price"`
 }
 
 // Implement the Documenter interface.
-func (p *product) ID() (id bson.ObjectId) {
+func (p *Product) ID() (id bson.ObjectId) {
     id = p.IDV
     return
 }
 
-func (p *product) CreatedOn() (t int64) {
+func (p *Product) CreatedOn() (t int64) {
     t = p.CreatedOnV
     return
 }
 
-func (p *product) UpdatedOn() (t int64) {
+func (p *Product) UpdatedOn() (t int64) {
     t = p.UpdatedOnV
+    return
+}
+
+func (p *Product) New() (doc model.Documenter) {
+    doc = &Product{}
     return
 }
 
 // On these methods, you can use the functions implemented on this
 // model package.
-func (p *product) GenerateID() {
+func (p *Product) Map() (out bson.M, err error) {
+    out, err = model.MapDocumenter(p)
+    return
+}
+
+func (p *Product) Init(in bson.M) (err error) {
+    var doc model.Documenter = p
+    err = model.InitDocumenter(in, &doc)
+    return
+}
+
+func (p *Product) GenerateID() {
     p.IDV = model.NewID()
 }
 
-func (p *product) CalculateCreatedOn() {
+func (p *Product) CalculateCreatedOn() {
     p.CreatedOnV = model.NowInMilli()
 }
 
-func (p *product) CalculateUpdatedOn() {
+func (p *Product) CalculateUpdatedOn() {
     p.UpdatedOnV = model.NowInMilli()
 }
 
 // Create a product variable, and try its methods.
-p := product{}
+p := Product{}
 p.CalculateCreatedOn()
 t := p.CreatedOn()
 ```
