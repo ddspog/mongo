@@ -46,7 +46,7 @@ func Test_Connection_with_MongoDB(t *testing.T) {
 
 			ConsumeDatabaseOnSession(func(db elements.Databaser) {
 				p := newProductHandle()
-				_, errLink = p.Link(db)
+				errLink = p.Link(db)
 				n, errCount = p.Count()
 			})
 
@@ -136,7 +136,7 @@ func Test_Connect_only_with_valid_URLs(t *testing.T) {
 // - As a developer,
 // - I want that MockMongoSetup returns an error when receiving a nil test element,
 // - So that I could restrain the use of this Setup only to tests.
-func Test_MockModelSetup_works_only_on_Tests(t *testing.T) {
+func Test_MockMongoSetup_works_only_on_Tests(t *testing.T) {
 	given, _, _ := bdd.Sentences()
 
 	given(t, "the start of the test", func(when bdd.When) {

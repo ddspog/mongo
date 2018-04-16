@@ -76,6 +76,8 @@ func Connect() (err error) {
 	return
 }
 
+// Disconnect undo the connection made. Preparing package for a new
+// connection.
 func Disconnect() {
 	once = *new(sync.Once)
 	session = new(embedded.Session)
