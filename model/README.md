@@ -61,7 +61,7 @@ t := p.CreatedOn()
 
 ## Mocking
 
-You can mock some functionalities of this package, by mocking some
+You can mock some functions of this package, by mocking some
 called functions time.Now and bson.NewObjectId. Use the MockModelSetup presented on this package (only in test environment), like:
 
 ```go

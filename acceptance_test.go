@@ -238,7 +238,7 @@ func Test_Real_connection_to_MongoDB(t *testing.T) {
 // Feature Read data on MongoDB
 // - As a developer,
 // - I want to be able to connect and retrieve data from MongoDB,
-// - So I can use these functionalities on real applications.
+// - So I can use these functions on real applications.
 func Test_Read_data_on_MongoDB(t *testing.T) {
 	given, like, s := bdd.Sentences()
 

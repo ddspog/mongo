@@ -43,7 +43,7 @@ variable, but when it's not defined, it uses a default URL:
 
 Mocking
 
-You can mock some functionalities of this package, by mocking the mgo
+You can mock some functions of this package, by mocking the mgo
 called functions mgo.ParseURL and mgo.Dial. Use the MockMongoSetup
 presented on this package (only in test environment), like:
 

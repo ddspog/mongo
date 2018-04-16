@@ -40,7 +40,7 @@ func (p *product) Map() (out bson.M, err error) {
 	return
 }
 
-// Init translates a bson.M received, to the product strucutre. It
+// Init translates a bson.M received, to the product structure. It
 // fills the structure fields with the values of each key in the
 // bson.M received.
 func (p *product) Init(in bson.M) (err error) {

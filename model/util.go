@@ -40,7 +40,7 @@ func InitDocumenter(in bson.M, out *Documenter) (err error) {
 	return
 }
 
-// MapDocumenter translates a Documenter in whathever structure
+// MapDocumenter translates a Documenter in whatever structure
 // it has, to a bson.M object, more easily read by mgo.Collection
 // methods.
 func MapDocumenter(in Documenter) (out bson.M, err error) {

@@ -49,7 +49,7 @@ mongodb://localhost:27017/test
 
 ## Mocking
 
-You can mock some functionalities of this package, by mocking the mgo
+You can mock some functions of this package, by mocking the mgo
 called functions mgo.ParseURL and mgo.Dial. Use the MockMongoSetup
 presented on this package (only in test environment), like:
 
@@ -69,7 +69,7 @@ if err := mongo.Connect(); err != nil {
 ## Testing
 
 This package contains a nice coverage with the unit tests, within the
-objetives of the project.
+objectives of the project.
 
 The elements, embedded and mocks sub-packages have low coverage because
 they fulfill a need to mock mgo elements. These packages only embedded

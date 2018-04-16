@@ -56,13 +56,13 @@ func Connect() (err error) {
 		var m *elements.DialInfo
 		m, err = parseURL(u)
 		if err != nil {
-			err = fmt.Errorf("Problem parsing Mongo URI. uri=%[1]s err='%[2]v'", u, err.Error())
+			err = fmt.Errorf("problem parsing Mongo URI uri=%[1]s err='%[2]v'", u, err.Error())
 			return
 		}
 		var s elements.Sessioner
 		s, err = dial(u)
 		if err != nil {
-			err = fmt.Errorf("Problem dialing Mongo URI. uri=%[1]s err='%[2]v'", u, err.Error())
+			err = fmt.Errorf("problem dialing Mongo URI uri=%[1]s err='%[2]v'", u, err.Error())
 			return
 		}
 

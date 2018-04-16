@@ -14,9 +14,9 @@ var (
 	// ErrDBNotDefined it's an error received when an DB is nil or
 	// undefined.
 	ErrDBNotDefined = errors.New("DB not defined")
-	// ErrHandlerNotLinked it's an error receibed when the Handler
+	// ErrHandlerNotLinked it's an error received when the Handler
 	// isn't linked to any collection.
-	ErrHandlerNotLinked = errors.New("Handler not linked to collection")
+	ErrHandlerNotLinked = errors.New("handler not linked to collection")
 )
 
 // Handle it's a type implementing the Handler interface, responsible
@@ -74,16 +74,16 @@ func (h *Handle) FindAll(doc model.Documenter, out *[]model.Documenter) (err err
 		if mapped, err = doc.Map(); err == nil {
 			var result []interface{}
 			if err = h.collectionV.Find(mapped).All(&result); err == nil {
-				outa := make([]model.Documenter, len(result))
+				tempArr := make([]model.Documenter, len(result))
 				for i := range result {
 					//noinspection GoNilContainerIndexing
-					outa[i] = doc.New()
-					if err := outa[i].Init(result[i].(bson.M)); err != nil {
+					tempArr[i] = doc.New()
+					if err := tempArr[i].Init(result[i].(bson.M)); err != nil {
 						break
 					}
 				}
 
-				*out = outa
+				*out = tempArr
 			}
 		}
 	}
@@ -151,7 +151,7 @@ func (h *Handle) Update(id bson.ObjectId, doc model.Documenter) (err error) {
 	return
 }
 
-// checklink verifies if collection were already linked on the Handle.
+// checkLink verifies if collection were already linked on the Handle.
 func (h *Handle) checkLink() (err error) {
 	if h.collectionV == nil {
 		err = ErrHandlerNotLinked
