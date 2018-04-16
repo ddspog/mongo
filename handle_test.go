@@ -102,7 +102,7 @@ func Test_Link_Handle_to_Database(t *testing.T) {
 			})
 		})
 
-		when("errLink := h.Link(db) and n, errCount := h.Cound() is called", func(it bdd.It) {
+		when("errLink := h.Link(db) and n, errCount := h.Count() is called", func(it bdd.It) {
 			errLink := h.Link(db)
 			n, errCount := h.Count()
 
