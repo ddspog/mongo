@@ -1,4 +1,4 @@
-package handler
+package mongo
 
 import (
 	"fmt"
@@ -7,7 +7,6 @@ import (
 
 	"github.com/ddspog/mongo/elements"
 	"github.com/ddspog/mongo/mocks"
-	"github.com/ddspog/mongo/model"
 	"github.com/ddspog/mspec/bdd"
 	"github.com/globalsign/mgo/bson"
 )
@@ -347,8 +346,8 @@ func Test_Find_various_documents_with_Handle(t *testing.T) {
 // - So that I can use Handler to insert data.
 func Test_Insert_documents_with_Handle(t *testing.T) {
 	makeMGO, _ := mocks.NewMockMGOSetup(t)
-	makeModel, _ := model.NewMockModelSetup(t)
-	defer Finish(makeMGO, makeModel)
+	makeModel, _ := NewMockModelSetup(t)
+	defer finish(makeMGO, makeModel)
 
 	given, like, s := bdd.Sentences()
 
@@ -464,8 +463,8 @@ func Test_Remove_various_documents_with_Handle(t *testing.T) {
 // - So that I can use Handler to update data.
 func Test_Update_documents_with_Handle(t *testing.T) {
 	makeMGO, _ := mocks.NewMockMGOSetup(t)
-	makeModel, _ := model.NewMockModelSetup(t)
-	defer Finish(makeMGO, makeModel)
+	makeModel, _ := NewMockModelSetup(t)
+	defer finish(makeMGO, makeModel)
 
 	given, like, s := bdd.Sentences()
 

@@ -1,17 +1,3 @@
-test-handler:
-  desc: Run handler tests.
-  cmds:
-    - echo "Calling tests handler execution ..."
-    - go test {{.REPO_PATH}}/handler -v --cover
-  silent: true
-
-test-model:
-  desc: Run model tests.
-  cmds:
-    - echo "Calling tests model execution ..."
-    - go test {{.REPO_PATH}}/model -v --cover
-  silent: true
-
 test-acceptance:
   desc: Run acceptance tests with a real mongo instance running.
   cmds:
@@ -34,7 +20,7 @@ cover:
     - go tool cover -html=coverage.out
 
 test:
-  deps: [test-handler, test-model, test-mongo]
+  deps: [test-mongo]
   desc: Run all tests.
 
 gen-mock-collection:

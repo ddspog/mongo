@@ -1,10 +1,9 @@
-package handler
+package mongo
 
 import (
 	"errors"
 
 	"github.com/ddspog/mongo/elements"
-	"github.com/ddspog/mongo/model"
 	"github.com/globalsign/mgo/bson"
 )
 
@@ -26,8 +25,8 @@ type Handle struct {
 	SearchMV    bson.M
 }
 
-// New creates a new Handle to be embedded onto handle for other types.
-func New() (h *Handle) {
+// NewHandle creates a new Handle to be embedded onto handle for other types.
+func NewHandle() (h *Handle) {
 	h = &Handle{}
 	return
 }
@@ -66,7 +65,7 @@ func (h *Handle) Count() (n int, err error) {
 
 // Find search for a document matching the doc data on collection
 // connected to Handle.
-func (h *Handle) Find(doc model.Documenter, out model.Documenter) (err error) {
+func (h *Handle) Find(doc Documenter, out Documenter) (err error) {
 	if err = h.checkLink(); err == nil {
 		var mapped bson.M
 
@@ -88,7 +87,7 @@ func (h *Handle) Find(doc model.Documenter, out model.Documenter) (err error) {
 
 // FindAll search for all documents matching the doc data on
 // collection connected to Handle.
-func (h *Handle) FindAll(doc model.Documenter, out *[]model.Documenter) (err error) {
+func (h *Handle) FindAll(doc Documenter, out *[]Documenter) (err error) {
 	if err = h.checkLink(); err == nil {
 		var mapped bson.M
 
@@ -101,7 +100,7 @@ func (h *Handle) FindAll(doc model.Documenter, out *[]model.Documenter) (err err
 		if err == nil {
 			var result []interface{}
 			if err = h.collectionV.Find(mapped).All(&result); err == nil {
-				tempArr := make([]model.Documenter, len(result))
+				tempArr := make([]Documenter, len(result))
 				for i := range result {
 					//noinspection GoNilContainerIndexing
 					tempArr[i] = doc.New()
@@ -119,7 +118,7 @@ func (h *Handle) FindAll(doc model.Documenter, out *[]model.Documenter) (err err
 
 // Insert puts a new document on collection connected to Handle, using
 // doc data.
-func (h *Handle) Insert(doc model.Documenter) (err error) {
+func (h *Handle) Insert(doc Documenter) (err error) {
 	if doc.ID().Hex() == "" {
 		doc.GenerateID()
 	}
@@ -150,7 +149,7 @@ func (h *Handle) Remove(id bson.ObjectId) (err error) {
 
 // RemoveAll delete all documents on collection connected to Handle,
 // matching the doc data.
-func (h *Handle) RemoveAll(doc model.Documenter) (info *elements.ChangeInfo, err error) {
+func (h *Handle) RemoveAll(doc Documenter) (info *elements.ChangeInfo, err error) {
 	if err = h.checkLink(); err == nil {
 		var mapped bson.M
 
@@ -169,7 +168,7 @@ func (h *Handle) RemoveAll(doc model.Documenter) (info *elements.ChangeInfo, err
 
 // Update updates a document on collection connected to Handle,
 // matching id received, updating with the information on doc.
-func (h *Handle) Update(id bson.ObjectId, doc model.Documenter) (err error) {
+func (h *Handle) Update(id bson.ObjectId, doc Documenter) (err error) {
 	if id.Hex() == "" {
 		err = ErrIDNotDefined
 	} else {

@@ -1,11 +1,25 @@
 package mongo
 
 import (
+	"time"
+
 	"github.com/ddspog/mongo/elements"
-	"github.com/ddspog/mongo/handler"
-	"github.com/ddspog/mongo/model"
 	"github.com/globalsign/mgo/bson"
 )
+
+const (
+	// Const values to help tests legibility.
+	testid     = "000000000000746573746964"
+	product1id = "000070726f64756374316964"
+	product2id = "000070726f64756374326964"
+	anyReason  = "Whatever reason."
+)
+
+// productCollection mimics a collection of products.
+var productCollection = []*product{
+	newProductStored(),
+	newProductStored(),
+}
 
 // product it's a type embedding the Document struct.
 type product struct {
@@ -20,9 +34,19 @@ func newProduct() (p *product) {
 	return
 }
 
+// newProductStored returns a product with some attributes.
+func newProductStored() (p *product) {
+	p = newProduct()
+	p.GenerateID()
+	time.Sleep(10 * time.Millisecond)
+
+	p.CalculateCreatedOn()
+	return
+}
+
 // New creates a new instance of the same product, used on another
 // functions for clone purposes.
-func (p *product) New() (doc model.Documenter) {
+func (p *product) New() (doc Documenter) {
 	doc = newProduct()
 	return
 }
@@ -30,7 +54,7 @@ func (p *product) New() (doc model.Documenter) {
 // Map translates a product to a bson.M object, more easily read by mgo
 // methods.
 func (p *product) Map() (out bson.M, err error) {
-	out, err = model.MapDocumenter(p)
+	out, err = MapDocumenter(p)
 	return
 }
 
@@ -38,8 +62,8 @@ func (p *product) Map() (out bson.M, err error) {
 // fills the structure fields with the values of each key in the
 // bson.M received.
 func (p *product) Init(in bson.M) (err error) {
-	var doc model.Documenter = p
-	err = model.InitDocumenter(in, &doc)
+	var doc Documenter = p
+	err = InitDocumenter(in, &doc)
 	return
 }
 
@@ -63,25 +87,26 @@ func (p *product) UpdatedOn() (t int64) {
 
 // GenerateID creates a new id for a document.
 func (p *product) GenerateID() {
-	p.IDV = model.NewID()
+	p.IDV = NewID()
 }
 
 // CalculateCreatedOn update the created_on attribute with a value
 // corresponding to actual time.
 func (p *product) CalculateCreatedOn() {
-	p.CreatedOnV = model.NowInMilli()
+	p.CreatedOnV = NowInMilli()
 }
 
 // CalculateUpdatedOn update the updated_on attribute with a value
 // corresponding to actual time.
 func (p *product) CalculateUpdatedOn() {
-	p.UpdatedOnV = model.NowInMilli()
+	p.UpdatedOnV = NowInMilli()
 }
 
 // productHandler it's an interface describing operations common to
 // handler's of MongoDB Products collection.
 type productHandler interface {
-	Link(elements.Databaser) (productHandler, error)
+	Link(elements.Databaser) error
+	Clean()
 	Count() (int, error)
 	Find() (*product, error)
 	FindAll() ([]*product, error)
@@ -90,20 +115,21 @@ type productHandler interface {
 	RemoveAll() (*elements.ChangeInfo, error)
 	Update(bson.ObjectId) error
 	Document() *product
+	SearchM() bson.M
 	Name() string
 }
 
 // productHandle it's a type embedding the Handle struct, it's capable
 // of storing Products.
 type productHandle struct {
-	*handler.Handle
+	*Handle
 	DocumentV *product
 }
 
 // newProductHandle returns a empty productHandle.
 func newProductHandle() (p *productHandle) {
 	p = &productHandle{
-		Handle:    handler.New(),
+		Handle:    NewHandle(),
 		DocumentV: newProduct(),
 	}
 	return
@@ -116,16 +142,21 @@ func (p *productHandle) Name() (n string) {
 }
 
 // Link connects the productHandle to collection.
-func (p *productHandle) Link(db elements.Databaser) (h productHandler, err error) {
+func (p *productHandle) Link(db elements.Databaser) (err error) {
 	err = p.Handle.Link(db, p.Name())
-	h = p
 	return
+}
+
+// Clean documents and search map values.
+func (p *productHandle) Clean() {
+	p.Handle.Clean()
+	p.DocumentV = newProduct()
 }
 
 // Find search on connected collection for a document matching data
 // stored on productHandle and returns it.
 func (p *productHandle) Find() (prod *product, err error) {
-	var doc model.Documenter = newProduct()
+	var doc Documenter = newProduct()
 	err = p.Handle.Find(p.Document(), doc)
 	prod = doc.(*product)
 	return
@@ -134,7 +165,7 @@ func (p *productHandle) Find() (prod *product, err error) {
 // FindAll search on connected collection for all documents matching
 // data stored on productHandle and returns it.
 func (p *productHandle) FindAll() (proda []*product, err error) {
-	var da []model.Documenter
+	var da []Documenter
 	err = p.Handle.FindAll(p.Document(), &da)
 	proda = make([]*product, len(da))
 	for i := range da {
@@ -191,33 +222,15 @@ func finish(fs ...finisher) {
 	}
 }
 
-func newDBSocket() (db databaseSocketer) {
-	db = &databaseSocket{
-		db:   make(chan elements.Databaser),
-		quit: make(chan bool),
-	}
+// timeFmt parses time well formatted.
+func timeFmt(s string) (t time.Time) {
+	t, _ = time.Parse("02-01-2006 15:04:05", s)
 	return
 }
 
-type databaseSocketer interface {
-	DB() elements.Databaser
-	Close()
-}
-
-type databaseSocket struct {
-	db   chan elements.Databaser
-	quit chan bool
-}
-
-func (d *databaseSocket) DB() (db elements.Databaser) {
-	go ConsumeDatabaseOnSession(func(db elements.Databaser) {
-		d.db <- db
-		<-d.quit
-	})
-
-	return <-d.db
-}
-
-func (d *databaseSocket) Close() {
-	d.quit <- true
+// expectedNowInMilli returns expected return from NowInMilli function,
+// given the time returned by time.Now().
+func expectedNowInMilli(t time.Time) (r int64) {
+	r = t.UnixNano() / int64(time.Millisecond)
+	return
 }
