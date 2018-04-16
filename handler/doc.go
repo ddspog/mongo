@@ -62,6 +62,13 @@ a Document getter function defined like:
 		return
 	}
 
+The Clean function is simple and helps a lot:
+
+	func (p *ProductHandle) Clean() {
+		p.Handle.Clean()
+		p.DocumentV = NewProduct()
+	}
+
 The Update function uses an id as an argument:
 
 	func (p *ProductHandle) Update(id bson.ObjectId) (err error) {

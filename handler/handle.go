@@ -51,7 +51,7 @@ func (h *Handle) Clean() {
 // IsSearchEmpty verify if there aren't any key defined on the SearchM
 // value.
 func (h *Handle) IsSearchEmpty() (result bool) {
-	result = len(h.SearchMV) == 0
+	result = len(h.SearchM()) == 0
 	return
 }
 
@@ -73,7 +73,7 @@ func (h *Handle) Find(doc model.Documenter, out model.Documenter) (err error) {
 		if h.IsSearchEmpty() {
 			mapped, err = doc.Map()
 		} else {
-			mapped = h.SearchMV
+			mapped = h.SearchM()
 		}
 
 		if err == nil {
@@ -95,7 +95,7 @@ func (h *Handle) FindAll(doc model.Documenter, out *[]model.Documenter) (err err
 		if h.IsSearchEmpty() {
 			mapped, err = doc.Map()
 		} else {
-			mapped = h.SearchMV
+			mapped = h.SearchM()
 		}
 
 		if err == nil {
@@ -157,7 +157,7 @@ func (h *Handle) RemoveAll(doc model.Documenter) (info *elements.ChangeInfo, err
 		if h.IsSearchEmpty() {
 			mapped, err = doc.Map()
 		} else {
-			mapped = h.SearchMV
+			mapped = h.SearchM()
 		}
 
 		if err == nil {
@@ -182,6 +182,12 @@ func (h *Handle) Update(id bson.ObjectId, doc model.Documenter) (err error) {
 			}
 		}
 	}
+	return
+}
+
+// SearchM return the search map value of Handle.
+func (h *Handle) SearchM() (s bson.M) {
+	s = h.SearchMV
 	return
 }
 

@@ -71,6 +71,15 @@ func (p *ProductHandle) Insert() (err error) {
 }
 ```
 
+The Clean function is simple and helps a lot:
+
+```go
+func (p *ProductHandle) Clean() {
+    p.Handle.Clean()
+    p.DocumentV = NewProduct()
+}
+```
+
 The Update function uses an id as an argument:
 
 ```go
