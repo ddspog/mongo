@@ -105,7 +105,7 @@ func Test_Connect_only_with_valid_URLs(t *testing.T) {
 				err := Connect()
 
 				assert.Error(err)
-				assert.Contains(err.Error(), "Problem parsing Mongo URI. uri="+u)
+				assert.Contains(err.Error(), "problem parsing Mongo URI uri="+u)
 			})
 		})
 
@@ -124,7 +124,7 @@ func Test_Connect_only_with_valid_URLs(t *testing.T) {
 				err := Connect()
 
 				assert.Error(err)
-				assert.Contains(err.Error(), "Problem dialing Mongo URI. uri="+u)
+				assert.Contains(err.Error(), "problem dialing Mongo URI uri="+u)
 			})
 		})
 
