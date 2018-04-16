@@ -14,9 +14,9 @@ var (
 	// ErrDBNotDefined it's an error received when an DB is nil or
 	// undefined.
 	ErrDBNotDefined = errors.New("DB not defined")
-	// ErrHandlerNotLinked it's an error receibed when the Handler
+	// ErrHandlerNotLinked it's an error received when the Handler
 	// isn't linked to any collection.
-	ErrHandlerNotLinked = errors.New("Handler not linked to collection")
+	ErrHandlerNotLinked = errors.New("handler not linked to collection")
 )
 
 // Handle it's a type implementing the Handler interface, responsible
@@ -53,13 +53,13 @@ func (h *Handle) Count() (n int, err error) {
 
 // Find search for a document matching the doc data on collection
 // connected to Handle.
-func (h *Handle) Find(doc model.Documenter, out *model.Documenter) (err error) {
+func (h *Handle) Find(doc model.Documenter, out model.Documenter) (err error) {
 	if err = h.checkLink(); err == nil {
 		var mapped bson.M
-		if mapped, err = encode(doc); err == nil {
+		if mapped, err = doc.Map(); err == nil {
 			var result interface{}
 			if err = h.collectionV.Find(mapped).One(&result); err == nil {
-				err = decode(result, out)
+				err = out.Init(result.(bson.M))
 			}
 		}
 	}
@@ -68,13 +68,22 @@ func (h *Handle) Find(doc model.Documenter, out *model.Documenter) (err error) {
 
 // FindAll search for all documents matching the doc data on
 // collection connected to Handle.
-func (h *Handle) FindAll(doc model.Documenter, newDoc func() model.Documenter, out *[]model.Documenter) (err error) {
+func (h *Handle) FindAll(doc model.Documenter, out *[]model.Documenter) (err error) {
 	if err = h.checkLink(); err == nil {
 		var mapped bson.M
-		if mapped, err = encode(doc); err == nil {
+		if mapped, err = doc.Map(); err == nil {
 			var result []interface{}
 			if err = h.collectionV.Find(mapped).All(&result); err == nil {
-				err = decodeAll(result, newDoc, out)
+				tempArr := make([]model.Documenter, len(result))
+				for i := range result {
+					//noinspection GoNilContainerIndexing
+					tempArr[i] = doc.New()
+					if err := tempArr[i].Init(result[i].(bson.M)); err != nil {
+						break
+					}
+				}
+
+				*out = tempArr
 			}
 		}
 	}
@@ -92,7 +101,7 @@ func (h *Handle) Insert(doc model.Documenter) (err error) {
 
 	if err = h.checkLink(); err == nil {
 		var mapped bson.M
-		if mapped, err = encode(doc); err == nil {
+		if mapped, err = doc.Map(); err == nil {
 			err = h.collectionV.Insert(mapped)
 		}
 	}
@@ -100,13 +109,13 @@ func (h *Handle) Insert(doc model.Documenter) (err error) {
 }
 
 // Remove delete a document on collection connected to Handle, matching
-// id of doc.
-func (h *Handle) Remove(doc model.Documenter) (err error) {
-	if doc.ID().Hex() == "" {
+// id received.
+func (h *Handle) Remove(id bson.ObjectId) (err error) {
+	if id.Hex() == "" {
 		err = ErrIDNotDefined
 	} else {
 		if err = h.checkLink(); err == nil {
-			err = h.collectionV.RemoveID(doc.ID())
+			err = h.collectionV.RemoveID(id)
 		}
 	}
 	return
@@ -117,7 +126,7 @@ func (h *Handle) Remove(doc model.Documenter) (err error) {
 func (h *Handle) RemoveAll(doc model.Documenter) (info *elements.ChangeInfo, err error) {
 	if err = h.checkLink(); err == nil {
 		var mapped bson.M
-		if mapped, err = encode(doc); err == nil {
+		if mapped, err = doc.Map(); err == nil {
 			info, err = h.collectionV.RemoveAll(mapped)
 		}
 	}
@@ -134,7 +143,7 @@ func (h *Handle) Update(id bson.ObjectId, doc model.Documenter) (err error) {
 
 		if err = h.checkLink(); err == nil {
 			var mapped bson.M
-			if mapped, err = encode(doc); err == nil {
+			if mapped, err = doc.Map(); err == nil {
 				err = h.collectionV.UpdateID(id, mapped)
 			}
 		}
@@ -142,52 +151,10 @@ func (h *Handle) Update(id bson.ObjectId, doc model.Documenter) (err error) {
 	return
 }
 
-// checklink verifies if collection were already linked on the Handle.
+// checkLink verifies if collection were already linked on the Handle.
 func (h *Handle) checkLink() (err error) {
 	if h.collectionV == nil {
 		err = ErrHandlerNotLinked
 	}
-	return
-}
-
-// encode translates a model.Documenter in whathever structure it has,
-// to a bson.M object, more easily read by mgo.Collection methods.
-func encode(in model.Documenter) (out bson.M, err error) {
-	var buf []byte
-	var target interface{}
-
-	if buf, err = bson.Marshal(in); err == nil {
-		if err = bson.Unmarshal(buf, &target); err == nil {
-			out = target.(bson.M)
-		}
-	}
-
-	return
-}
-
-// decode translates a bson.M received as a interface{}, to the
-// model.Documenter strucutre received as a pointer. It fills the
-// structure fields with the values of each key in the bson.M received.
-func decode(in interface{}, out *model.Documenter) (err error) {
-	var marshalled []byte
-
-	if marshalled, err = bson.Marshal(in); err == nil {
-		err = bson.Unmarshal(marshalled, *out)
-	}
-	return
-}
-
-// decodeAll applies the decode on an array of bson.M objects,
-// translating to an array of model.Documenter.
-func decodeAll(in []interface{}, newDoc func() model.Documenter, out *[]model.Documenter) (err error) {
-	outa := make([]model.Documenter, len(in))
-	for i := range in {
-		//noinspection GoNilContainerIndexing
-		outa[i] = newDoc()
-		if err := decode(in[i], &outa[i]); err != nil {
-			break
-		}
-	}
-	*out = outa
 	return
 }

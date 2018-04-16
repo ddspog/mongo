@@ -32,11 +32,11 @@ func Test_Manipulate_data_on_MongoDB(t *testing.T) {
 		_ = Connect()
 		defer Disconnect()
 
-		conn := NewDBSocket()
+		conn := newDBSocket()
 		defer conn.Close()
 		db := conn.DB()
 
-		p := NewProductHandle()
+		p := newProductHandle()
 		p.Link(db)
 
 		when("using p.RemoveAll()", func(it bdd.It) {
@@ -51,7 +51,7 @@ func Test_Manipulate_data_on_MongoDB(t *testing.T) {
 			})
 
 			it("should have p.Count() return 0", func(assert bdd.Assert) {
-				p.DocumentV = NewProduct()
+				p.DocumentV = newProduct()
 				n, errCount := p.Count()
 
 				assert.NoError(errCount)
@@ -59,7 +59,7 @@ func Test_Manipulate_data_on_MongoDB(t *testing.T) {
 			})
 
 			it("should have p.FindAll() return nothing", func(assert bdd.Assert) {
-				p.DocumentV = NewProduct()
+				p.DocumentV = newProduct()
 				products, errFindAll := p.FindAll()
 
 				assert.NoError(errFindAll)
@@ -70,19 +70,19 @@ func Test_Manipulate_data_on_MongoDB(t *testing.T) {
 		var newId bson.ObjectId
 
 		when(fmt.Sprintf("using p.Insert() to add documents with ids: '%[1]s', '%[2]s', '%[3]s', and a new one", testid01, testid02, testid03), func(it bdd.It) {
-			p.DocumentV = NewProduct()
+			p.DocumentV = newProduct()
 			p.DocumentV.IDV = bson.ObjectIdHex(testid01)
 			errInsertDoc01 := p.Insert()
 
-			p.DocumentV = NewProduct()
+			p.DocumentV = newProduct()
 			p.DocumentV.IDV = bson.ObjectIdHex(testid02)
 			errInsertDoc02 := p.Insert()
 
-			p.DocumentV = NewProduct()
+			p.DocumentV = newProduct()
 			p.DocumentV.IDV = bson.ObjectIdHex(testid03)
 			errInsertDoc03 := p.Insert()
 
-			p.DocumentV = NewProduct()
+			p.DocumentV = newProduct()
 			errInsertDoc04 := p.Insert()
 			newId = p.DocumentV.ID()
 
@@ -94,7 +94,7 @@ func Test_Manipulate_data_on_MongoDB(t *testing.T) {
 			})
 
 			it("should have p.Count() return 4", func(assert bdd.Assert) {
-				p.DocumentV = NewProduct()
+				p.DocumentV = newProduct()
 				n, errCount := p.Count()
 
 				assert.NoError(errCount)
@@ -102,28 +102,28 @@ func Test_Manipulate_data_on_MongoDB(t *testing.T) {
 			})
 
 			it("should have p.Find() return all documents", func(assert bdd.Assert) {
-				p.DocumentV = NewProduct()
+				p.DocumentV = newProduct()
 				p.DocumentV.IDV = bson.ObjectIdHex(testid01)
 				product01, errFindDoc01 := p.Find()
 
 				assert.NoError(errFindDoc01)
 				assert.Equal(testid01, product01.ID().Hex())
 
-				p.DocumentV = NewProduct()
+				p.DocumentV = newProduct()
 				p.DocumentV.IDV = bson.ObjectIdHex(testid02)
 				product02, errFindDoc02 := p.Find()
 
 				assert.NoError(errFindDoc02)
 				assert.Equal(testid02, product02.ID().Hex())
 
-				p.DocumentV = NewProduct()
+				p.DocumentV = newProduct()
 				p.DocumentV.IDV = bson.ObjectIdHex(testid03)
 				product03, errFindDoc03 := p.Find()
 
 				assert.NoError(errFindDoc03)
 				assert.Equal(testid03, product03.ID().Hex())
 
-				p.DocumentV = NewProduct()
+				p.DocumentV = newProduct()
 				p.DocumentV.IDV = newId
 				newProduct, errFindNewDoc := p.Find()
 
@@ -135,7 +135,7 @@ func Test_Manipulate_data_on_MongoDB(t *testing.T) {
 		now := model.NowInMilli()
 
 		when(fmt.Sprintf("using p.Update() to change created_on doc with id '%[1]s' to '%[2]v'", newId.Hex(), now), func(it bdd.It) {
-			p.DocumentV = NewProduct()
+			p.DocumentV = newProduct()
 			p.DocumentV.CreatedOnV = now
 			errUpdate := p.Update(newId)
 
@@ -144,7 +144,7 @@ func Test_Manipulate_data_on_MongoDB(t *testing.T) {
 			})
 
 			it(fmt.Sprintf("should have p.Find() with id '%[1]s' return with new value", newId.Hex()), func(assert bdd.Assert) {
-				p.DocumentV = NewProduct()
+				p.DocumentV = newProduct()
 				p.DocumentV.IDV = newId
 				product, errFind := p.Find()
 
@@ -155,7 +155,7 @@ func Test_Manipulate_data_on_MongoDB(t *testing.T) {
 			})
 
 			it("should have p.Count() return 4", func(assert bdd.Assert) {
-				p.DocumentV = NewProduct()
+				p.DocumentV = newProduct()
 				n, errCount := p.Count()
 
 				assert.NoError(errCount)
@@ -164,7 +164,7 @@ func Test_Manipulate_data_on_MongoDB(t *testing.T) {
 		})
 
 		when(fmt.Sprintf("using p.Remove() to remove doc with id '%[1]s'", newId.Hex()), func(it bdd.It) {
-			p.DocumentV = NewProduct()
+			p.DocumentV = newProduct()
 			p.DocumentV.IDV = newId
 			errRemove := p.Remove()
 
@@ -173,7 +173,7 @@ func Test_Manipulate_data_on_MongoDB(t *testing.T) {
 			})
 
 			it(fmt.Sprintf("should have p.Find() with id '%[1]s' return nothing", newId.Hex()), func(assert bdd.Assert) {
-				p.DocumentV = NewProduct()
+				p.DocumentV = newProduct()
 				p.DocumentV.IDV = newId
 				product, errFind := p.Find()
 
@@ -183,7 +183,7 @@ func Test_Manipulate_data_on_MongoDB(t *testing.T) {
 			})
 
 			it("should have p.Count() return 3", func(assert bdd.Assert) {
-				p.DocumentV = NewProduct()
+				p.DocumentV = newProduct()
 				n, errCount := p.Count()
 
 				assert.NoError(errCount)
@@ -210,7 +210,7 @@ func Test_Real_connection_to_MongoDB(t *testing.T) {
 				assert.NoError(err)
 			})
 
-			conn := NewDBSocket()
+			conn := newDBSocket()
 			defer conn.Close()
 
 			db := conn.DB()
@@ -219,7 +219,7 @@ func Test_Real_connection_to_MongoDB(t *testing.T) {
 				assert.NotNil(db)
 			})
 
-			p, err := NewProductHandle().Link(db)
+			p, err := newProductHandle().Link(db)
 
 			it("should link correctly with products collection", func(assert bdd.Assert) {
 				assert.NoError(err)
@@ -238,7 +238,7 @@ func Test_Real_connection_to_MongoDB(t *testing.T) {
 // Feature Read data on MongoDB
 // - As a developer,
 // - I want to be able to connect and retrieve data from MongoDB,
-// - So I can use these functionalities on real applications.
+// - So I can use these functions on real applications.
 func Test_Read_data_on_MongoDB(t *testing.T) {
 	given, like, s := bdd.Sentences()
 
@@ -247,11 +247,11 @@ func Test_Read_data_on_MongoDB(t *testing.T) {
 		_ = Connect()
 		defer Disconnect()
 
-		conn := NewDBSocket()
+		conn := newDBSocket()
 		defer conn.Close()
 		db := conn.DB()
 
-		p := NewProductHandle()
+		p := newProductHandle()
 		p.Link(db)
 
 		when("using p.Find() with '%[1]v' as document id'", func(it bdd.It, args ...interface{}) {
@@ -270,7 +270,7 @@ func Test_Read_data_on_MongoDB(t *testing.T) {
 		))
 
 		when("using p.FindAll() with a empty Document", func(it bdd.It) {
-			p.DocumentV = NewProduct()
+			p.DocumentV = newProduct()
 			products, errFindAll := p.FindAll()
 
 			it("should run without errors", func(assert bdd.Assert) {

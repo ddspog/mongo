@@ -1,13 +1,13 @@
 package mongo
 
-// Finisher defines a type that can be finished, closing all pendant
+// finisher defines a type that can be finished, closing all pendant
 // operations.
-type Finisher interface {
+type finisher interface {
 	Finish()
 }
 
-// Finish calls Finish for all finishers received.
-func Finish(fs ...Finisher) {
+// finish calls finish for all finishers received.
+func finish(fs ...finisher) {
 	for _, f := range fs {
 		f.Finish()
 	}
