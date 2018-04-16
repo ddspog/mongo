@@ -23,6 +23,7 @@ var (
 // of taking documents and using them to manipulate collections.
 type Handle struct {
 	collectionV elements.Collectioner
+	SearchMV    bson.M
 }
 
 // New creates a new Handle to be embedded onto handle for other types.
@@ -42,6 +43,18 @@ func (h *Handle) Link(db elements.Databaser, n string) (err error) {
 	return
 }
 
+// Clean resets SearchM value.
+func (h *Handle) Clean() {
+	h.SearchMV = make(map[string]interface{})
+}
+
+// IsSearchEmpty verify if there aren't any key defined on the SearchM
+// value.
+func (h *Handle) IsSearchEmpty() (result bool) {
+	result = len(h.SearchM()) == 0
+	return
+}
+
 // Count returns the number of documents on collection connected to
 // Handle.
 func (h *Handle) Count() (n int, err error) {
@@ -56,7 +69,14 @@ func (h *Handle) Count() (n int, err error) {
 func (h *Handle) Find(doc model.Documenter, out model.Documenter) (err error) {
 	if err = h.checkLink(); err == nil {
 		var mapped bson.M
-		if mapped, err = doc.Map(); err == nil {
+
+		if h.IsSearchEmpty() {
+			mapped, err = doc.Map()
+		} else {
+			mapped = h.SearchM()
+		}
+
+		if err == nil {
 			var result interface{}
 			if err = h.collectionV.Find(mapped).One(&result); err == nil {
 				err = out.Init(result.(bson.M))
@@ -71,7 +91,14 @@ func (h *Handle) Find(doc model.Documenter, out model.Documenter) (err error) {
 func (h *Handle) FindAll(doc model.Documenter, out *[]model.Documenter) (err error) {
 	if err = h.checkLink(); err == nil {
 		var mapped bson.M
-		if mapped, err = doc.Map(); err == nil {
+
+		if h.IsSearchEmpty() {
+			mapped, err = doc.Map()
+		} else {
+			mapped = h.SearchM()
+		}
+
+		if err == nil {
 			var result []interface{}
 			if err = h.collectionV.Find(mapped).All(&result); err == nil {
 				tempArr := make([]model.Documenter, len(result))
@@ -126,7 +153,14 @@ func (h *Handle) Remove(id bson.ObjectId) (err error) {
 func (h *Handle) RemoveAll(doc model.Documenter) (info *elements.ChangeInfo, err error) {
 	if err = h.checkLink(); err == nil {
 		var mapped bson.M
-		if mapped, err = doc.Map(); err == nil {
+
+		if h.IsSearchEmpty() {
+			mapped, err = doc.Map()
+		} else {
+			mapped = h.SearchM()
+		}
+
+		if err == nil {
 			info, err = h.collectionV.RemoveAll(mapped)
 		}
 	}
@@ -148,6 +182,12 @@ func (h *Handle) Update(id bson.ObjectId, doc model.Documenter) (err error) {
 			}
 		}
 	}
+	return
+}
+
+// SearchM return the search map value of Handle.
+func (h *Handle) SearchM() (s bson.M) {
+	s = h.SearchMV
 	return
 }
 

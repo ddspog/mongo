@@ -157,6 +157,57 @@ func Test_Generate_ID_of_Document(t *testing.T) {
 	))
 }
 
+// Feature Encoding to map object.
+// - As a developer,
+// - I want that Documenter to be able to convert to bson.M object,
+// - So that I can use to ease call on mgo methods.
+func Test_Encoding_to_map_object(t *testing.T) {
+	given, like, s := bdd.Sentences()
+
+	given(t, "a Product p with id '%[1]s'", func(when bdd.When, args ...interface{}) {
+		p := newProduct()
+		p.IDV = bson.ObjectIdHex(args[0].(string))
+
+		when("out, errMap := p.Map() is called", func(it bdd.It) {
+			out, errMap := p.Map()
+
+			it("should return no errors", func(assert bdd.Assert) {
+				assert.NoError(errMap)
+			})
+
+			it("out['_id'] should be bson.ObjectId equal to '%[1]s'", func(assert bdd.Assert) {
+				id, ok := out["_id"].(bson.ObjectId)
+				assert.True(ok)
+				assert.Equal(id.Hex(), args[0].(string))
+			})
+		})
+	}, like(
+		s(testid), s(product1id), s(product2id),
+	))
+
+	given(t, "a map m with m['_id'] equal to id '%[1]s' and p an empty Product", func(when bdd.When, args ...interface{}) {
+		m := bson.M{
+			"_id": bson.ObjectIdHex(args[0].(string)),
+		}
+
+		p := newProduct()
+
+		when("errInit := p.Init(m) is called", func(it bdd.It) {
+			errInit := p.Init(m)
+
+			it("should return no errors", func(assert bdd.Assert) {
+				assert.NoError(errInit)
+			})
+
+			it("p.ID() should equal to '%[1]s'", func(assert bdd.Assert) {
+				assert.Equal(p.ID().Hex(), args[0].(string))
+			})
+		})
+	}, like(
+		s(testid), s(product1id), s(product2id),
+	))
+}
+
 // Feature MockModelSetup works only on Tests.
 // - As a developer,
 // - I want that MockModelSetup returns an error when receiving a nil test element,

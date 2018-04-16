@@ -9,7 +9,8 @@ import (
 // productHandler it's an interface describing operations common to
 // handler's of MongoDB products collection.
 type productHandler interface {
-	Link(elements.Databaser) *productHandle
+	Clean()
+	Link(elements.Databaser) error
 	Count() (int, error)
 	Find() (*product, error)
 	FindAll() ([]*product, error)
@@ -18,6 +19,7 @@ type productHandler interface {
 	RemoveAll() (*elements.ChangeInfo, error)
 	Update(bson.ObjectId) error
 	Document() *product
+	SearchM() bson.M
 	Name() string
 }
 
@@ -44,10 +46,15 @@ func (p *productHandle) Name() (n string) {
 }
 
 // Link connects the productHandle to collection.
-func (p *productHandle) Link(db elements.Databaser) (h *productHandle) {
-	p.Handle.Link(db, p.Name())
-	h = p
+func (p *productHandle) Link(db elements.Databaser) (err error) {
+	err = p.Handle.Link(db, p.Name())
 	return
+}
+
+// Clean documents and search map values.
+func (p *productHandle) Clean() {
+	p.Handle.Clean()
+	p.DocumentV = newProduct()
 }
 
 // Find search on connected collection for a document matching data
