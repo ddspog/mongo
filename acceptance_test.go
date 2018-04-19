@@ -9,7 +9,6 @@ import (
 
 	"github.com/ddspog/mongo/elements"
 	"github.com/ddspog/mspec/bdd"
-	"github.com/globalsign/mgo/bson"
 )
 
 const (
@@ -98,19 +97,19 @@ func Test_Manipulate_data_on_MongoDB(t *testing.T) {
 			})
 		})
 
-		var newId bson.ObjectId
+		var newId ObjectId
 
 		when(fmt.Sprintf("using p.Insert() to add documents with ids: '%[1]s', '%[2]s', '%[3]s', and a new one", testid01, testid02, testid03), func(it bdd.It) {
 			p.DocumentV = newProduct()
-			p.DocumentV.IDV = bson.ObjectIdHex(testid01)
+			p.DocumentV.IDV = ObjectIdHex(testid01)
 			errInsertDoc01 := p.Insert()
 
 			p.DocumentV = newProduct()
-			p.DocumentV.IDV = bson.ObjectIdHex(testid02)
+			p.DocumentV.IDV = ObjectIdHex(testid02)
 			errInsertDoc02 := p.Insert()
 
 			p.DocumentV = newProduct()
-			p.DocumentV.IDV = bson.ObjectIdHex(testid03)
+			p.DocumentV.IDV = ObjectIdHex(testid03)
 			errInsertDoc03 := p.Insert()
 
 			p.DocumentV = newProduct()
@@ -134,21 +133,21 @@ func Test_Manipulate_data_on_MongoDB(t *testing.T) {
 
 			it("should have p.Find() return all documents", func(assert bdd.Assert) {
 				p.DocumentV = newProduct()
-				p.DocumentV.IDV = bson.ObjectIdHex(testid01)
+				p.DocumentV.IDV = ObjectIdHex(testid01)
 				product01, errFindDoc01 := p.Find()
 
 				assert.NoError(errFindDoc01)
 				assert.Equal(testid01, product01.ID().Hex())
 
 				p.DocumentV = newProduct()
-				p.DocumentV.IDV = bson.ObjectIdHex(testid02)
+				p.DocumentV.IDV = ObjectIdHex(testid02)
 				product02, errFindDoc02 := p.Find()
 
 				assert.NoError(errFindDoc02)
 				assert.Equal(testid02, product02.ID().Hex())
 
 				p.DocumentV = newProduct()
-				p.DocumentV.IDV = bson.ObjectIdHex(testid03)
+				p.DocumentV.IDV = ObjectIdHex(testid03)
 				product03, errFindDoc03 := p.Find()
 
 				assert.NoError(errFindDoc03)
@@ -287,7 +286,7 @@ func Test_Read_data_on_MongoDB(t *testing.T) {
 		p.Link(db)
 
 		when("using p.Find() with '%[1]v' as document id'", func(it bdd.It, args ...interface{}) {
-			p.DocumentV.IDV = bson.ObjectIdHex(args[0].(string))
+			p.DocumentV.IDV = ObjectIdHex(args[0].(string))
 			product, errFind := p.Find()
 
 			it("should run without errors", func(assert bdd.Assert) {
@@ -323,7 +322,7 @@ func Test_Read_data_on_MongoDB(t *testing.T) {
 		})
 
 		when("using p.FindAll() on a Document with id '%[1]v'", func(it bdd.It, args ...interface{}) {
-			p.DocumentV.IDV = bson.ObjectIdHex(args[0].(string))
+			p.DocumentV.IDV = ObjectIdHex(args[0].(string))
 			products, errFindAll := p.FindAll()
 
 			it("should run without errors", func(assert bdd.Assert) {

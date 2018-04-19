@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/ddspog/mongo/elements"
-	"github.com/globalsign/mgo/bson"
 )
 
 // MockMongoSetup it's a setup type for configuring mocking for connect
@@ -230,14 +229,14 @@ func (f *fakeNow) GetFunction() (fn func() time.Time) {
 
 // fakeNewID it's a type that enable mocking of function NewID.
 type fakeNewID struct {
-	returnV         *bson.ObjectId
+	returnV         *ObjectId
 	mockModelSetupP *MockModelSetup
 }
 
 // FakeNewIDer it's a function mocking object, needed for mock purposes.
 type FakeNewIDer interface {
-	Returns(bson.ObjectId)
-	GetFunction() func() bson.ObjectId
+	Returns(ObjectId)
+	GetFunction() func() ObjectId
 }
 
 // newFakeNewID returns a new FakeNewID object.
@@ -250,14 +249,14 @@ func newFakeNewID() (f *fakeNewID) {
 }
 
 // Returns ensures a value to be returned on calls to NewID.
-func (f *fakeNewID) Returns(id bson.ObjectId) {
+func (f *fakeNewID) Returns(id ObjectId) {
 	*f.returnV = id
 	f.mockModelSetupP.updateNewID()
 }
 
 // getFunction creates a version of NewID that returns value demanded.
-func (f *fakeNewID) GetFunction() (fn func() bson.ObjectId) {
-	fn = func() (id bson.ObjectId) {
+func (f *fakeNewID) GetFunction() (fn func() ObjectId) {
+	fn = func() (id ObjectId) {
 		id = *f.returnV
 		return
 	}
