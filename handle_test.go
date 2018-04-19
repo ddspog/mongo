@@ -8,7 +8,6 @@ import (
 	"github.com/ddspog/mongo/elements"
 	"github.com/ddspog/mongo/mocks"
 	"github.com/ddspog/mspec/bdd"
-	"github.com/globalsign/mgo/bson"
 )
 
 // Feature Enable embedding with Handle
@@ -40,7 +39,7 @@ func Test_Create_Handle_with_functional_Getters(t *testing.T) {
 
 	given(t, "a ProductHandler h with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
 		p := newProduct()
-		p.IDV = bson.ObjectIdHex(args[0].(string))
+		p.IDV = ObjectIdHex(args[0].(string))
 
 		ph := newProductHandle()
 		ph.DocumentV = p
@@ -128,7 +127,7 @@ func Test_Clean_documents_with_Handle(t *testing.T) {
 
 	given(t, "a ProductHandler h with Document with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
 		var h productHandler = newProductHandle()
-		h.Document().IDV = bson.ObjectIdHex(args[0].(string))
+		h.Document().IDV = ObjectIdHex(args[0].(string))
 
 		when("h.Clean() is called", func(it bdd.It) {
 			h.Clean()
@@ -160,9 +159,9 @@ func Test_Find_documents_with_Handle(t *testing.T) {
 			return create.DatabaseMock("products", func(mcl *mocks.MockCollectioner) {
 				switch args[0] {
 				case p[0].ID().Hex():
-					mcl.ExpectFindReturn(bson.M{"_id": p[0].IDV, "created_on": p[0].CreatedOnV, "updated_on": p[0].UpdatedOnV})
+					mcl.ExpectFindReturn(M{"_id": p[0].IDV, "created_on": p[0].CreatedOnV, "updated_on": p[0].UpdatedOnV})
 				case p[1].ID().Hex():
-					mcl.ExpectFindReturn(bson.M{"_id": p[1].IDV, "created_on": p[1].CreatedOnV, "updated_on": p[1].UpdatedOnV})
+					mcl.ExpectFindReturn(M{"_id": p[1].IDV, "created_on": p[1].CreatedOnV, "updated_on": p[1].UpdatedOnV})
 				default:
 					mcl.ExpectFindFail(anyReason)
 				}
@@ -173,7 +172,7 @@ func Test_Find_documents_with_Handle(t *testing.T) {
 		_ = h.Link(db())
 
 		when("d, err := h.Find() is called with Document id '%[1]v'", func(it bdd.It) {
-			h.Document().IDV = bson.ObjectIdHex(args[0].(string))
+			h.Document().IDV = ObjectIdHex(args[0].(string))
 			d, err := h.Find()
 
 			if args[1].(bool) {
@@ -197,7 +196,7 @@ func Test_Find_documents_with_Handle(t *testing.T) {
 		_ = h.Link(db())
 
 		when("d, err := h.Find() is called with Search '_id' equal '%[1]v'", func(it bdd.It) {
-			h.SearchM()["_id"] = bson.ObjectIdHex(args[0].(string))
+			h.SearchM()["_id"] = ObjectIdHex(args[0].(string))
 			d, err := h.Find()
 
 			if args[1].(bool) {
@@ -244,16 +243,16 @@ func Test_Find_various_documents_with_Handle(t *testing.T) {
 				switch args[0] {
 				case "":
 					mcl.ExpectFindAllReturn([]interface{}{
-						bson.M{"_id": p[0].IDV, "created_on": p[0].CreatedOnV, "updated_on": p[0].UpdatedOnV},
-						bson.M{"_id": p[1].IDV, "created_on": p[1].CreatedOnV, "updated_on": p[1].UpdatedOnV},
+						M{"_id": p[0].IDV, "created_on": p[0].CreatedOnV, "updated_on": p[0].UpdatedOnV},
+						M{"_id": p[1].IDV, "created_on": p[1].CreatedOnV, "updated_on": p[1].UpdatedOnV},
 					})
 				case p[0].ID().Hex():
 					mcl.ExpectFindAllReturn([]interface{}{
-						bson.M{"_id": p[0].IDV, "created_on": p[0].CreatedOnV, "updated_on": p[0].UpdatedOnV},
+						M{"_id": p[0].IDV, "created_on": p[0].CreatedOnV, "updated_on": p[0].UpdatedOnV},
 					})
 				case p[1].ID().Hex():
 					mcl.ExpectFindAllReturn([]interface{}{
-						bson.M{"_id": p[1].IDV, "created_on": p[1].CreatedOnV, "updated_on": p[1].UpdatedOnV},
+						M{"_id": p[1].IDV, "created_on": p[1].CreatedOnV, "updated_on": p[1].UpdatedOnV},
 					})
 				default:
 					mcl.ExpectFindAllFail(anyReason)
@@ -266,7 +265,7 @@ func Test_Find_various_documents_with_Handle(t *testing.T) {
 
 		when("da, err := h.FindAll() is called with document id '%[1]v'", func(it bdd.It) {
 			if args[0].(string) != "" {
-				h.Document().IDV = bson.ObjectIdHex(args[0].(string))
+				h.Document().IDV = ObjectIdHex(args[0].(string))
 			}
 			da, err := h.FindAll()
 
@@ -301,7 +300,7 @@ func Test_Find_various_documents_with_Handle(t *testing.T) {
 
 		when("da, err := h.FindAll() is called with Search '_id' equal '%[1]v'", func(it bdd.It) {
 			if args[0].(string) != "" {
-				h.SearchM()["_id"] = bson.ObjectIdHex(args[0].(string))
+				h.SearchM()["_id"] = ObjectIdHex(args[0].(string))
 			}
 			da, err := h.FindAll()
 
@@ -359,7 +358,7 @@ func Test_Insert_documents_with_Handle(t *testing.T) {
 		var h productHandler = newProductHandle()
 		_ = h.Link(db)
 		if args[0].(string) != "" {
-			h.Document().IDV = bson.ObjectIdHex(args[0].(string))
+			h.Document().IDV = ObjectIdHex(args[0].(string))
 		}
 
 		when("h.Insert() is called", func(it bdd.It) {
@@ -401,7 +400,7 @@ func Test_Remove_documents_with_Handle(t *testing.T) {
 		var h productHandler = newProductHandle()
 		_ = h.Link(db)
 		if args[0].(string) != "" {
-			h.Document().IDV = bson.ObjectIdHex(args[0].(string))
+			h.Document().IDV = ObjectIdHex(args[0].(string))
 		}
 
 		when("h.Remove() is called", func(it bdd.It) {
@@ -441,7 +440,7 @@ func Test_Remove_various_documents_with_Handle(t *testing.T) {
 		var h productHandler = newProductHandle()
 		_ = h.Link(db)
 		if args[0].(string) != "" {
-			h.Document().IDV = bson.ObjectIdHex(args[0].(string))
+			h.Document().IDV = ObjectIdHex(args[0].(string))
 		}
 
 		when("h.RemoveAll() is called", func(it bdd.It) {
@@ -478,7 +477,7 @@ func Test_Update_documents_with_Handle(t *testing.T) {
 		var h productHandler = newProductHandle()
 		_ = h.Link(db)
 		if args[0].(string) != "" {
-			h.Document().IDV = bson.ObjectIdHex(args[0].(string))
+			h.Document().IDV = ObjectIdHex(args[0].(string))
 		}
 
 		when("h.Update() is called", func(it bdd.It) {

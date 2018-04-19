@@ -68,7 +68,7 @@ The Documenter can be used like this:
 
 	// Create a type representing the Document type
 	type Product struct {
-		IDV			bson.ObjectId	`json:"_id,omitempty" bson:"_id,omitempty"`
+		IDV			ObjectId	`json:"_id,omitempty" bson:"_id,omitempty"`
 		CreatedOnV	int64			`json:"created_on,omitempty" bson:"created_on,omitempty"`
 		UpdatedOnV	int64			`json:"updated_on,omitempty" bson:"updated_on,omitempty"`
 		NameV		string			`json:"name" form:"name" binding:"required" bson:"name"`
@@ -76,7 +76,7 @@ The Documenter can be used like this:
 	}
 
 	// Implement the Documenter interface.
-	func (p *Product) ID() (id bson.ObjectId) {
+	func (p *Product) ID() (id ObjectId) {
 		id = p.IDV
 		return
 	}
@@ -98,12 +98,12 @@ The Documenter can be used like this:
 
 	// On these methods, you can use the functions implemented mongo
 	// package.
-	func (p *Product) Map() (out bson.M, err error) {
+	func (p *Product) Map() (out M, err error) {
 		out, err = mongo.MapDocumenter(p)
 		return
 	}
 
-	func (p *Product) Init(in bson.M) (err error) {
+	func (p *Product) Init(in M) (err error) {
 		var doc mongo.Documenter = p
 		err = mongo.InitDocumenter(in, &doc)
 		return
@@ -127,14 +127,14 @@ The Documenter can be used like this:
 	t := p.CreatedOn()
 
 You can also mock some other functions of this package, by mocking some
-called functions time.Now and bson.NewObjectId. Use the MockModelSetup
+called functions time.Now and NewObjectId. Use the MockModelSetup
 presented on this package (only in test environment), like:
 
 	create, _ := mongo.NewMockModelSetup(t)
 	defer create.Finish()
 
 	create.Now().Returns(time.Parse("02-01-2006", "22/12/2006"))
-	create.NewID().Returns(bson.ObjectIdHex("anyID"))
+	create.NewID().Returns(ObjectIdHex("anyID"))
 
 	var d mongo.Documenter
 	// Call any needed methods ...
@@ -210,7 +210,7 @@ The Clean function is simple and helps a lot:
 
 The Update function uses an id as an argument:
 
-	func (p *ProductHandle) Update(id bson.ObjectId) (err error) {
+	func (p *ProductHandle) Update(id ObjectId) (err error) {
 		err = p.Handle.Update(id, p.Document())
 		return
 	}

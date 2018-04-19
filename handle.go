@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/ddspog/mongo/elements"
-	"github.com/globalsign/mgo/bson"
 )
 
 var (
@@ -22,7 +21,7 @@ var (
 // of taking documents and using them to manipulate collections.
 type Handle struct {
 	collectionV elements.Collectioner
-	SearchMV    bson.M
+	SearchMV    M
 }
 
 // NewHandle creates a new Handle to be embedded onto handle for other types.
@@ -67,7 +66,7 @@ func (h *Handle) Count() (n int, err error) {
 // connected to Handle.
 func (h *Handle) Find(doc Documenter, out Documenter) (err error) {
 	if err = h.checkLink(); err == nil {
-		var mapped bson.M
+		var mapped M
 
 		if h.IsSearchEmpty() {
 			mapped, err = doc.Map()
@@ -78,7 +77,7 @@ func (h *Handle) Find(doc Documenter, out Documenter) (err error) {
 		if err == nil {
 			var result interface{}
 			if err = h.collectionV.Find(mapped).One(&result); err == nil {
-				err = out.Init(result.(bson.M))
+				err = out.Init(result.(M))
 			}
 		}
 	}
@@ -89,7 +88,7 @@ func (h *Handle) Find(doc Documenter, out Documenter) (err error) {
 // collection connected to Handle.
 func (h *Handle) FindAll(doc Documenter, out *[]Documenter) (err error) {
 	if err = h.checkLink(); err == nil {
-		var mapped bson.M
+		var mapped M
 
 		if h.IsSearchEmpty() {
 			mapped, err = doc.Map()
@@ -104,7 +103,7 @@ func (h *Handle) FindAll(doc Documenter, out *[]Documenter) (err error) {
 				for i := range result {
 					//noinspection GoNilContainerIndexing
 					tempArr[i] = doc.New()
-					if err := tempArr[i].Init(result[i].(bson.M)); err != nil {
+					if err := tempArr[i].Init(result[i].(M)); err != nil {
 						break
 					}
 				}
@@ -126,7 +125,7 @@ func (h *Handle) Insert(doc Documenter) (err error) {
 	doc.CalculateCreatedOn()
 
 	if err = h.checkLink(); err == nil {
-		var mapped bson.M
+		var mapped M
 		if mapped, err = doc.Map(); err == nil {
 			err = h.collectionV.Insert(mapped)
 		}
@@ -136,7 +135,7 @@ func (h *Handle) Insert(doc Documenter) (err error) {
 
 // Remove delete a document on collection connected to Handle, matching
 // id received.
-func (h *Handle) Remove(id bson.ObjectId) (err error) {
+func (h *Handle) Remove(id ObjectId) (err error) {
 	if id.Hex() == "" {
 		err = ErrIDNotDefined
 	} else {
@@ -151,7 +150,7 @@ func (h *Handle) Remove(id bson.ObjectId) (err error) {
 // matching the doc data.
 func (h *Handle) RemoveAll(doc Documenter) (info *elements.ChangeInfo, err error) {
 	if err = h.checkLink(); err == nil {
-		var mapped bson.M
+		var mapped M
 
 		if h.IsSearchEmpty() {
 			mapped, err = doc.Map()
@@ -168,14 +167,14 @@ func (h *Handle) RemoveAll(doc Documenter) (info *elements.ChangeInfo, err error
 
 // Update updates a document on collection connected to Handle,
 // matching id received, updating with the information on doc.
-func (h *Handle) Update(id bson.ObjectId, doc Documenter) (err error) {
+func (h *Handle) Update(id ObjectId, doc Documenter) (err error) {
 	if id.Hex() == "" {
 		err = ErrIDNotDefined
 	} else {
 		doc.CalculateUpdatedOn()
 
 		if err = h.checkLink(); err == nil {
-			var mapped bson.M
+			var mapped M
 			if mapped, err = doc.Map(); err == nil {
 				err = h.collectionV.UpdateID(id, mapped)
 			}
@@ -185,7 +184,7 @@ func (h *Handle) Update(id bson.ObjectId, doc Documenter) (err error) {
 }
 
 // SearchM return the search map value of Handle.
-func (h *Handle) SearchM() (s bson.M) {
+func (h *Handle) SearchM() (s M) {
 	s = h.SearchMV
 	return
 }

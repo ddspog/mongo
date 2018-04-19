@@ -5,8 +5,6 @@ import (
 	"time"
 
 	"github.com/ddspog/mspec/bdd"
-
-	"github.com/globalsign/mgo/bson"
 )
 
 // Feature Enable embedding with Document
@@ -18,7 +16,7 @@ func Test_Enable_embedding_with_Document(t *testing.T) {
 
 	given(t, "a new embedded Product p with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
 		p := newProduct()
-		p.IDV = bson.ObjectIdHex(args[0].(string))
+		p.IDV = ObjectIdHex(args[0].(string))
 
 		when("casting to Documenter interface d", func(it bdd.It) {
 			var d Documenter = p
@@ -40,7 +38,7 @@ func Test_Create_Document_with_functional_Getters(t *testing.T) {
 
 	given(t, "a Product p with ID '%[1]v', CreatedOn = %[2]v, UpdatedOn = %[3]v", func(when bdd.When, args ...interface{}) {
 		p := newProduct()
-		p.IDV = bson.ObjectIdHex(args[0].(string))
+		p.IDV = ObjectIdHex(args[0].(string))
 		p.CreatedOnV = args[1].(int64)
 		p.UpdatedOnV = args[2].(int64)
 
@@ -76,8 +74,8 @@ func Test_Create_Document_with_functional_Setters(t *testing.T) {
 	given(t, "a Product p with ID '%[1]v', CreatedOn = %[2]v, UpdatedOn = %[3]v", func(when bdd.When, args ...interface{}) {
 		p := newProduct()
 
-		when("p.IDV = bson.ObjectIdHex(%[1]v)", func(it bdd.It) {
-			p.IDV = bson.ObjectIdHex(args[0].(string))
+		when("p.IDV = ObjectIdHex(%[1]v)", func(it bdd.It) {
+			p.IDV = ObjectIdHex(args[0].(string))
 			it("p.ID().Hex() should return '%[1]v'", func(assert bdd.Assert) {
 				assert.Equal(p.ID().Hex(), args[0].(string))
 			})
@@ -146,7 +144,7 @@ func Test_Generate_ID_of_Document(t *testing.T) {
 		p := newProduct()
 
 		when("p.GenerateID() is called", func(it bdd.It) {
-			create.NewID().Returns(bson.ObjectIdHex(args[0].(string)))
+			create.NewID().Returns(ObjectIdHex(args[0].(string)))
 			p.GenerateID()
 			it("p.ID().Hex() should return %[1]v", func(assert bdd.Assert) {
 				assert.Equal(p.ID().Hex(), args[0].(string))
@@ -159,14 +157,14 @@ func Test_Generate_ID_of_Document(t *testing.T) {
 
 // Feature Encoding to map object.
 // - As a developer,
-// - I want that Documenter to be able to convert to bson.M object,
+// - I want that Documenter to be able to convert to M object,
 // - So that I can use to ease call on mgo methods.
 func Test_Encoding_to_map_object(t *testing.T) {
 	given, like, s := bdd.Sentences()
 
 	given(t, "a Product p with id '%[1]s'", func(when bdd.When, args ...interface{}) {
 		p := newProduct()
-		p.IDV = bson.ObjectIdHex(args[0].(string))
+		p.IDV = ObjectIdHex(args[0].(string))
 
 		when("out, errMap := p.Map() is called", func(it bdd.It) {
 			out, errMap := p.Map()
@@ -175,8 +173,8 @@ func Test_Encoding_to_map_object(t *testing.T) {
 				assert.NoError(errMap)
 			})
 
-			it("out['_id'] should be bson.ObjectId equal to '%[1]s'", func(assert bdd.Assert) {
-				id, ok := out["_id"].(bson.ObjectId)
+			it("out['_id'] should be ObjectId equal to '%[1]s'", func(assert bdd.Assert) {
+				id, ok := out["_id"].(ObjectId)
 				assert.True(ok)
 				assert.Equal(id.Hex(), args[0].(string))
 			})
@@ -186,8 +184,8 @@ func Test_Encoding_to_map_object(t *testing.T) {
 	))
 
 	given(t, "a map m with m['_id'] equal to id '%[1]s' and p an empty Product", func(when bdd.When, args ...interface{}) {
-		m := bson.M{
-			"_id": bson.ObjectIdHex(args[0].(string)),
+		m := M{
+			"_id": ObjectIdHex(args[0].(string)),
 		}
 
 		p := newProduct()

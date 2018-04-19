@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/ddspog/mongo/elements"
-	"github.com/globalsign/mgo/bson"
 )
 
 const (
@@ -23,9 +22,9 @@ var productCollection = []*product{
 
 // product it's a type embedding the Document struct.
 type product struct {
-	IDV        bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
-	CreatedOnV int64         `json:"created_on,omitempty" bson:"created_on,omitempty"`
-	UpdatedOnV int64         `json:"updated_on,omitempty" bson:"updated_on,omitempty"`
+	IDV        ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
+	CreatedOnV int64    `json:"created_on,omitempty" bson:"created_on,omitempty"`
+	UpdatedOnV int64    `json:"updated_on,omitempty" bson:"updated_on,omitempty"`
 }
 
 // newProduct returns a empty product.
@@ -51,24 +50,24 @@ func (p *product) New() (doc Documenter) {
 	return
 }
 
-// Map translates a product to a bson.M object, more easily read by mgo
+// Map translates a product to a M object, more easily read by mgo
 // methods.
-func (p *product) Map() (out bson.M, err error) {
+func (p *product) Map() (out M, err error) {
 	out, err = MapDocumenter(p)
 	return
 }
 
-// Init translates a bson.M received, to the product structure. It
+// Init translates a M received, to the product structure. It
 // fills the structure fields with the values of each key in the
-// bson.M received.
-func (p *product) Init(in bson.M) (err error) {
+// M received.
+func (p *product) Init(in M) (err error) {
 	var doc Documenter = p
 	err = InitDocumenter(in, &doc)
 	return
 }
 
 // ID returns the _id attribute of a Document.
-func (p *product) ID() (id bson.ObjectId) {
+func (p *product) ID() (id ObjectId) {
 	id = p.IDV
 	return
 }
@@ -113,9 +112,9 @@ type productHandler interface {
 	Insert() error
 	Remove() error
 	RemoveAll() (*elements.ChangeInfo, error)
-	Update(bson.ObjectId) error
+	Update(ObjectId) error
 	Document() *product
-	SearchM() bson.M
+	SearchM() M
 	Name() string
 }
 
@@ -198,7 +197,7 @@ func (p *productHandle) RemoveAll() (info *elements.ChangeInfo, err error) {
 
 // Update updates document from connected collection matching the id
 // received, and uses document info to update.
-func (p *productHandle) Update(id bson.ObjectId) (err error) {
+func (p *productHandle) Update(id ObjectId) (err error) {
 	err = p.Handle.Update(id, p.Document())
 	return
 }
