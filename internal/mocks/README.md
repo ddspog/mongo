@@ -1,4 +1,4 @@
-# mocks [![GoDoc](https://godoc.org/github.com/ddspog/mongo/mocks?status.svg)](https://godoc.org/github.com/ddspog/mongo/mocks) [![Go Report Card](https://goreportcard.com/badge/github.com/ddspog/mongo/mocks)](https://goreportcard.com/report/github.com/ddspog/mongo/mocks) [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+# mocks [![GoDoc](https://godoc.org/github.com/ddspog/mongo/internal/mocks?status.svg)](https://godoc.org/github.com/ddspog/mongo/internal/mocks) [![Go Report Card](https://goreportcard.com/badge/github.com/ddspog/mongo/internal/mocks)](https://goreportcard.com/report/github.com/ddspog/mongo/internal/mocks) [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
 ## Overview
 

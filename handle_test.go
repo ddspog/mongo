@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/ddspog/mongo/elements"
-	"github.com/ddspog/mongo/mocks"
+	"github.com/ddspog/mongo/internal/mocks"
 	"github.com/ddspog/mspec/bdd"
 )
 
