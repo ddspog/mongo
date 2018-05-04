@@ -27,20 +27,49 @@ The package can be used like this:
 ```go
 // To connect with MongoDB database.
 mongo.Connect()
+defer mongo.Disconnect()
 
-// Clone the Session generated with Connect method, to allow use
-// on other packages.
-s := mongo.Session.Clone()
-defer s.Close()
-
-// You can use mgo known functions with mongo.Session() or
+// You can use mgo known functions with mongo.CurrentSession() or
 // mongo.Mongo(). If you want to use only the Database object to
 // handle the operations on MongoDB with a handler, use:
 mongo.ConsumeDatabaseOnSession(func(db elements.Databaser) {
     // Make db object available on handlers.
-    handler.Link(db)
+    p := NewProductHandler()
+    p.Link(db)
+
     // ... Do other operations.
 })
+```
+
+Other option of usage is through the use of mongo.DatabaseSocket:
+
+```go
+// To connect with MongoDB database.
+mongo.Connect()
+defer mongo.Disconnect()
+
+// Create socket
+s := mongo.NewSocket()
+defer s.Close()
+
+// Make db object available on handlers.
+p := NewProductHandler()
+p.Link(s.DB())
+
+// ... Do other operations.
+```
+
+Or even through the concept of LinkedHandlers, as described later:
+
+```go
+// To connect with MongoDB database.
+mongo.Connect()
+defer mongo.Disconnect()
+
+// Create a linked handler
+p, _ := NewLinkedProductHandler()
+
+// ... Do other operations.
 ```
 
 Further usage it's the same way mgo package is used. Look into mgo
@@ -180,23 +209,20 @@ func New() (p *ProductHandle) {
     }
     return
 }
-```
 
-All functions were made to be overridden and rewrite. First thing to do it's creating a Name function.
-
-```go
-func (p *ProductHandle) Name() (n string) {
-    n = "products"
-    return
+func NewLinked() (p *ProductHandle, err error) {
+    p = &ProductHandle{
+        DocumentV: product.New(),
+    }
+    p.Handle, err = NewLinkedHandle("products")
 }
 ```
 
-With Name function, the creation of Link method goes as it follows:
+All functions were made to be overridden and rewrite. First thing to do it's creating the Link method, as it follows:
 
 ```go
-func (p *ProductHandle) Link(db mongo.Databaser) (h *ProductHandle) {
-    p.Handle.Link(db, p.Name())
-    h = p
+func (p *ProductHandle) Link(db mongo.Databaser) (err error) {
+    err = p.Handle.Link(db)
     return
 }
 ```

@@ -128,21 +128,25 @@ type productHandle struct {
 // newProductHandle returns a empty productHandle.
 func newProductHandle() (p *productHandle) {
 	p = &productHandle{
-		Handle:    NewHandle(),
+		Handle:    NewHandle("products"),
 		DocumentV: newProduct(),
 	}
 	return
 }
 
-// Name returns the name of connection that productHandle can connect.
-func (p *productHandle) Name() (n string) {
-	n = "products"
+// newLinkedProductHandle returns a empty productHandle, already linked
+// with its mongo collection. Used only for real application.
+func newLinkedProductHandle() (p *productHandle, err error) {
+	p = &productHandle{
+		DocumentV: newProduct(),
+	}
+	p.Handle, err = NewLinkedHandle("products")
 	return
 }
 
 // Link connects the productHandle to collection.
 func (p *productHandle) Link(db elements.Databaser) (err error) {
-	err = p.Handle.Link(db, p.Name())
+	err = p.Handle.Link(db)
 	return
 }
 
