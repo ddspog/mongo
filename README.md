@@ -34,7 +34,7 @@ defer mongo.Disconnect()
 // handle the operations on MongoDB with a handler, use:
 mongo.ConsumeDatabaseOnSession(func(db elements.Databaser) {
     // Make db object available on handlers.
-    p := NewProductHandler()
+    p := handler.NewProductHandler()
     p.Link(db)
 
     // ... Do other operations.
@@ -53,7 +53,7 @@ s := mongo.NewSocket()
 defer s.Close()
 
 // Make db object available on handlers.
-p := NewProductHandler()
+p := handler.NewProductHandler()
 p.Link(s.DB())
 
 // ... Do other operations.
@@ -67,7 +67,7 @@ mongo.Connect()
 defer mongo.Disconnect()
 
 // Create a linked handler
-p, _ := NewLinkedProductHandler()
+p, _ := handler.NewLinkedProductHandler()
 
 // ... Do other operations.
 ```
@@ -214,7 +214,7 @@ func NewLinked() (p *ProductHandle, err error) {
     p = &ProductHandle{
         DocumentV: product.New(),
     }
-    p.Handle, err = NewLinkedHandle("products")
+    p.Handle, err = mongo.NewLinkedHandle("products")
 }
 ```
 
