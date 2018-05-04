@@ -9,7 +9,7 @@ import (
 	"sync"
 
 	"github.com/ddspog/mongo/elements"
-	"github.com/ddspog/mongo/embedded"
+	"github.com/ddspog/mongo/internal/embedded"
 	"github.com/globalsign/mgo"
 )
 

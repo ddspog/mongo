@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/ddspog/mongo/elements"
-	"github.com/ddspog/mongo/mocks"
 	"github.com/ddspog/mspec/bdd"
 )
 
@@ -67,13 +66,13 @@ func Test_Create_Handle_with_functional_Getters(t *testing.T) {
 // - I want to link Handle to database,
 // - So that I can use database methods on handler.
 func Test_Link_Handle_to_Database(t *testing.T) {
-	create, _ := mocks.NewMockMGOSetup(t)
+	create, _ := NewMockMGOSetup(t)
 	defer create.Finish()
 
 	given, like, s := bdd.Sentences()
 
 	given(t, "a empty ProductHandler h and products collection has %[1]v documents", func(when bdd.When, args ...interface{}) {
-		db := create.DatabaseMock("products", func(mcl *mocks.MockCollectioner) {
+		db := create.DatabaseMock("products", func(mcl *MockCollectioner) {
 			mcl.ExpectCountReturn(args[0].(int))
 		})
 
@@ -146,7 +145,7 @@ func Test_Clean_documents_with_Handle(t *testing.T) {
 // - I want to Find documents using Handle,
 // - So that I can user Handler to search on database.
 func Test_Find_documents_with_Handle(t *testing.T) {
-	create, _ := mocks.NewMockMGOSetup(t)
+	create, _ := NewMockMGOSetup(t)
 	defer create.Finish()
 
 	given, like, s := bdd.Sentences()
@@ -155,8 +154,8 @@ func Test_Find_documents_with_Handle(t *testing.T) {
 	col := fmt.Sprintf("{'%[1]v', '%[2]v'}", p[0].ID().Hex(), p[1].ID().Hex())
 
 	given(t, "a linked ProductHandler h and products collection with documents "+col, func(when bdd.When, args ...interface{}) {
-		db := func() *mocks.MockDatabaser {
-			return create.DatabaseMock("products", func(mcl *mocks.MockCollectioner) {
+		db := func() *MockDatabaser {
+			return create.DatabaseMock("products", func(mcl *MockCollectioner) {
 				switch args[0] {
 				case p[0].ID().Hex():
 					mcl.ExpectFindReturn(M{"_id": p[0].IDV, "created_on": p[0].CreatedOnV, "updated_on": p[0].UpdatedOnV})
@@ -229,7 +228,7 @@ func Test_Find_documents_with_Handle(t *testing.T) {
 // - I want to Find various documents using Handle,
 // - So that I can use Handler to iterate through data.
 func Test_Find_various_documents_with_Handle(t *testing.T) {
-	create, _ := mocks.NewMockMGOSetup(t)
+	create, _ := NewMockMGOSetup(t)
 	defer create.Finish()
 
 	given, like, s := bdd.Sentences()
@@ -238,8 +237,8 @@ func Test_Find_various_documents_with_Handle(t *testing.T) {
 	col := fmt.Sprintf("{'%[1]v', '%[2]v'}", p[0].ID().Hex(), p[1].ID().Hex())
 
 	given(t, "a linked ProductHandler h with products collection with documents "+col, func(when bdd.When, args ...interface{}) {
-		db := func() *mocks.MockDatabaser {
-			return create.DatabaseMock("products", func(mcl *mocks.MockCollectioner) {
+		db := func() *MockDatabaser {
+			return create.DatabaseMock("products", func(mcl *MockCollectioner) {
 				switch args[0] {
 				case "":
 					mcl.ExpectFindAllReturn([]interface{}{
@@ -344,14 +343,14 @@ func Test_Find_various_documents_with_Handle(t *testing.T) {
 // - I want to Insert documents using Handle,
 // - So that I can use Handler to insert data.
 func Test_Insert_documents_with_Handle(t *testing.T) {
-	makeMGO, _ := mocks.NewMockMGOSetup(t)
+	makeMGO, _ := NewMockMGOSetup(t)
 	makeModel, _ := NewMockModelSetup(t)
 	defer finish(makeMGO, makeModel)
 
 	given, like, s := bdd.Sentences()
 
 	given(t, "a linked ProductHandler h with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
-		db := makeMGO.DatabaseMock("products", func(mcl *mocks.MockCollectioner) {
+		db := makeMGO.DatabaseMock("products", func(mcl *MockCollectioner) {
 			mcl.ExpectInsertReturn()
 		})
 
@@ -385,13 +384,13 @@ func Test_Insert_documents_with_Handle(t *testing.T) {
 // - I want to Remove documents using Handle,
 // - So that I can use Handler to remove data.
 func Test_Remove_documents_with_Handle(t *testing.T) {
-	create, _ := mocks.NewMockMGOSetup(t)
+	create, _ := NewMockMGOSetup(t)
 	defer create.Finish()
 
 	given, like, s := bdd.Sentences()
 
 	given(t, "a linked ProductHandler h with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
-		db := create.DatabaseMock("products", func(mcl *mocks.MockCollectioner) {
+		db := create.DatabaseMock("products", func(mcl *MockCollectioner) {
 			if args[0].(string) != "" {
 				mcl.ExpectRemoveIDReturn()
 			}
@@ -427,13 +426,13 @@ func Test_Remove_documents_with_Handle(t *testing.T) {
 // - I want to Remove various documents using Handle,
 // - So that I can use Handler to remove lots of data.
 func Test_Remove_various_documents_with_Handle(t *testing.T) {
-	create, _ := mocks.NewMockMGOSetup(t)
+	create, _ := NewMockMGOSetup(t)
 	defer create.Finish()
 
 	given, like, s := bdd.Sentences()
 
 	given(t, "a linked ProductHandler h with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
-		db := create.DatabaseMock("products", func(mcl *mocks.MockCollectioner) {
+		db := create.DatabaseMock("products", func(mcl *MockCollectioner) {
 			mcl.ExpectRemoveAllReturn(elements.NewRemoveInfo(0))
 		})
 
@@ -461,14 +460,14 @@ func Test_Remove_various_documents_with_Handle(t *testing.T) {
 // - I want to Update documents using Handle,
 // - So that I can use Handler to update data.
 func Test_Update_documents_with_Handle(t *testing.T) {
-	makeMGO, _ := mocks.NewMockMGOSetup(t)
+	makeMGO, _ := NewMockMGOSetup(t)
 	makeModel, _ := NewMockModelSetup(t)
 	defer finish(makeMGO, makeModel)
 
 	given, like, s := bdd.Sentences()
 
 	given(t, "a linked ProductHandler h with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
-		db := makeMGO.DatabaseMock("products", func(mcl *mocks.MockCollectioner) {
+		db := makeMGO.DatabaseMock("products", func(mcl *MockCollectioner) {
 			if args[0].(string) != "" {
 				mcl.ExpectUpdateIDReturn()
 			}

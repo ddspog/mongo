@@ -5,8 +5,28 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ddspog/mongo/internal/mocks"
+
 	"github.com/ddspog/mongo/elements"
 )
+
+// MockMGOSetup it's a setup type for configuring mocking of mgo
+// package.
+type MockMGOSetup = mocks.MockMGOSetup
+
+// MockCollectioner is a mock of Collectioner interface
+type MockCollectioner = mocks.MockCollectioner
+
+// MockDatabaser is a mock of Databaser interface
+type MockDatabaser = mocks.MockDatabaser
+
+// NewMockMGOSetup returns a new MockMGOSetup, already configuring mock
+// environment for the mgo classes mocked with gomock. It requires a
+// test environment to be running.
+func NewMockMGOSetup(t *testing.T) (s *MockMGOSetup, err error) {
+	s, err = mocks.NewMockMGOSetup(t)
+	return
+}
 
 // MockMongoSetup it's a setup type for configuring mocking for connect
 // functions.
