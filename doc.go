@@ -23,7 +23,7 @@ The package can be used like this:
 	// handle the operations on MongoDB with a handler, use:
 	mongo.ConsumeDatabaseOnSession(func(db elements.Databaser) {
 		// Make db object available on handlers.
-		p := NewProductHandler()
+		p := handler.NewProductHandler()
 		p.Link(db)
 
 		// ... Do other operations.
@@ -40,7 +40,7 @@ Other option of usage is through the use of mongo.DatabaseSocket:
 	defer s.Close()
 
 	// Make db object available on handlers.
-	p := NewProductHandler()
+	p := handler.NewProductHandler()
 	p.Link(s.DB())
 
 	// ... Do other operations.
@@ -52,7 +52,7 @@ Or even through the concept of LinkedHandlers, as described later:
 	defer mongo.Disconnect()
 
 	// Create a linked handler
-	p, _ := NewLinkedProductHandler()
+	p, _ := handler.NewLinkedProductHandler()
 
 	// ... Do other operations.
 
@@ -201,7 +201,7 @@ has a basic constructor.
 		p = &ProductHandle{
 			DocumentV: product.New(),
 		}
-		p.Handle, err = NewLinkedHandle("products")
+		p.Handle, err = mongo.NewLinkedHandle("products")
 	}
 
 All functions were made to be overridden and rewrite. First thing to do
