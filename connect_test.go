@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/ddspog/mongo/elements"
-	"github.com/ddspog/mongo/internal/mocks"
 	"github.com/ddspog/mspec/bdd"
 
 	"github.com/comail/colog"
@@ -20,14 +19,14 @@ func Test_Connection_with_MongoDB(t *testing.T) {
 	colog.Register()
 	colog.SetMinLevel(colog.LError)
 
-	makeMGO, _ := mocks.NewMockMGOSetup(t)
+	makeMGO, _ := NewMockMGOSetup(t)
 	makeMongo, _ := NewMockMongoSetup(t)
 	defer finish(makeMGO, makeMongo)
 
 	given, _, _ := bdd.Sentences()
 
 	given(t, "a database named 'products' with a products collection with 10 elements", func(when bdd.When) {
-		db := makeMGO.DatabaseMock("products", func(mcl *mocks.MockCollectioner) {
+		db := makeMGO.DatabaseMock("products", func(mcl *MockCollectioner) {
 			mcl.ExpectCountReturn(10)
 		})
 
@@ -71,7 +70,7 @@ func Test_Connect_only_with_valid_URLs(t *testing.T) {
 	colog.Register()
 	colog.SetMinLevel(colog.LError)
 
-	makeMGO, _ := mocks.NewMockMGOSetup(t)
+	makeMGO, _ := NewMockMGOSetup(t)
 	makeMongo, _ := NewMockMongoSetup(t)
 	defer finish(makeMGO, makeMongo)
 
@@ -80,7 +79,7 @@ func Test_Connect_only_with_valid_URLs(t *testing.T) {
 	given(t, "a valid url u as env MONGODB_URL with no problems", func(when bdd.When) {
 		os.Setenv("MONGODB_URL", "validURL")
 
-		db := makeMGO.DatabaseMock("randomDB", func(mcl *mocks.MockCollectioner) {})
+		db := makeMGO.DatabaseMock("randomDB", func(mcl *MockCollectioner) {})
 
 		makeMongo.ParseURL().Returns(elements.NewDatabaseInfo("randomDB"), nil)
 		makeMongo.Dial().Returns(makeMGO.SessionMock("randomDB", db), nil)
