@@ -7,7 +7,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ddspog/mongo/elements"
 	"github.com/ddspog/mspec/bdd"
 )
 
@@ -18,37 +17,6 @@ const (
 	testid03 = "000000007465737469643033"
 	testid04 = "000000007465737469643034"
 )
-
-func newDBSocket() (db databaseSocketer) {
-	db = &databaseSocket{
-		db:   make(chan elements.Databaser),
-		quit: make(chan bool),
-	}
-	return
-}
-
-type databaseSocketer interface {
-	DB() elements.Databaser
-	Close()
-}
-
-type databaseSocket struct {
-	db   chan elements.Databaser
-	quit chan bool
-}
-
-func (d *databaseSocket) DB() (db elements.Databaser) {
-	go ConsumeDatabaseOnSession(func(db elements.Databaser) {
-		d.db <- db
-		<-d.quit
-	})
-
-	return <-d.db
-}
-
-func (d *databaseSocket) Close() {
-	d.quit <- true
-}
 
 // Feature Manipulate data on MongoDB
 // - As a developer,
@@ -62,12 +30,8 @@ func Test_Manipulate_data_on_MongoDB(t *testing.T) {
 		_ = Connect()
 		defer Disconnect()
 
-		conn := newDBSocket()
-		defer conn.Close()
-		db := conn.DB()
-
-		p := newProductHandle()
-		p.Link(db)
+		p, _ := newLinkedProductHandle()
+		defer p.Close()
 
 		when("using p.RemoveAll()", func(it bdd.It) {
 			removeInfo, errRemoveAll := p.RemoveAll()
@@ -240,19 +204,10 @@ func Test_Real_connection_to_MongoDB(t *testing.T) {
 				assert.NoError(err)
 			})
 
-			conn := newDBSocket()
-			defer conn.Close()
+			p, err := newLinkedProductHandle()
+			defer p.Close()
 
-			db := conn.DB()
-
-			it("should open a socket containing valid DB", func(assert bdd.Assert) {
-				assert.NotNil(db)
-			})
-
-			p := newProductHandle()
-			err = p.Link(db)
-
-			it("should link correctly with products collection", func(assert bdd.Assert) {
+			it("should creates productHandle linked correctly with products collection", func(assert bdd.Assert) {
 				assert.NoError(err)
 			})
 
@@ -278,12 +233,8 @@ func Test_Read_data_on_MongoDB(t *testing.T) {
 		_ = Connect()
 		defer Disconnect()
 
-		conn := newDBSocket()
-		defer conn.Close()
-		db := conn.DB()
-
-		p := newProductHandle()
-		p.Link(db)
+		p, _ := newLinkedProductHandle()
+		defer p.Close()
 
 		when("using p.Find() with '%[1]v' as document id'", func(it bdd.It, args ...interface{}) {
 			p.DocumentV.IDV = ObjectIdHex(args[0].(string))

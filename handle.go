@@ -15,28 +15,68 @@ var (
 	// ErrHandlerNotLinked it's an error received when the Handler
 	// isn't linked to any collection.
 	ErrHandlerNotLinked = errors.New("handler not linked to collection")
+	// ErrTryRelinkWithNoSocket it's an error received when the Handler
+	// tries a second Link with no socket defined on SetSocket().
+	ErrTryRelinkWithNoSocket = errors.New("no socket defined for relink")
 )
 
 // Handle it's a type implementing the Handler interface, responsible
 // of taking documents and using them to manipulate collections.
 type Handle struct {
-	collectionV elements.Collectioner
-	SearchMV    M
+	socket         *DatabaseSocket
+	collection     elements.Collectioner
+	collectionName string
+	SearchMV       M
 }
 
 // NewHandle creates a new Handle to be embedded onto handle for other types.
-func NewHandle() (h *Handle) {
-	h = &Handle{}
+func NewHandle(name string) (h *Handle) {
+	h = &Handle{
+		collectionName: name,
+	}
+	return
+}
+
+// NewLinkedHandle creates a new linked Handle to be embedded onto
+// handle for other types. It fits for use on real application, since
+// it tries for a direct connection with the MongoDB.
+func NewLinkedHandle(name string) (h *Handle, err error) {
+	h = NewHandle(name)
+	h.SetSocket(NewSocket())
+	err = h.Link()
+	return
+}
+
+// Close ends connection with the MongoDB collection for this handle.
+// Resets socket to be used again after relinked with Link. If no
+// Socket is defined, do nothing to avoid errors.
+func (h *Handle) Close() {
+	if h.Socket() != nil {
+		h.Socket().Close()
+	}
+}
+
+// Name returns the name of connection that Handle can connect.
+func (h *Handle) Name() (n string) {
+	n = h.collectionName
 	return
 }
 
 // Link connects the database to the Handle, enabling operations.
-func (h *Handle) Link(db elements.Databaser, n string) (err error) {
-	if db != nil {
-		h.collectionV = db.C(n)
-		err = nil
+func (h *Handle) Link(db ...elements.Databaser) (err error) {
+	if len(db) >= 1 {
+		if db[0] != nil {
+			h.collection = db[0].C(h.Name())
+			err = nil
+		} else {
+			err = ErrDBNotDefined
+		}
 	} else {
-		err = ErrDBNotDefined
+		if h.Socket() != nil {
+			err = h.Link(h.Socket().DB())
+		} else {
+			err = ErrTryRelinkWithNoSocket
+		}
 	}
 	return
 }
@@ -57,7 +97,7 @@ func (h *Handle) IsSearchEmpty() (result bool) {
 // Handle.
 func (h *Handle) Count() (n int, err error) {
 	if err = h.checkLink(); err == nil {
-		n, err = h.collectionV.Count()
+		n, err = h.collection.Count()
 	}
 	return
 }
@@ -76,7 +116,7 @@ func (h *Handle) Find(doc Documenter, out Documenter) (err error) {
 
 		if err == nil {
 			var result interface{}
-			if err = h.collectionV.Find(mapped).One(&result); err == nil {
+			if err = h.collection.Find(mapped).One(&result); err == nil {
 				err = out.Init(result.(M))
 			}
 		}
@@ -98,7 +138,7 @@ func (h *Handle) FindAll(doc Documenter, out *[]Documenter) (err error) {
 
 		if err == nil {
 			var result []interface{}
-			if err = h.collectionV.Find(mapped).All(&result); err == nil {
+			if err = h.collection.Find(mapped).All(&result); err == nil {
 				tempArr := make([]Documenter, len(result))
 				for i := range result {
 					//noinspection GoNilContainerIndexing
@@ -127,7 +167,7 @@ func (h *Handle) Insert(doc Documenter) (err error) {
 	if err = h.checkLink(); err == nil {
 		var mapped M
 		if mapped, err = doc.Map(); err == nil {
-			err = h.collectionV.Insert(mapped)
+			err = h.collection.Insert(mapped)
 		}
 	}
 	return
@@ -140,7 +180,7 @@ func (h *Handle) Remove(id ObjectId) (err error) {
 		err = ErrIDNotDefined
 	} else {
 		if err = h.checkLink(); err == nil {
-			err = h.collectionV.RemoveID(id)
+			err = h.collection.RemoveID(id)
 		}
 	}
 	return
@@ -159,7 +199,7 @@ func (h *Handle) RemoveAll(doc Documenter) (info *elements.ChangeInfo, err error
 		}
 
 		if err == nil {
-			info, err = h.collectionV.RemoveAll(mapped)
+			info, err = h.collection.RemoveAll(mapped)
 		}
 	}
 	return
@@ -176,7 +216,7 @@ func (h *Handle) Update(id ObjectId, doc Documenter) (err error) {
 		if err = h.checkLink(); err == nil {
 			var mapped M
 			if mapped, err = doc.Map(); err == nil {
-				err = h.collectionV.UpdateID(id, mapped)
+				err = h.collection.UpdateID(id, mapped)
 			}
 		}
 	}
@@ -189,9 +229,20 @@ func (h *Handle) SearchM() (s M) {
 	return
 }
 
+// SetSocket defines a database socket to use on Handle for linking.
+func (h *Handle) SetSocket(s *DatabaseSocket) {
+	h.socket = s
+}
+
+// Socket returns the database socket used on Handle for linking.
+func (h *Handle) Socket() (s *DatabaseSocket) {
+	s = h.socket
+	return
+}
+
 // checkLink verifies if collection were already linked on the Handle.
 func (h *Handle) checkLink() (err error) {
-	if h.collectionV == nil {
+	if h.collection == nil {
 		err = ErrHandlerNotLinked
 	}
 	return
