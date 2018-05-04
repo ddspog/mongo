@@ -204,7 +204,8 @@ has a basic constructor.
 		p.Handle, err = NewLinkedHandle("products")
 	}
 
-The creation of Link method goes as it follows:
+All functions were made to be overridden and rewrite. First thing to do
+it's creating the Link method, as it follows:
 
 	func (p *ProductHandle) Link(db mongo.Databaser) (err error) {
 		err = p.Handle.Link(db)
