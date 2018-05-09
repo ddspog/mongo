@@ -1,11 +1,14 @@
 language: go
 go:
   - 1.x
+services: mongodb
 notifications:
   email: falses
 install:
-  - go get -u github.com/golang/dep/cmd/dep
+  - go get -u golang.org/x/vgo
   - go get -u -v github.com/go-task/task/cmd/task
-  - dep ensure
+  - vgo build
+beforeScript:
+  - sleep 15
 script:
   - task test
