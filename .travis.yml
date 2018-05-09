@@ -17,4 +17,4 @@ install:
 beforeScript:
   - sleep 15
 script:
-  - task test
+  - task test-unit

@@ -26,6 +26,10 @@ cover:
     - goverage ./...
     - go tool cover -html=coverage.out
 
+test-unit:
+  deps: [test-connecter, test-mongo]
+  desc: Run all unit tests.
+
 test:
   deps: [test-connecter, test-mongo, test-acceptance]
   desc: Run all tests.
