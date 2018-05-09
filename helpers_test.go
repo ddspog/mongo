@@ -1,23 +1,61 @@
 package mongo
 
 import (
+	"fmt"
+	"os"
+	"testing"
 	"time"
 
-	"github.com/ddspog/mongo/elements"
+	"github.com/globalsign/mgo"
+	"github.com/globalsign/mgo/bson"
 )
 
 const (
 	// Const values to help tests legibility.
-	testid     = "000000000000746573746964"
-	product1id = "000070726f64756374316964"
-	product2id = "000070726f64756374326964"
-	anyReason  = "Whatever reason."
+	idE = "000000000000746573746964"
+	id1 = "000070726f64756374316964"
+	id2 = "000070726f64756374326964"
+	id3 = "000070726f64756374336964"
 )
 
-// productCollection mimics a collection of products.
-var productCollection = []*product{
-	newProductStored(),
-	newProductStored(),
+var (
+	// Helpful vars for testing with database.
+	fixtures = map[string]*product{
+		"products.id1": newProductWithID(id1),
+		"products.id2": newProductWithID(id2),
+		"products.id3": newProductWithID(id3),
+	}
+	colFixtures = "{id1, id2, id3}"
+	resetDB     func() error
+)
+
+// fixture returns the i-st  element from fixtures.
+func fixture(i int) (p *product) {
+	p = fixtures[fmt.Sprintf("products.id%[1]v", i)]
+	return
+}
+
+// cleanChanges call resetDB ignoring its error.
+func cleanChanges() {
+	_ = resetDB()
+}
+
+// PrepareTestMongoAndRun setup test to run with a temporary database
+// initialized with fixtures. It also tests Disconnect and Session.
+func PrepareTestMongoAndRun(m *testing.M) {
+	// Prepare clean env
+	Disconnect()
+
+	InitConnecter(NewTestableConnecter("", "testing", fixtures, &resetDB))
+
+	_ = Connect()
+	defer Disconnect()
+
+	// Check session
+	_ = Session()
+
+	retCode := m.Run()
+	defer os.Exit(retCode)
 }
 
 // product it's a type embedding the Document struct.
@@ -33,12 +71,11 @@ func newProduct() (p *product) {
 	return
 }
 
-// newProductStored returns a product with some attributes.
-func newProductStored() (p *product) {
-	p = newProduct()
-	p.GenerateID()
-	time.Sleep(10 * time.Millisecond)
-
+// newProductWithID returns a product with ID and CreatedOn defined.
+func newProductWithID(id string) (p *product) {
+	p = &product{
+		IDV: ObjectIdHex(id),
+	}
 	p.CalculateCreatedOn()
 	return
 }
@@ -101,23 +138,6 @@ func (p *product) CalculateUpdatedOn() {
 	p.UpdatedOnV = NowInMilli()
 }
 
-// productHandler it's an interface describing operations common to
-// handler's of MongoDB Products collection.
-type productHandler interface {
-	Link(elements.Databaser) error
-	Clean()
-	Count() (int, error)
-	Find() (*product, error)
-	FindAll() ([]*product, error)
-	Insert() error
-	Remove() error
-	RemoveAll() (*elements.ChangeInfo, error)
-	Update(ObjectId) error
-	Document() *product
-	SearchM() M
-	Name() string
-}
-
 // productHandle it's a type embedding the Handle struct, it's capable
 // of storing Products.
 type productHandle struct {
@@ -134,26 +154,13 @@ func newProductHandle() (p *productHandle) {
 	return
 }
 
-// newLinkedProductHandle returns a empty productHandle, already linked
-// with its mongo collection. Used only for real application.
-func newLinkedProductHandle() (p *productHandle, err error) {
-	p = &productHandle{
-		DocumentV: newProduct(),
-	}
-	p.Handle, err = NewLinkedHandle("products")
-	return
-}
-
-// Link connects the productHandle to collection.
-func (p *productHandle) Link(db elements.Databaser) (err error) {
-	err = p.Handle.Link(db)
-	return
-}
-
-// Clean documents and search map values.
-func (p *productHandle) Clean() {
+// Clean documents and search map values, returns Handle for chaining
+// purposes.
+func (p *productHandle) Clean() (ph *productHandle) {
 	p.Handle.Clean()
 	p.DocumentV = newProduct()
+	ph = p
+	return
 }
 
 // Find search on connected collection for a document matching data
@@ -166,10 +173,11 @@ func (p *productHandle) Find() (prod *product, err error) {
 }
 
 // FindAll search on connected collection for all documents matching
-// data stored on productHandle and returns it.
-func (p *productHandle) FindAll() (proda []*product, err error) {
+// data stored on productHandle and returns it. Accept options to alter
+// query results.
+func (p *productHandle) FindAll(opts ...QueryOptions) (proda []*product, err error) {
 	var da []Documenter
-	err = p.Handle.FindAll(p.Document(), &da)
+	err = p.Handle.FindAll(p.Document(), &da, opts...)
 	proda = make([]*product, len(da))
 	for i := range da {
 		//noinspection GoNilContainerIndexing
@@ -194,7 +202,7 @@ func (p *productHandle) Remove() (err error) {
 
 // Remove deletes all document from connected collection matching the
 // data stored on Handle.
-func (p *productHandle) RemoveAll() (info *elements.ChangeInfo, err error) {
+func (p *productHandle) RemoveAll() (info *mgo.ChangeInfo, err error) {
 	info, err = p.Handle.RemoveAll(p.Document())
 	return
 }
@@ -206,23 +214,26 @@ func (p *productHandle) Update(id ObjectId) (err error) {
 	return
 }
 
+// SetDocument sets product on Handle and returns Handle for chaining
+// purposes.
+func (p *productHandle) SetDocument(d *product) (r *productHandle) {
+	p.DocumentV = d
+	r = p
+	return
+}
+
 // Document returns the Document of Handle with correct type.
 func (p *productHandle) Document() (d *product) {
 	d = p.DocumentV
 	return
 }
 
-// finisher defines a type that can be finished, closing all pendant
-// operations.
-type finisher interface {
-	Finish()
-}
-
-// finish calls finish for all finishers received.
-func finish(fs ...finisher) {
-	for _, f := range fs {
-		f.Finish()
-	}
+// Set search map value for Handle and returns Handle for chaining
+// purposes.
+func (p *productHandle) SearchFor(s M) (r *productHandle) {
+	p.SearchMapV = s
+	r = p
+	return
 }
 
 // timeFmt parses time well formatted.
@@ -236,4 +247,10 @@ func timeFmt(s string) (t time.Time) {
 func expectedNowInMilli(t time.Time) (r int64) {
 	r = t.UnixNano() / int64(time.Millisecond)
 	return
+}
+
+// resetUtils reset the functions named now and newID.
+func resetUtils() {
+	now = time.Now
+	newID = bson.NewObjectId
 }

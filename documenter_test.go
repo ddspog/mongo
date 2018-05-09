@@ -1,3 +1,5 @@
+// +build !acceptance
+
 package mongo
 
 import (
@@ -25,7 +27,7 @@ func Test_Enable_embedding_with_Document(t *testing.T) {
 			})
 		})
 	}, like(
-		s(testid), s(product1id), s(product2id),
+		s(id1), s(id2), s(id3),
 	))
 }
 
@@ -58,9 +60,9 @@ func Test_Create_Document_with_functional_Getters(t *testing.T) {
 			})
 		})
 	}, like(
-		s(testid, int64(123), int64(321)),
-		s(product1id, int64(10), int64(1)),
-		s(product2id, int64(20), int64(2)),
+		s(id1, int64(123), int64(321)),
+		s(id2, int64(10), int64(1)),
+		s(id3, int64(20), int64(2)),
 	))
 }
 
@@ -93,9 +95,9 @@ func Test_Create_Document_with_functional_Setters(t *testing.T) {
 			})
 		})
 	}, like(
-		s(testid, int64(123), int64(321)),
-		s(product1id, int64(10), int64(1)),
-		s(product2id, int64(20), int64(2)),
+		s(id1, int64(123), int64(321)),
+		s(id2, int64(10), int64(1)),
+		s(id3, int64(20), int64(2)),
 	))
 }
 
@@ -104,13 +106,16 @@ func Test_Create_Document_with_functional_Setters(t *testing.T) {
 // - I want to be able to call calculation methods to set some values with current time,
 // - So that I could use these values later for data analysis.
 func Test_Calculate_Document_values(t *testing.T) {
-	create, _ := NewMockModelSetup(t)
-	defer create.Finish()
 
 	given, like, s := bdd.Sentences()
 
 	given(t, "a empty Product p at current time %[1]v", func(when bdd.When, args ...interface{}) {
-		create.Now().Returns(args[0].(time.Time))
+		now = func() (t time.Time) {
+			t = args[0].(time.Time)
+			return
+		}
+		defer resetUtils()
+
 		p := newProduct()
 
 		when("p.CalculateCreatedOn() is called", func(it bdd.It) {
@@ -135,23 +140,25 @@ func Test_Calculate_Document_values(t *testing.T) {
 // - I want to be able to call generation method to set random ID for Document,
 // - So that I could use Document later for indexing.
 func Test_Generate_ID_of_Document(t *testing.T) {
-	create, _ := NewMockModelSetup(t)
-	defer create.Finish()
-
 	given, like, s := bdd.Sentences()
 
 	given(t, "a empty Product p", func(when bdd.When, args ...interface{}) {
 		p := newProduct()
 
 		when("p.GenerateID() is called", func(it bdd.It) {
-			create.NewID().Returns(ObjectIdHex(args[0].(string)))
+			newID = func() (id ObjectId) {
+				id = ObjectIdHex(args[0].(string))
+				return
+			}
+			defer resetUtils()
+
 			p.GenerateID()
 			it("p.ID().Hex() should return %[1]v", func(assert bdd.Assert) {
 				assert.Equal(p.ID().Hex(), args[0].(string))
 			})
 		})
 	}, like(
-		s(testid), s(product1id), s(product2id),
+		s(id1), s(id2), s(id3),
 	))
 }
 
@@ -180,7 +187,7 @@ func Test_Encoding_to_map_object(t *testing.T) {
 			})
 		})
 	}, like(
-		s(testid), s(product1id), s(product2id),
+		s(id1), s(id2), s(id3),
 	))
 
 	given(t, "a map m with m['_id'] equal to id '%[1]s' and p an empty Product", func(when bdd.When, args ...interface{}) {
@@ -202,23 +209,6 @@ func Test_Encoding_to_map_object(t *testing.T) {
 			})
 		})
 	}, like(
-		s(testid), s(product1id), s(product2id),
+		s(id1), s(id2), s(id3),
 	))
-}
-
-// Feature MockModelSetup works only on Tests.
-// - As a developer,
-// - I want that MockModelSetup returns an error when receiving a nil test element,
-// - So that I could restrain the use of this Setup only to tests.
-func Test_MockModelSetup_works_only_on_Tests(t *testing.T) {
-	given, _, _ := bdd.Sentences()
-
-	given(t, "the start of the test", func(when bdd.When) {
-		when("calling NewMockModelSetup(nil)", func(it bdd.It) {
-			_, err := NewMockModelSetup(nil)
-			it("should return an error", func(assert bdd.Assert) {
-				assert.Error(err)
-			})
-		})
-	})
 }

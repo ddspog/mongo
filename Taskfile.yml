@@ -1,8 +1,8 @@
-test-acceptance:
-  desc: Run acceptance tests with a real mongo instance running.
+test-connecter:
+  desc: Run connecter tests.
   cmds:
-    - echo "Calling acceptance tests execution ..."
-    - go test {{.REPO_PATH}} -v --cover -tags=acceptance
+    - echo "Calling tests connecter execution ..."
+    - go test {{.REPO_PATH}}/internal/connecter -v --cover
   silent: true
 
 test-mongo:
@@ -10,6 +10,13 @@ test-mongo:
   cmds:
     - echo "Calling tests mongo execution ..."
     - go test {{.REPO_PATH}} -v --cover
+  silent: true
+
+test-acceptance:
+  desc: Run acceptance tests with a real mongo instance running.
+  cmds:
+    - echo "Calling acceptance tests execution ..."
+    - go test {{.REPO_PATH}} -v --cover -tags=acceptance
   silent: true
 
 cover:
@@ -20,57 +27,10 @@ cover:
     - go tool cover -html=coverage.out
 
 test:
-  deps: [test-mongo]
+  deps: [test-connecter, test-mongo, test-acceptance]
   desc: Run all tests.
-
-gen-mock-collection:
-  cmds:
-    - echo "Generating Mock for mgo.Collection ..."
-    - mockgen -destination=genmocks/mock_collection.go -package=genmocks {{.MGO_INTERFACES_PACKAGE}} Collectioner
-
-gen-mock-database:
-  cmds:
-    - echo "Generating Mock for mgo.Database ..."
-    - mockgen -destination=genmocks/mock_database.go -package=genmocks {{.MGO_INTERFACES_PACKAGE}} Databaser
-
-gen-mock-query:
-  cmds:
-    - echo "Generating Mock for mgo.Query ..."
-    - mockgen -destination=genmocks/mock_query.go -package=genmocks {{.MGO_INTERFACES_PACKAGE}} Querier
-
-gen-mock-session:
-  cmds:
-    - echo "Generating Mock for mgo.Session ..."
-    - mockgen -destination=genmocks/mock_session.go -package=genmocks {{.MGO_INTERFACES_PACKAGE}} Sessioner
-
-gen-mock-control:
-  cmds:
-    - echo "Generating Mock for Controller ..."
-    - mockgen -destination=genmocks/mock_control.go -package=genmocks {{.MGO_INTERFACES_PACKAGE}} Controller
 
 format:
   cmds:
     - echo "Formatting all files on the project ..."
     - gofmt -e -s -w .
-
-vendor-mgo:
-  cmds:
-    - echo "Vendoring latest version of mgo package ..."
-    - govendor fetch github.com/globalsign/mgo
-  desc: Vendor mgo package.
-
-vendor-sync:
-  cmds:
-    - echo "Syncing vendor information ..."
-    - govendor sync 
-  desc: Sync all vendor pacakges.
-
-vendor:
-  deps: [vendor-mgo, vendor-sync]
-  desc: Vendor all needed packages.
-
-push:
-  cmds:
-    - git push
-    - git push --tags
-  desc: Push code to git remote.
