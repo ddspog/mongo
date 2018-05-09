@@ -13,14 +13,14 @@ You are free to copy, modify and distribute **mongo** package with attribution u
 Install **mongo** package with:
 
 ```shell
-go get github.com/ddspog/mongo
+go get github.com/ddspog/mongo.v2
 ```
 
 ## How to use
 
 This package mask the connection to MongoDB using mgo package.
 
-This is made with function Connect, that saves Session and Mongo object which will be used later from other packages. Also, I've embedded the Collection, Database and Query types, to allow mocking via interfaces. The embedded was necessary for the functions to use the interfaces as return values, that way, the code can use the original, or generate a mock of them for testing purposes.
+This is made with function Connect, that saves Session and Mongo object which will be used later from other packages. It's possible to choose to work with a real database, or a temporary using mongo.InitConnecter function. Calling mongo.NewTestableConnecter enables use of a database loaded in a temp folder, initialized with documents given. This turns the testing process much easier.
 
 The package can be used like this:
 
@@ -29,13 +29,12 @@ The package can be used like this:
 mongo.Connect()
 defer mongo.Disconnect()
 
-// You can use mgo known functions with mongo.CurrentSession() or
-// mongo.Mongo(). If you want to use only the Database object to
-// handle the operations on MongoDB with a handler, use:
+// You can use mgo known functions with mongo.Session(). If you
+// want to use only the Database object to handle the operations on
+// MongoDB with a handler, use:
 mongo.ConsumeDatabaseOnSession(func(db elements.Databaser) {
-    // Make db object available on handlers.
-    p := handler.NewProductHandler()
-    p.Link(db)
+    // Use db for operation on collections.
+    db.C("products").Insert(document)
 
     // ... Do other operations.
 })
@@ -53,13 +52,12 @@ s := mongo.NewSocket()
 defer s.Close()
 
 // Make db object available on handlers.
-p := handler.NewProductHandler()
-p.Link(s.DB())
+s.DB().C("products").Insert(document)
 
 // ... Do other operations.
 ```
 
-Or even through the concept of LinkedHandlers, as described later:
+Or even through the concept of Handlers, as described later:
 
 ```go
 // To connect with MongoDB database.
@@ -67,37 +65,41 @@ mongo.Connect()
 defer mongo.Disconnect()
 
 // Create a linked handler
-p, _ := handler.NewLinkedProductHandler()
+p := handler.NewProductHandler()
+p.SetDocument(&product{
+    Name: "bread",
+    Price: 0.5,
+}).Insert()
 
 // ... Do other operations.
 ```
 
-Further usage it's the same way mgo package is used. Look into mgo
-docs page: <https://godoc.org/github.com/globalsign/mgo>
+Further usage on some objects, are the same way mgo package is used. Look into mgo docs page: <https://godoc.org/github.com/globalsign/mgo>
 
-The Connect function tries to connect to a MONGODB_URL environment
-variable, but when it's not defined, it uses a default URL:
+The Connect function tries to connect to a MONGODB_URL environment variable, but when it's not defined, it uses a default URL:
 
 mongodb://localhost:27017/test
 
-### Mocking
+## TestableConnecter
 
-You can mock some functions of this package, by mocking the mgo
-called functions mgo.ParseURL and mgo.Dial. Use the MockMongoSetup
-presented on this package (only in test environment), like:
+Instead of calling Connect() on production, in test environment it's advisable to use temp database using:
 
 ```go
-create, _ := mongo.NewMockMongoSetup(t)
-defer create.Finish()
+var resetDB func() error
+conn := mongo.NewTestableConnecter("", "testing", map[string]*product.Product{
+    product.NewProduct("bread", "0.5"),
+    product.NewProduct("cake", "2.2"),
+    product.NewProduct("soda", "1.2"),
+}, &resetDB)
+mongo.InitConnecter(conn)
 
-create.ParseURL().Returns(db, nil)
-create.Dial().Returns(info, nil)
+Connect()
+defer Disconnect()
 
-// Call any preparations on connection ...
-if err := mongo.Connect(); err != nil {
-    t.fail()
-}
+// Start any tests...
 ```
+
+Note that the first two parameters of NewTestableConnecter are related to the temp path where database will locate. The following parameter are the fixtures, a map of documents to populate on this temp database. Lastly is a optional address of a Reset function to drop database and repopulate it.
 
 ## Documenter
 
@@ -169,21 +171,6 @@ p.CalculateCreatedOn()
 t := p.CreatedOn()
 ```
 
-You can also mock some other functions of this package, by mocking some called functions time.Now and NewObjectId. Use the MockModelSetup presented on this package (only in test environment), like:
-
-```go
-create, _ := mongo.NewMockModelSetup(t)
-defer create.Finish()
-
-create.Now().Returns(time.Parse("02-01-2006", "22/12/2006"))
-create.NewID().Returns(ObjectIdHex("anyID"))
-
-var d mongo.Documenter
-// Call any needed methods ...
-d.GenerateID()
-d.CalculateCreatedOn()
-```
-
 ## Handle
 
 Mongo package also enable creation of Handle, a type that connects to database collections and do some operations.
@@ -204,56 +191,69 @@ For each new type, a constructor may be needed, and for that Handler has a basic
 ```go
 func New() (p *ProductHandle) {
     p = &ProductHandle{
-        Handle: mongo.NewHandle(),
+        Handle: mongo.NewHandle("products"),
         DocumentV: product.New(),
     }
     return
 }
-
-func NewLinked() (p *ProductHandle, err error) {
-    p = &ProductHandle{
-        DocumentV: product.New(),
-    }
-    p.Handle, err = mongo.NewLinkedHandle("products")
-}
 ```
 
-All functions were made to be overridden and rewrite. First thing to do it's creating the Link method, as it follows:
+All functions were made to be overridden and rewrite. First thing to do it's creating the Clean method (returning itself is optional), as it follows:
 
 ```go
-func (p *ProductHandle) Link(db mongo.Databaser) (err error) {
-    err = p.Handle.Link(db)
+func (p *ProductHandle) Clean() (ph *ProductHandle) {
+    p.Handle.Clean()
+    p.DocumentV = product.New()
+    ph = p
     return
 }
 ```
 
-The creation of Insert, Remove and RemoveAll are trivial. Call it with a Document getter function defined like:
+Create a Document, or SearchMap getter and setters functions improving use of Handle:
 
 ```go
+func (p *ProductHandle) SetDocument(d *product.Product) (r *ProductHandle) {
+    p.DocumentV = d
+    r = p
+    return
+}
+
 func (p *ProductHandle) Document() (d *product.Product) {
     d = p.DocumentV
     return
 }
 
-func (p *ProductHandle) Insert() (err error) {
-    err = p.Handle.Insert(p.Document())
+// Note that SearchMap, the getter is already defined on Handle.
+func (p *ProductHandle) SearchFor(s mongo.M) (r *ProductHandle) {
+    p.SearchMapV = s
+    r = p
     return
 }
 ```
 
-The Clean function is simple and helps a lot:
+The creation of Insert, Remove and RemoveAll are trivial.
 
 ```go
-func (p *ProductHandle) Clean() {
-    p.Handle.Clean()
-    p.DocumentV = product.New()
+func (p *ProductHandle) Insert() (err error) {
+    err = p.Handle.Insert(p.Document())
+    return
+}
+
+func (p *ProductHandle) Remove() (err error) {
+    err = p.Handle.Remove(p.Document().ID())
+    return
+}
+
+func (p *ProductHandle) RemoveAll() (info *mgo.ChangeInfo, err error) {
+    info, err = p.Handle.RemoveAll(p.Document())
+    return
 }
 ```
 
 The Update function uses an id as an argument:
 
 ```go
-func (p *ProductHandle) Update(id ObjectId) (err error) {
+func (p *ProductHandle) Update(id mongo.ObjectId) (err error) {
     err = p.Handle.Update(id, p.Document())
     return
 }
@@ -269,9 +269,10 @@ func (p *ProductHandle) Find() (prod *product.Product, err error) {
     return
 }
 
-func (p *ProductHandle) FindAll() (proda []*product.Product, err error) {
+// QueryOptions serve to add options on returning the query.
+func (p *ProductHandle) FindAll(opts ...mongo.QueryOptions) (proda []*product.Product, err error) {
     var da []mongo.Documenter
-    err = p.Handle.FindAll(p.Document(), &da)
+    err = p.Handle.FindAll(p.Document(), &da, opts...)
     proda = make([]*product.Product, len(da))
     for i := range da {
         //noinspection GoNilContainerIndexing
@@ -285,11 +286,7 @@ For all functions written, verification it's advisable.
 
 ## Testing
 
-This package contains a nice coverage with the unit tests, within the objectives of the project.
-
-The elements, embedded and mocks sub-packages have low coverage because they fulfill a need to mock mgo elements. These packages only embedded mgo objects to mock, and by this a lot of unused functions were created to fulfill interface requisites.
-
-On the other hand, model, handler and mongo package have full coverage, being the focus of this project.
+This package contains a nice coverage with the unit tests (currently at 99%), within the objectives of the project.
 
 The project also contains a set of acceptance tests. I've have set the test-acceptance task with the commands to run it. These tests requires a mongo test database to be available. It creates, search and remove elements from it, being reusable without broking the database.
 
