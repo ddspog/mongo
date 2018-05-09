@@ -12,9 +12,12 @@ install:
   - cd src/github.com/globalsign/
   - git clone https://github.com/ddspog/mgo.git
   - cd mgo/
-  - go get ./...
   - cd $GOPATH/src/github.com/ddspog/mongo/
-  - go get ./...
+  - go get github.com/ddspog/mspec
+  - go get github.com/comail/colog
+  - go get golang.org/x/net
+  - go get gopkg.in/check.v1
+  - go get gopkg.in/tomb.v2
 beforeScript:
   - sleep 15
 script:
