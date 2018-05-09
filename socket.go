@@ -1,14 +1,14 @@
 package mongo
 
 import (
-	"github.com/ddspog/mongo/elements"
+	"github.com/globalsign/mgo"
 )
 
 // DatabaseSocket it's a socket connection with a specified MongoDB
 // database, that can be closed after using it. It's used to make calls
 // to the mongo collections parallel and independent.
 type DatabaseSocket struct {
-	db   chan elements.Databaser
+	db   chan *mgo.Database
 	quit chan bool
 }
 
@@ -16,7 +16,7 @@ type DatabaseSocket struct {
 // supporting the DB calls.
 func NewSocket() (db *DatabaseSocket) {
 	db = &DatabaseSocket{
-		db:   make(chan elements.Databaser),
+		db:   make(chan *mgo.Database),
 		quit: make(chan bool),
 	}
 	return
@@ -25,8 +25,8 @@ func NewSocket() (db *DatabaseSocket) {
 // DB returns the database object returned by a cloned session of Mongo
 // connection. Requires closing after operation is done, to avoid
 // memory leak.
-func (d *DatabaseSocket) DB() (db elements.Databaser) {
-	go ConsumeDatabaseOnSession(func(db elements.Databaser) {
+func (d *DatabaseSocket) DB() (db *mgo.Database) {
+	go ConsumeDatabaseOnSession(func(db *mgo.Database) {
 		d.db <- db
 		<-d.quit
 	})
