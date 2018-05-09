@@ -13,7 +13,7 @@ You are free to copy, modify and distribute **mongo** package with attribution u
 Install **mongo** package with:
 
 ```shell
-go get github.com/ddspog/mongo.v2
+go get github.com/ddspog/mongo
 ```
 
 ## How to use
