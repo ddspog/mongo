@@ -1,3 +1,5 @@
+// +build !acceptance
+
 package mongo
 
 import (
@@ -5,28 +7,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ddspog/mongo/elements"
 	"github.com/ddspog/mspec/bdd"
 )
 
-// Feature Enable embedding with Handle
-// - As a developer,
-// - I want to be able to embedded Handle in other defined types,
-// - So that I could use the Handle methods to store general data on DB.
-func Test_Enable_embedding_with_Handle(t *testing.T) {
-	given, _, _ := bdd.Sentences()
-
-	given(t, "a new embedded ProductHandle p", func(when bdd.When) {
-		p := newProductHandle()
-
-		when("casting to ProductHandler interface h", func(it bdd.It) {
-			var h productHandler = p
-
-			it("h.Name() should return 'products'", func(assert bdd.Assert) {
-				assert.Equal(h.Name(), "products")
-			})
-		})
-	})
+// TestMain setup the testable mongo connecter to run a temp database.
+func TestMain(m *testing.M) {
+	PrepareTestMongoAndRun(m)
 }
 
 // Feature Create Handle with functional Getters
@@ -36,84 +22,52 @@ func Test_Enable_embedding_with_Handle(t *testing.T) {
 func Test_Create_Handle_with_functional_Getters(t *testing.T) {
 	given, like, s := bdd.Sentences()
 
-	given(t, "a ProductHandler h with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
-		p := newProduct()
-		p.IDV = ObjectIdHex(args[0].(string))
+	given(t, "a ProductHandle p with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
+		p := newProductHandle().SetDocument(&product{
+			IDV: ObjectIdHex(args[0].(string)),
+		})
+		defer p.Close()
 
-		ph := newProductHandle()
-		ph.DocumentV = p
-		var h productHandler = ph
-
-		when("h.Name() is called", func(it bdd.It) {
+		when("p.Name() is called", func(it bdd.It) {
 			it("should return 'products'", func(assert bdd.Assert) {
-				assert.Equal(h.Name(), "products")
+				assert.Equal("products", p.Name())
 			})
 		})
 
-		when("h.Document().ID().Hex() is called", func(it bdd.It) {
+		when("p.Document().ID().Hex() is called", func(it bdd.It) {
 			it("should return '%[1]v'", func(assert bdd.Assert) {
-				assert.Equal(h.Document().ID().Hex(), args[0].(string))
+				assert.Equal(args[0].(string), p.Document().ID().Hex())
 			})
 		})
 
 	}, like(
-		s(testid), s(product1id), s(product2id),
+		s(id1), s(id2), s(id3),
 	))
 }
 
-// Feature Link Handle to Database
+// Feature Count documents with Handle
 // - As a developer,
-// - I want to link Handle to database,
-// - So that I can use database methods on handler.
-func Test_Link_Handle_to_Database(t *testing.T) {
-	create, _ := NewMockMGOSetup(t)
-	defer create.Finish()
-
+// - I want to count documents with Handle,
+// - So that I can use this to perform verifications and such.
+func Test_Count_documents_with_Handle(t *testing.T) {
 	given, like, s := bdd.Sentences()
 
-	given(t, "a empty ProductHandler h and products collection has %[1]v documents", func(when bdd.When, args ...interface{}) {
-		db := create.DatabaseMock("products", func(mcl *MockCollectioner) {
-			mcl.ExpectCountReturn(args[0].(int))
-		})
+	given(t, "a empty ProductHandle p and products collection has %[1]v documents", func(when bdd.When, args ...interface{}) {
+		p := newProductHandle()
+		defer p.Close()
 
-		var h productHandler = newProductHandle()
-
-		when("h.Count() is called", func(it bdd.It) {
-			n, err := h.Count()
-
-			it(fmt.Sprintf("should return error '%[1]s'", ErrHandlerNotLinked.Error()), func(assert bdd.Assert) {
-				assert.Error(err)
-				assert.Equal(err.Error(), ErrHandlerNotLinked.Error())
-			})
-
-			it("should return 0", func(assert bdd.Assert) {
-				assert.Equal(0, n)
-			})
-		})
-
-		when("h.Link(nil) is called", func(it bdd.It) {
-			errLink := h.Link(nil)
-
-			it(fmt.Sprintf("should return error '%[1]s'", ErrDBNotDefined.Error()), func(assert bdd.Assert) {
-				assert.Error(errLink)
-				assert.Equal(errLink.Error(), ErrDBNotDefined.Error())
-			})
-		})
-
-		when("errLink := h.Link(db) and n, errCount := h.Count() is called", func(it bdd.It) {
-			errLink := h.Link(db)
-			n, errCount := h.Count()
+		when("p.Count() is called", func(it bdd.It) {
+			n, err := p.Count()
 
 			it("should return no errors", func(assert bdd.Assert) {
-				assert.Nil(errLink)
-				assert.Nil(errCount)
+				assert.Nil(err)
 			})
 			it("should return %[1]v", func(assert bdd.Assert) {
-				assert.Equal(n, args[0].(int))
+				assert.Equal(args[0].(int), n)
 			})
 		})
 	}, like(
-		s(5), s(10), s(15), s(150), s(3000), s(12301293029130),
+		s(len(fixtures)),
 	))
 }
 
@@ -124,19 +78,21 @@ func Test_Link_Handle_to_Database(t *testing.T) {
 func Test_Clean_documents_with_Handle(t *testing.T) {
 	given, like, s := bdd.Sentences()
 
-	given(t, "a ProductHandler h with Document with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
-		var h productHandler = newProductHandle()
-		h.Document().IDV = ObjectIdHex(args[0].(string))
+	given(t, "a ProductHandle p with Document with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
+		p := newProductHandle().SetDocument(&product{
+			IDV: ObjectIdHex(args[0].(string)),
+		})
+		defer p.Close()
 
 		when("h.Clean() is called", func(it bdd.It) {
-			h.Clean()
+			p.Clean()
 
-			it("should have h.Document().ID() return empty", func(assert bdd.Assert) {
-				assert.Empty(h.Document().ID().Hex())
+			it("should have p.Document().ID() return empty", func(assert bdd.Assert) {
+				assert.Empty(p.Document().ID().Hex())
 			})
 		})
 	}, like(
-		s(testid), s(product1id), s(product2id),
+		s(id1), s(id2), s(id3),
 	))
 }
 
@@ -145,81 +101,53 @@ func Test_Clean_documents_with_Handle(t *testing.T) {
 // - I want to Find documents using Handle,
 // - So that I can user Handler to search on database.
 func Test_Find_documents_with_Handle(t *testing.T) {
-	create, _ := NewMockMGOSetup(t)
-	defer create.Finish()
-
+	defer cleanChanges()
 	given, like, s := bdd.Sentences()
 
-	p := productCollection
-	col := fmt.Sprintf("{'%[1]v', '%[2]v'}", p[0].ID().Hex(), p[1].ID().Hex())
+	given(t, "a linked ProductHandle p and products collection with documents "+colFixtures, func(when bdd.When, args ...interface{}) {
+		p := newProductHandle()
+		defer p.Close()
 
-	given(t, "a linked ProductHandler h and products collection with documents "+col, func(when bdd.When, args ...interface{}) {
-		db := func() *MockDatabaser {
-			return create.DatabaseMock("products", func(mcl *MockCollectioner) {
-				switch args[0] {
-				case p[0].ID().Hex():
-					mcl.ExpectFindReturn(M{"_id": p[0].IDV, "created_on": p[0].CreatedOnV, "updated_on": p[0].UpdatedOnV})
-				case p[1].ID().Hex():
-					mcl.ExpectFindReturn(M{"_id": p[1].IDV, "created_on": p[1].CreatedOnV, "updated_on": p[1].UpdatedOnV})
-				default:
-					mcl.ExpectFindFail(anyReason)
-				}
-			})
+		VerifyFind := func(it bdd.It, args ...interface{}) {
+			d, err := p.Find()
+
+			if args[1].(bool) {
+				it("should return no errors", func(assert bdd.Assert) {
+					assert.Nil(err)
+				})
+				it("d.ID().Hex() should return %[1]v", func(assert bdd.Assert) {
+					assert.Equal(args[0].(string), d.ID().Hex())
+				})
+				it("d.CreatedOn() should return %[3]v", func(assert bdd.Assert) {
+					assert.Equal(args[2].(int64), d.CreatedOn())
+				})
+			} else {
+				it("should return an error", func(assert bdd.Assert) {
+					assert.Error(err)
+				})
+			}
 		}
 
-		var h productHandler = newProductHandle()
-		_ = h.Link(db())
+		when("d, err := p.Find() is called with Document id '%[1]v'", func(it bdd.It) {
+			p.Document().IDV = ObjectIdHex(args[0].(string))
 
-		when("d, err := h.Find() is called with Document id '%[1]v'", func(it bdd.It) {
-			h.Document().IDV = ObjectIdHex(args[0].(string))
-			d, err := h.Find()
-
-			if args[1].(bool) {
-				it("should return no errors", func(assert bdd.Assert) {
-					assert.Nil(err)
-				})
-				it("d.ID().Hex() should return %[1]v", func(assert bdd.Assert) {
-					assert.Equal(d.ID().Hex(), args[0].(string))
-				})
-				it("d.CreatedOn() should return %[3]v", func(assert bdd.Assert) {
-					assert.Equal(d.CreatedOn(), args[2].(int64))
-				})
-			} else {
-				it("should return an error", func(assert bdd.Assert) {
-					assert.Error(err)
-				})
-			}
+			VerifyFind(it, args...)
 		})
 
-		h.Clean()
-		_ = h.Link(db())
+		p.Clean()
 
-		when("d, err := h.Find() is called with Search '_id' equal '%[1]v'", func(it bdd.It) {
-			h.SearchM()["_id"] = ObjectIdHex(args[0].(string))
-			d, err := h.Find()
+		when("d, err := p.Find() is called with Search '_id' equal '%[1]v'", func(it bdd.It) {
+			p.SearchFor(M{
+				"_id": ObjectIdHex(args[0].(string)),
+			})
 
-			if args[1].(bool) {
-				it("should return no errors", func(assert bdd.Assert) {
-					assert.Nil(err)
-				})
-				it("d.ID().Hex() should return %[1]v", func(assert bdd.Assert) {
-					assert.Equal(d.ID().Hex(), args[0].(string))
-				})
-				it("d.CreatedOn() should return %[3]v", func(assert bdd.Assert) {
-					assert.Equal(d.CreatedOn(), args[2].(int64))
-				})
-			} else {
-				it("should return an error", func(assert bdd.Assert) {
-					assert.Error(err)
-				})
-			}
+			VerifyFind(it, args...)
 		})
 	}, like(
-		s(p[0].ID().Hex(), true, p[0].CreatedOn()),
-		s(p[1].ID().Hex(), true, p[1].CreatedOn()),
-		s(testid, false),
-		s(product1id, false),
-		s(product2id, false),
+		s(fixture(1).ID().Hex(), true, fixture(1).CreatedOn()),
+		s(fixture(2).ID().Hex(), true, fixture(2).CreatedOn()),
+		s(fixture(3).ID().Hex(), true, fixture(3).CreatedOn()),
+		s(idE, false),
 	))
 }
 
@@ -228,49 +156,25 @@ func Test_Find_documents_with_Handle(t *testing.T) {
 // - I want to Find various documents using Handle,
 // - So that I can use Handler to iterate through data.
 func Test_Find_various_documents_with_Handle(t *testing.T) {
-	create, _ := NewMockMGOSetup(t)
-	defer create.Finish()
-
+	defer cleanChanges()
 	given, like, s := bdd.Sentences()
 
-	p := productCollection
-	col := fmt.Sprintf("{'%[1]v', '%[2]v'}", p[0].ID().Hex(), p[1].ID().Hex())
+	given(t, "a linked ProductHandle p with products collection with documents "+colFixtures, func(when bdd.When, args ...interface{}) {
+		p := newProductHandle()
+		defer p.Close()
 
-	given(t, "a linked ProductHandler h with products collection with documents "+col, func(when bdd.When, args ...interface{}) {
-		db := func() *MockDatabaser {
-			return create.DatabaseMock("products", func(mcl *MockCollectioner) {
-				switch args[0] {
-				case "":
-					mcl.ExpectFindAllReturn([]interface{}{
-						M{"_id": p[0].IDV, "created_on": p[0].CreatedOnV, "updated_on": p[0].UpdatedOnV},
-						M{"_id": p[1].IDV, "created_on": p[1].CreatedOnV, "updated_on": p[1].UpdatedOnV},
-					})
-				case p[0].ID().Hex():
-					mcl.ExpectFindAllReturn([]interface{}{
-						M{"_id": p[0].IDV, "created_on": p[0].CreatedOnV, "updated_on": p[0].UpdatedOnV},
-					})
-				case p[1].ID().Hex():
-					mcl.ExpectFindAllReturn([]interface{}{
-						M{"_id": p[1].IDV, "created_on": p[1].CreatedOnV, "updated_on": p[1].UpdatedOnV},
-					})
-				default:
-					mcl.ExpectFindAllFail(anyReason)
-				}
+		VerifyFindAll := func(it bdd.It, args ...interface{}) {
+			da, err := p.FindAll(QueryOptions{
+				Sort: []string{"_id"},
 			})
-		}
 
-		var h productHandler = newProductHandle()
-		_ = h.Link(db())
-
-		when("da, err := h.FindAll() is called with document id '%[1]v'", func(it bdd.It) {
-			if args[0].(string) != "" {
-				h.Document().IDV = ObjectIdHex(args[0].(string))
-			}
-			da, err := h.FindAll()
+			it("should return no errors", func(assert bdd.Assert) {
+				assert.Nil(err)
+			})
 
 			if args[1].(bool) {
-				it("should return no errors", func(assert bdd.Assert) {
-					assert.Nil(err)
+				it("should return some documents", func(assert bdd.Assert) {
+					assert.NotEqual(0, len(da))
 				})
 
 				for i := range da {
@@ -278,63 +182,50 @@ func Test_Find_various_documents_with_Handle(t *testing.T) {
 
 					aID := args[(2*i)+2].(string)
 					it(dstr+".ID().Hex() should  return "+aID, func(assert bdd.Assert) {
-						assert.Equal(da[i].ID().Hex(), aID)
+						assert.Equal(aID, da[i].ID().Hex())
 					})
 
 					aCreatedOn := args[(2*i)+3].(int64)
 					sCreatedOn := fmt.Sprintf("%v", aCreatedOn)
 					it(dstr+".CreatedOn() should  return "+sCreatedOn, func(assert bdd.Assert) {
-						assert.Equal(da[i].CreatedOn(), aCreatedOn)
+						assert.Equal(aCreatedOn, da[i].CreatedOn())
 					})
 				}
 			} else {
-				it("should return an error", func(assert bdd.Assert) {
-					assert.Error(err)
+				it("should return no documents", func(assert bdd.Assert) {
+					assert.Equal(0, len(da))
 				})
 			}
+		}
+
+		when("da, err := p.FindAll() is called with document id '%[1]v'", func(it bdd.It) {
+			if args[0].(string) != "" {
+				p.Document().IDV = ObjectIdHex(args[0].(string))
+			}
+
+			VerifyFindAll(it, args...)
 		})
 
-		h.Clean()
-		_ = h.Link(db())
+		p.Clean()
 
 		when("da, err := h.FindAll() is called with Search '_id' equal '%[1]v'", func(it bdd.It) {
 			if args[0].(string) != "" {
-				h.SearchM()["_id"] = ObjectIdHex(args[0].(string))
+				p.SearchMap()["_id"] = ObjectIdHex(args[0].(string))
 			}
-			da, err := h.FindAll()
 
-			if args[1].(bool) {
-				it("should return no errors", func(assert bdd.Assert) {
-					assert.Nil(err)
-				})
-
-				for i := range da {
-					dstr := fmt.Sprintf("da[%d]", i)
-
-					aID := args[(2*i)+2].(string)
-					it(dstr+".ID().Hex() should  return "+aID, func(assert bdd.Assert) {
-						assert.Equal(da[i].ID().Hex(), aID)
-					})
-
-					aCreatedOn := args[(2*i)+3].(int64)
-					sCreatedOn := fmt.Sprintf("%v", aCreatedOn)
-					it(dstr+".CreatedOn() should  return "+sCreatedOn, func(assert bdd.Assert) {
-						assert.Equal(da[i].CreatedOn(), aCreatedOn)
-					})
-				}
-			} else {
-				it("should return an error", func(assert bdd.Assert) {
-					assert.Error(err)
-				})
-			}
+			VerifyFindAll(it, args...)
 		})
 	}, like(
-		s(p[0].ID().Hex(), true, p[0].ID().Hex(), p[0].CreatedOn()),
-		s(p[1].ID().Hex(), true, p[1].ID().Hex(), p[1].CreatedOn()),
-		s("", true, p[0].ID().Hex(), p[0].CreatedOn(), p[1].ID().Hex(), p[1].CreatedOn()),
-		s(testid, false),
-		s(product1id, false),
-		s(product2id, false),
+		s(fixture(1).ID().Hex(), true, fixture(1).ID().Hex(), fixture(1).CreatedOn()),
+		s(fixture(2).ID().Hex(), true, fixture(2).ID().Hex(), fixture(2).CreatedOn()),
+		s(fixture(3).ID().Hex(), true, fixture(3).ID().Hex(), fixture(3).CreatedOn()),
+		s(
+			"", true,
+			fixture(1).ID().Hex(), fixture(1).CreatedOn(),
+			fixture(2).ID().Hex(), fixture(2).CreatedOn(),
+			fixture(3).ID().Hex(), fixture(3).CreatedOn(),
+		),
+		s(idE, false),
 	))
 }
 
@@ -343,39 +234,48 @@ func Test_Find_various_documents_with_Handle(t *testing.T) {
 // - I want to Insert documents using Handle,
 // - So that I can use Handler to insert data.
 func Test_Insert_documents_with_Handle(t *testing.T) {
-	makeMGO, _ := NewMockMGOSetup(t)
-	makeModel, _ := NewMockModelSetup(t)
-	defer finish(makeMGO, makeModel)
-
+	defer cleanChanges()
 	given, like, s := bdd.Sentences()
 
-	given(t, "a linked ProductHandler h with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
-		db := makeMGO.DatabaseMock("products", func(mcl *MockCollectioner) {
-			mcl.ExpectInsertReturn()
-		})
+	given(t, "a linked ProductHandle p with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
+		p := newProductHandle()
+		defer p.Close()
 
-		var h productHandler = newProductHandle()
-		_ = h.Link(db)
 		if args[0].(string) != "" {
-			h.Document().IDV = ObjectIdHex(args[0].(string))
+			p.Document().IDV = ObjectIdHex(args[0].(string))
 		}
 
-		when("h.Insert() is called", func(it bdd.It) {
-			makeModel.Now().Returns(args[1].(time.Time))
-			err := h.Insert()
+		when("p.Insert() is called", func(it bdd.It) {
+			now = func() (t time.Time) {
+				t = args[1].(time.Time)
+				return
+			}
+			defer resetUtils()
+			err := p.Insert()
 
-			it("should return no errors", func(assert bdd.Assert) {
-				assert.Nil(err)
-			})
-			it("h.Document().CreatedOn() should return %[2]v", func(assert bdd.Assert) {
-				assert.Equal(h.Document().CreatedOn(), expectedNowInMilli(args[1].(time.Time)))
-			})
+			if args[2].(bool) {
+				it("should return no errors", func(assert bdd.Assert) {
+					assert.Nil(err)
+				})
+				it("p.Document().CreatedOn() should return %[2]v", func(assert bdd.Assert) {
+					assert.Equal(expectedNowInMilli(args[1].(time.Time)), p.Document().CreatedOn())
+				})
+			} else {
+				it("should return an error", func(assert bdd.Assert) {
+					assert.Error(err)
+				})
+				it("p.Document().CreatedOn() should return %[2]v", func(assert bdd.Assert) {
+					assert.Equal(expectedNowInMilli(args[1].(time.Time)), p.Document().CreatedOn())
+				})
+			}
 		})
 	}, like(
-		s("", timeFmt("01-01-2000 00:00:01")), s("", timeFmt("02-05-2014 13:36:42")), s("", timeFmt("19-12-2017 22:59:00")),
-		s(productCollection[0].ID().Hex(), timeFmt("11-11-2011 11:11:11")),
-		s(productCollection[1].ID().Hex(), timeFmt("12-12-2012 00:00:00")),
-		s(testid, timeFmt("01-01-0001 02:14:16")), s(product1id, timeFmt("03-10-2004 15:03:02")), s(product2id, timeFmt("15-06-1995 10:00:00")),
+		s("", timeFmt("01-01-2000 00:00:01"), true),
+		s("", timeFmt("02-05-2014 13:36:42"), true),
+		s("", timeFmt("19-12-2017 22:59:00"), true),
+		s(fixture(1).ID().Hex(), timeFmt("11-11-2011 11:11:11"), false),
+		s(fixture(2).ID().Hex(), timeFmt("12-12-2012 00:00:00"), false),
+		s(fixture(3).ID().Hex(), timeFmt("01-01-0001 02:14:16"), false),
 	))
 }
 
@@ -384,40 +284,33 @@ func Test_Insert_documents_with_Handle(t *testing.T) {
 // - I want to Remove documents using Handle,
 // - So that I can use Handler to remove data.
 func Test_Remove_documents_with_Handle(t *testing.T) {
-	create, _ := NewMockMGOSetup(t)
-	defer create.Finish()
-
+	defer cleanChanges()
 	given, like, s := bdd.Sentences()
 
-	given(t, "a linked ProductHandler h with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
-		db := create.DatabaseMock("products", func(mcl *MockCollectioner) {
-			if args[0].(string) != "" {
-				mcl.ExpectRemoveIDReturn()
-			}
+	given(t, "a linked ProductHandle p with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
+		p := newProductHandle().SetDocument(&product{
+			IDV: args[0].(ObjectId),
 		})
+		defer p.Close()
 
-		var h productHandler = newProductHandle()
-		_ = h.Link(db)
-		if args[0].(string) != "" {
-			h.Document().IDV = ObjectIdHex(args[0].(string))
-		}
+		when("p.Remove() is called", func(it bdd.It) {
+			err := p.Remove()
 
-		when("h.Remove() is called", func(it bdd.It) {
-			err := h.Remove()
-
-			if args[0].(string) != "" {
+			if args[0].(ObjectId) != "" {
 				it("should return no errors", func(assert bdd.Assert) {
 					assert.Nil(err)
 				})
 			} else {
 				it("should return an error", func(assert bdd.Assert) {
-					assert.Equal(err, ErrIDNotDefined)
+					assert.Equal(ErrIDNotDefined, err)
 				})
 			}
 		})
 	}, like(
-		s(productCollection[0].ID().Hex()), s(productCollection[1].ID().Hex()),
-		s(testid), s(product1id), s(product2id), s(""),
+		s(fixture(1).ID()),
+		s(fixture(2).ID()),
+		s(fixture(3).ID()),
+		s(ObjectId("")),
 	))
 }
 
@@ -426,32 +319,41 @@ func Test_Remove_documents_with_Handle(t *testing.T) {
 // - I want to Remove various documents using Handle,
 // - So that I can use Handler to remove lots of data.
 func Test_Remove_various_documents_with_Handle(t *testing.T) {
-	create, _ := NewMockMGOSetup(t)
-	defer create.Finish()
-
+	defer cleanChanges()
 	given, like, s := bdd.Sentences()
 
-	given(t, "a linked ProductHandler h with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
-		db := create.DatabaseMock("products", func(mcl *MockCollectioner) {
-			mcl.ExpectRemoveAllReturn(elements.NewRemoveInfo(0))
-		})
+	given(t, "a linked ProductHandle p with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
+		p := newProductHandle()
+		defer p.Close()
 
-		var h productHandler = newProductHandle()
-		_ = h.Link(db)
-		if args[0].(string) != "" {
-			h.Document().IDV = ObjectIdHex(args[0].(string))
-		}
-
-		when("h.RemoveAll() is called", func(it bdd.It) {
-			_, err := h.RemoveAll()
+		VerifyRemoveAll := func(it bdd.It, args ...interface{}) {
+			_, err := p.RemoveAll()
 
 			it("should return no errors", func(assert bdd.Assert) {
 				assert.Nil(err)
 			})
+		}
+
+		when("_, err := p.RemoveAll() is called with document id '%[1]v'", func(it bdd.It) {
+			if args[0].(string) != "" {
+				p.Document().IDV = ObjectIdHex(args[0].(string))
+			}
+			VerifyRemoveAll(it, args...)
+		})
+
+		p.Clean()
+
+		when("_, err := p.RemoveAll() is called with Search '_id' equal '%[1]v'", func(it bdd.It) {
+			if args[0].(string) != "" {
+				p.SearchMap()["_id"] = ObjectIdHex(args[0].(string))
+			}
+			VerifyRemoveAll(it, args...)
 		})
 	}, like(
-		s(productCollection[0].ID().Hex()), s(productCollection[1].ID().Hex()),
-		s(testid), s(product1id), s(product2id), s(""),
+		s(fixture(1).ID().Hex()),
+		s(fixture(2).ID().Hex()),
+		s(fixture(3).ID().Hex()),
+		s(""), s(id1), s(id2), s(id3),
 	))
 }
 
@@ -460,46 +362,39 @@ func Test_Remove_various_documents_with_Handle(t *testing.T) {
 // - I want to Update documents using Handle,
 // - So that I can use Handler to update data.
 func Test_Update_documents_with_Handle(t *testing.T) {
-	makeMGO, _ := NewMockMGOSetup(t)
-	makeModel, _ := NewMockModelSetup(t)
-	defer finish(makeMGO, makeModel)
-
+	defer cleanChanges()
 	given, like, s := bdd.Sentences()
 
-	given(t, "a linked ProductHandler h with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
-		db := makeMGO.DatabaseMock("products", func(mcl *MockCollectioner) {
-			if args[0].(string) != "" {
-				mcl.ExpectUpdateIDReturn()
+	given(t, "a linked empty ProductHandle p", func(when bdd.When, args ...interface{}) {
+		p := newProductHandle()
+
+		when("p.Update('%[1]v') is called", func(it bdd.It) {
+			now = func() (t time.Time) {
+				t = args[1].(time.Time)
+				return
 			}
-		})
+			defer resetUtils()
 
-		var h productHandler = newProductHandle()
-		_ = h.Link(db)
-		if args[0].(string) != "" {
-			h.Document().IDV = ObjectIdHex(args[0].(string))
-		}
+			err := p.Update(args[0].(ObjectId))
 
-		when("h.Update() is called", func(it bdd.It) {
-			if args[0].(string) != "" {
-				makeModel.Now().Returns(args[1].(time.Time))
-			}
-			err := h.Update(h.Document().ID())
-
-			if args[0].(string) != "" {
+			if args[0].(ObjectId) != "" {
 				it("should return no errors", func(assert bdd.Assert) {
 					assert.Nil(err)
 				})
-				it("should have h.Document().UpdatedOn() return %[2]v", func(assert bdd.Assert) {
-					assert.Equal(h.Document().UpdatedOn(), expectedNowInMilli(args[1].(time.Time)))
+				it("should have p.Document().UpdatedOn() return %[2]v", func(assert bdd.Assert) {
+					assert.Equal(expectedNowInMilli(args[1].(time.Time)), p.Document().UpdatedOn())
 				})
 			} else {
 				it("should return an error", func(assert bdd.Assert) {
-					assert.Equal(err, ErrIDNotDefined)
+					assert.Equal(ErrIDNotDefined, err)
 				})
 			}
 		})
 	}, like(
-		s(productCollection[0].ID().Hex(), timeFmt("14-03-1998 12:15:06")), s(productCollection[1].ID().Hex(), timeFmt("22-10-1974 03:11:02")),
-		s(testid, timeFmt("07-12-2007 02:48:59")), s(product1id, timeFmt("31-12-1999 23:59:59")), s(product2id, timeFmt("30-06-2019 22:14:06")), s(""),
+		s(fixture(1).ID(), timeFmt("14-03-1998 12:15:06")),
+		s(fixture(2).ID(), timeFmt("22-10-1974 03:11:02")),
+		s(fixture(3).ID(), timeFmt("07-12-2007 02:48:59")),
+		s(ObjectId(""), timeFmt("11-2-2037 01:53:21")),
 	))
+
 }
