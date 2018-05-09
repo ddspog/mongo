@@ -198,9 +198,15 @@ func New() (p *ProductHandle) {
 }
 ```
 
-All functions were made to be overridden and rewrite. First thing to do it's creating the Clean method (returning itself is optional), as it follows:
+All functions were made to be overridden and rewrite. First thing to do it's creating the Safely and Clean method (returning itself is optional), as it follows:
 
 ```go
+func (p *ProductHandle) Safely() (ph *ProductHandle) {
+    p.Handle.Safely()
+    ph = p
+    return
+}
+
 func (p *ProductHandle) Clean() (ph *ProductHandle) {
     p.Handle.Clean()
     p.DocumentV = product.New()
