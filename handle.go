@@ -14,6 +14,7 @@ var (
 // Handle it's a type implementing the Handler interface, responsible
 // of taking documents and using them to manipulate collections.
 type Handle struct {
+	safely         bool
 	socket         *DatabaseSocket
 	collection     *mgo.Collection
 	collectionName string
@@ -27,6 +28,7 @@ func NewHandle(name string) (h *Handle) {
 		collectionName: name,
 		socket:         sk,
 		collection:     sk.DB().C(name),
+		safely:         false,
 	}
 	return
 }
@@ -37,7 +39,13 @@ func NewHandle(name string) (h *Handle) {
 func (h *Handle) Close() {
 	if h.socket != nil {
 		h.socket.Close()
+		h.socket = nil
 	}
+}
+
+// Safely sets Handle to close after any operation.
+func (h *Handle) Safely() {
+	h.safely = true
 }
 
 // Clean resets handler values.
@@ -47,6 +55,7 @@ func (h *Handle) Clean() {
 	h.Close()
 	sk := NewSocket()
 	h.socket = sk
+	h.safely = false
 	h.collection = sk.DB().C(h.Name())
 }
 
@@ -67,6 +76,10 @@ func (h *Handle) IsSearchEmpty() (result bool) {
 // Handle.
 func (h *Handle) Count() (n int, err error) {
 	n, err = h.collection.Count()
+
+	if h.safely {
+		h.Close()
+	}
 	return
 }
 
@@ -86,6 +99,10 @@ func (h *Handle) Find(doc Documenter, out Documenter) (err error) {
 		if err = h.collection.Find(mapped).One(&result); err == nil {
 			err = out.Init(result.(M))
 		}
+	}
+
+	if h.safely {
+		h.Close()
 	}
 	return
 }
@@ -129,6 +146,10 @@ func (h *Handle) FindAll(doc Documenter, out *[]Documenter, opts ...QueryOptions
 			*out = tempArr
 		}
 	}
+
+	if h.safely {
+		h.Close()
+	}
 	return
 }
 
@@ -145,6 +166,10 @@ func (h *Handle) Insert(doc Documenter) (err error) {
 	if mapped, err = doc.Map(); err == nil {
 		err = h.collection.Insert(mapped)
 	}
+
+	if h.safely {
+		h.Close()
+	}
 	return
 }
 
@@ -155,6 +180,10 @@ func (h *Handle) Remove(id ObjectId) (err error) {
 		err = ErrIDNotDefined
 	} else {
 		err = h.collection.RemoveId(id)
+	}
+
+	if h.safely {
+		h.Close()
 	}
 	return
 }
@@ -172,6 +201,10 @@ func (h *Handle) RemoveAll(doc Documenter) (info *mgo.ChangeInfo, err error) {
 
 	if err == nil {
 		info, err = h.collection.RemoveAll(mapped)
+	}
+
+	if h.safely {
+		h.Close()
 	}
 	return
 }
@@ -193,6 +226,10 @@ func (h *Handle) Update(id ObjectId, doc Documenter) (err error) {
 
 			err = h.collection.Update(idSelector, mapped)
 		}
+	}
+
+	if h.safely {
+		h.Close()
 	}
 	return
 }

@@ -154,6 +154,13 @@ func newProductHandle() (p *productHandle) {
 	return
 }
 
+// Safely sets Handler to close after any operation.
+func (p *productHandle) Safely() (ph *productHandle) {
+	p.Handle.Safely()
+	ph = p
+	return
+}
+
 // Clean documents and search map values, returns Handle for chaining
 // purposes.
 func (p *productHandle) Clean() (ph *productHandle) {

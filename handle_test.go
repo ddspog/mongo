@@ -52,12 +52,9 @@ func Test_Create_Handle_with_functional_Getters(t *testing.T) {
 func Test_Count_documents_with_Handle(t *testing.T) {
 	given, like, s := bdd.Sentences()
 
-	given(t, "a empty ProductHandle p and products collection has %[1]v documents", func(when bdd.When, args ...interface{}) {
-		p := newProductHandle()
-		defer p.Close()
-
+	given(t, "a empty ProductHandle and products collection has %[1]v documents", func(when bdd.When, args ...interface{}) {
 		when("p.Count() is called", func(it bdd.It) {
-			n, err := p.Count()
+			n, err := newProductHandle().Safely().Count()
 
 			it("should return no errors", func(assert bdd.Assert) {
 				assert.Nil(err)
@@ -106,10 +103,9 @@ func Test_Find_documents_with_Handle(t *testing.T) {
 
 	given(t, "a linked ProductHandle p and products collection with documents "+colFixtures, func(when bdd.When, args ...interface{}) {
 		p := newProductHandle()
-		defer p.Close()
 
 		VerifyFind := func(it bdd.It, args ...interface{}) {
-			d, err := p.Find()
+			d, err := p.Safely().Find()
 
 			if args[1].(bool) {
 				it("should return no errors", func(assert bdd.Assert) {
@@ -161,10 +157,9 @@ func Test_Find_various_documents_with_Handle(t *testing.T) {
 
 	given(t, "a linked ProductHandle p with products collection with documents "+colFixtures, func(when bdd.When, args ...interface{}) {
 		p := newProductHandle()
-		defer p.Close()
 
 		VerifyFindAll := func(it bdd.It, args ...interface{}) {
-			da, err := p.FindAll(QueryOptions{
+			da, err := p.Safely().FindAll(QueryOptions{
 				Sort: []string{"_id"},
 			})
 
@@ -239,7 +234,6 @@ func Test_Insert_documents_with_Handle(t *testing.T) {
 
 	given(t, "a linked ProductHandle p with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
 		p := newProductHandle()
-		defer p.Close()
 
 		if args[0].(string) != "" {
 			p.Document().IDV = ObjectIdHex(args[0].(string))
@@ -251,7 +245,7 @@ func Test_Insert_documents_with_Handle(t *testing.T) {
 				return
 			}
 			defer resetUtils()
-			err := p.Insert()
+			err := p.Safely().Insert()
 
 			if args[2].(bool) {
 				it("should return no errors", func(assert bdd.Assert) {
@@ -291,10 +285,9 @@ func Test_Remove_documents_with_Handle(t *testing.T) {
 		p := newProductHandle().SetDocument(&product{
 			IDV: args[0].(ObjectId),
 		})
-		defer p.Close()
 
 		when("p.Remove() is called", func(it bdd.It) {
-			err := p.Remove()
+			err := p.Safely().Remove()
 
 			if args[0].(ObjectId) != "" {
 				it("should return no errors", func(assert bdd.Assert) {
@@ -324,10 +317,9 @@ func Test_Remove_various_documents_with_Handle(t *testing.T) {
 
 	given(t, "a linked ProductHandle p with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
 		p := newProductHandle()
-		defer p.Close()
 
 		VerifyRemoveAll := func(it bdd.It, args ...interface{}) {
-			_, err := p.RemoveAll()
+			_, err := p.Safely().RemoveAll()
 
 			it("should return no errors", func(assert bdd.Assert) {
 				assert.Nil(err)
@@ -375,7 +367,7 @@ func Test_Update_documents_with_Handle(t *testing.T) {
 			}
 			defer resetUtils()
 
-			err := p.Update(args[0].(ObjectId))
+			err := p.Safely().Update(args[0].(ObjectId))
 
 			if args[0].(ObjectId) != "" {
 				it("should return no errors", func(assert bdd.Assert) {
