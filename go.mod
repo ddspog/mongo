@@ -7,4 +7,5 @@ require (
 	github.com/golang/mock v1.1.1
 	golang.org/x/net v0.0.0-20180502164142-640f4622ab69
 	gopkg.in/check.v1 v1.0.0-20161208181325-20d25e280405
+	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
 )

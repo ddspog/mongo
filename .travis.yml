@@ -5,9 +5,16 @@ services: mongodb
 notifications:
   email: falses
 install:
-  - go get -u golang.org/x/vgo
   - go get -u -v github.com/go-task/task/cmd/task
-  - vgo build
+  - cd $GOPATH
+  - mkdir -p {src,bin,pkg}
+  - mkdir -p src/github.com/globalsign/
+  - cd src/github.com/globalsign/
+  - git clone https://github.com/ddspog/mgo.git
+  - cd mgo/
+  - go get ./...
+  - cd $GOPATH/src/github.com/ddspog/mongo/
+  - go get ./...
 beforeScript:
   - sleep 15
 script:
