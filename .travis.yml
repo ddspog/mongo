@@ -13,11 +13,7 @@ install:
   - git clone https://github.com/ddspog/mgo.git
   - cd mgo/
   - cd $GOPATH/src/github.com/ddspog/mongo/
-  - go get github.com/ddspog/mspec
-  - go get github.com/comail/colog
-  - go get golang.org/x/net
-  - go get gopkg.in/check.v1
-  - go get gopkg.in/tomb.v2
+  - go get -t ./...
 beforeScript:
   - sleep 15
 script:
