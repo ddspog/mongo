@@ -3,6 +3,7 @@ package mongo
 import (
 	"time"
 
+	"github.com/ddspog/mongo/internal/bsonutils"
 	"github.com/globalsign/mgo/bson"
 )
 
@@ -58,9 +59,14 @@ func NewID() (id bson.ObjectId) {
 func InitDocumenter(in M, out *Documenter) (err error) {
 	var marshalled []byte
 
-	if marshalled, err = bson.Marshal(in); err == nil {
-		err = bson.Unmarshal(marshalled, *out)
+	bsonutils.SetOmitEmptyAsDefault(true)
+
+	if marshalled, err = bsonutils.Marshal(in); err == nil {
+		err = bsonutils.Unmarshal(marshalled, *out)
 	}
+
+	bsonutils.SetOmitEmptyAsDefault(false)
+
 	return
 }
 
@@ -71,11 +77,15 @@ func MapDocumenter(in Documenter) (out M, err error) {
 	var buf []byte
 	var target interface{}
 
-	if buf, err = bson.Marshal(in); err == nil {
-		if err = bson.Unmarshal(buf, &target); err == nil {
+	bsonutils.SetOmitEmptyAsDefault(true)
+
+	if buf, err = bsonutils.Marshal(in); err == nil {
+		if err = bsonutils.Unmarshal(buf, &target); err == nil {
 			out = target.(M)
 		}
 	}
+
+	bsonutils.SetOmitEmptyAsDefault(false)
 
 	return
 }

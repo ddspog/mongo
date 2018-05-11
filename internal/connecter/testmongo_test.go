@@ -146,7 +146,7 @@ var (
 
 // product it's an random type.
 type product struct {
-	IDV bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
+	IDV bson.ObjectId `bson:"_id"`
 }
 
 // newProduct creates a product with random id.
