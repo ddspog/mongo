@@ -14,22 +14,27 @@ var (
 // Handle it's a type implementing the Handler interface, responsible
 // of taking documents and using them to manipulate collections.
 type Handle struct {
-	safely         bool
-	socket         *DatabaseSocket
-	collection     *mgo.Collection
-	collectionName string
-	SearchMapV     M
+	safely            bool
+	socket            *DatabaseSocket
+	collection        *mgo.Collection
+	collectionName    string
+	collectionIndexes []mgo.Index
+	SearchMapV        M
 }
 
-// NewHandle creates a new Handle to be embedded onto handle for other types.
-func NewHandle(name string) (h *Handle) {
+// NewHandle creates a new Handle to be embedded onto handle for other
+// types. It also accept optional indexes to be loaded onto collection.
+func NewHandle(name string, indexes ...mgo.Index) (h *Handle) {
 	sk := NewSocket()
 	h = &Handle{
-		collectionName: name,
-		socket:         sk,
-		collection:     sk.DB().C(name),
-		safely:         false,
+		collectionName:    name,
+		socket:            sk,
+		collection:        sk.DB().C(name),
+		safely:            false,
+		collectionIndexes: indexes,
 	}
+
+	h.ensureIndexes()
 	return
 }
 
@@ -57,6 +62,7 @@ func (h *Handle) Clean() {
 	h.socket = sk
 	h.safely = false
 	h.collection = sk.DB().C(h.Name())
+	h.ensureIndexes()
 }
 
 // Name returns the name of connection that Handle can connect.
@@ -238,4 +244,12 @@ func (h *Handle) Update(id ObjectId, doc Documenter) (err error) {
 func (h *Handle) SearchMap() (s M) {
 	s = h.SearchMapV
 	return
+}
+
+// ensureIndexes search for any loaded index on Handle, and set it on
+// collection.
+func (h *Handle) ensureIndexes() {
+	for _, index := range h.collectionIndexes {
+		h.collection.EnsureIndex(index)
+	}
 }
