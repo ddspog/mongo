@@ -112,11 +112,11 @@ The Documenter can be used like this:
 ```go
 // Create a type representing the Document type
 type Product struct {
-    IDV ObjectId   `json:"_id,omitempty" bson:"_id,omitempty"`
-    CreatedOnV  int64   `json:"created_on,omitempty" bson:"created_on,omitempty"`
-    UpdatedOnV  int64   `json:"updated_on,omitempty" bson:"updated_on,omitempty"`
-    NameV   string  `json:"name" form:"name" binding:"required" bson:"name"`
-    PriceV  float32 `json:"price" form:"price" binding:"required" bson:"price"`
+    IDV ObjectId   `bson:"_id"`
+    CreatedOnV  int64   `bson:"created_on"`
+    UpdatedOnV  int64   `bson:"updated_on"`
+    NameV   string  `bson:"name" form:"name" binding:"required"`
+    PriceV  float32 `bson:"price" form:"price" binding:"required"`
 }
 
 // Implement the Documenter interface.
