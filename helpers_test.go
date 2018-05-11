@@ -60,9 +60,9 @@ func PrepareTestMongoAndRun(m *testing.M) {
 
 // product it's a type embedding the Document struct.
 type product struct {
-	IDV        ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
-	CreatedOnV int64    `json:"created_on,omitempty" bson:"created_on,omitempty"`
-	UpdatedOnV int64    `json:"updated_on,omitempty" bson:"updated_on,omitempty"`
+	IDV        ObjectId `bson:"_id,omitempty"`
+	CreatedOnV int64    `bson:"created_on,omitempty"`
+	UpdatedOnV int64    `bson:"updated_on,omitempty"`
 }
 
 // newProduct returns a empty product.
@@ -148,7 +148,9 @@ type productHandle struct {
 // newProductHandle returns a empty productHandle.
 func newProductHandle() (p *productHandle) {
 	p = &productHandle{
-		Handle:    NewHandle("products"),
+		Handle: NewHandle("products", mgo.Index{
+			Key: []string{"created_on"},
+		}),
 		DocumentV: newProduct(),
 	}
 	return

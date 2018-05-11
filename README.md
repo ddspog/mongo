@@ -186,12 +186,16 @@ type ProductHandle struct {
 }
 ```
 
-For each new type, a constructor may be needed, and for that Handler has a basic constructor.
+For each new type, a constructor may be needed, and for that Handler has a basic constructor. This constructor initializes DocumentV with a new model.Documenter type. It also initializes Handle with the name of collection used on Handle, and optional indexes for collection.
 
 ```go
+// Here product.CollectionName == "products" and
+// product.CollectionIndexes = []mgo.Index{
+//	 mgo.Index{Key: []string{"name"}},
+// }
 func New() (p *ProductHandle) {
     p = &ProductHandle{
-        Handle: mongo.NewHandle("products"),
+        Handle: mongo.NewHandle(product.CollectionName, product.CollectionIndexes...),
         DocumentV: product.New(),
     }
     return

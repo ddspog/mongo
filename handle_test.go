@@ -319,12 +319,19 @@ func Test_Remove_various_documents_with_Handle(t *testing.T) {
 		p := newProductHandle()
 
 		VerifyRemoveAll := func(it bdd.It, args ...interface{}) {
-			_, err := p.Safely().RemoveAll()
+			info, err := p.Safely().RemoveAll()
 
 			it("should return no errors", func(assert bdd.Assert) {
 				assert.Nil(err)
 			})
+
+			it("should have removed %[2]v documents", func(assert bdd.Assert) {
+				assert.Equal(args[1].(int), info.Removed)
+			})
+
 		}
+
+		cleanChanges()
 
 		when("_, err := p.RemoveAll() is called with document id '%[1]v'", func(it bdd.It) {
 			if args[0].(string) != "" {
@@ -334,6 +341,7 @@ func Test_Remove_various_documents_with_Handle(t *testing.T) {
 		})
 
 		p.Clean()
+		cleanChanges()
 
 		when("_, err := p.RemoveAll() is called with Search '_id' equal '%[1]v'", func(it bdd.It) {
 			if args[0].(string) != "" {
@@ -342,10 +350,10 @@ func Test_Remove_various_documents_with_Handle(t *testing.T) {
 			VerifyRemoveAll(it, args...)
 		})
 	}, like(
-		s(fixture(1).ID().Hex()),
-		s(fixture(2).ID().Hex()),
-		s(fixture(3).ID().Hex()),
-		s(""), s(id1), s(id2), s(id3),
+		s(fixture(1).ID().Hex(), 1),
+		s(fixture(2).ID().Hex(), 1),
+		s(fixture(3).ID().Hex(), 1),
+		s("", 3),
 	))
 }
 
