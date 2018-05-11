@@ -60,9 +60,9 @@ func PrepareTestMongoAndRun(m *testing.M) {
 
 // product it's a type embedding the Document struct.
 type product struct {
-	IDV        ObjectId `bson:"_id,omitempty"`
-	CreatedOnV int64    `bson:"created_on,omitempty"`
-	UpdatedOnV int64    `bson:"updated_on,omitempty"`
+	IDV        ObjectId `bson:"_id"`
+	CreatedOnV int64    `bson:"created_on"`
+	UpdatedOnV int64    `bson:"updated_on"`
 }
 
 // newProduct returns a empty product.
