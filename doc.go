@@ -131,6 +131,11 @@ The Documenter can be used like this:
 		return
 	}
 
+	func (p *Product) Validate() (err error) {
+		return
+	}
+
+
 	// On these methods, you can use the functions implemented mongo
 	// package.
 	func (p *Product) Map() (out M, err error) {
@@ -177,7 +182,6 @@ for creating embedding types.
 
 	type ProductHandle struct {
 		*mongo.Handle
-		DocumentV *product.Product
 	}
 
 For each new type, a constructor may be needed, and for that Handler
@@ -191,8 +195,7 @@ collection used on Handle, and optional indexes for collection.
 	// }
 	func New() (p *ProductHandle) {
 		p = &ProductHandle{
-			Handle: mongo.NewHandle(product.CollectionName, product.CollectionIndexes...),
-			DocumentV: product.New(),
+			Handle: mongo.NewHandle(product.CollectionName, product.New(), product.CollectionIndexes...),
 		}
 		return
 	}
@@ -209,7 +212,6 @@ optional), as it follows:
 
 	func (p *ProductHandle) Clean() (ph *ProductHandle) {
 		p.Handle.Clean()
-		p.DocumentV = product.New()
 		ph = p
 		return
 	}
@@ -218,44 +220,20 @@ Create a Document, or SearchMap getter and setters functions improving
 use of Handle:
 
 	func (p *ProductHandle) SetDocument(d *product.Product) (r *ProductHandle) {
-		p.DocumentV = d
+		p.Handle.SetDocument(d)
 		r = p
 		return
 	}
 
 	func (p *ProductHandle) Document() (d *product.Product) {
-		d = p.DocumentV
+		d = p.Handle.Document().(*product.Product)
 		return
 	}
 
 	// Note that SearchMap, the getter is already defined on Handle.
 	func (p *ProductHandle) SearchFor(s mongo.M) (r *ProductHandle) {
-		p.SearchMapV = s
+		p.Handle.SearchFor(s)
 		r = p
-		return
-	}
-
-The creation of Insert, Remove and RemoveAll are trivial.
-
-	func (p *ProductHandle) Insert() (err error) {
-		err = p.Handle.Insert(p.Document())
-		return
-	}
-
-	func (p *ProductHandle) Remove() (err error) {
-		err = p.Handle.Remove(p.Document().ID())
-		return
-	}
-
-	func (p *ProductHandle) RemoveAll() (info *mgo.ChangeInfo, err error) {
-		info, err = p.Handle.RemoveAll(p.Document())
-		return
-	}
-
-The Update function uses an id as an argument:
-
-	func (p *ProductHandle) Update(id mongo.ObjectId) (err error) {
-		err = p.Handle.Update(id, p.Document())
 		return
 	}
 
@@ -263,8 +241,8 @@ The complicated functions are Find and FindAll which requires casting
 for the Document type:
 
 	func (p *ProductHandle) Find() (prod *product.Product, err error) {
-		var doc mongo.Documenter = product.New()
-		err = p.Handle.Find(p.Document(), doc)
+		var doc mongo.Documenter
+		doc, err = p.Handle.Find()
 		prod = doc.(*product.Product)
 		return
 	}
@@ -272,7 +250,7 @@ for the Document type:
 	// QueryOptions serve to add options on returning the query.
 	func (p *ProductHandle) FindAll(opts ...mongo.QueryOptions) (proda []*product.Product, err error) {
 		var da []mongo.Documenter
-		err = p.Handle.FindAll(p.Document(), &da, opts...)
+		err = p.Handle.FindAll(opts...)
 		proda = make([]*product.Product, len(da))
 		for i := range da {
 			//noinspection GoNilContainerIndexing
