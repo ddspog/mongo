@@ -160,9 +160,7 @@ func Test_Manipulate_data_on_MongoDB(t *testing.T) {
 		})
 
 		when(fmt.Sprintf("using p.Remove() to remove doc with id '%[1]s'", newId.Hex()), func(it bdd.It) {
-			errRemove := p.SetDocument(&product{
-				IDV: newId,
-			}).Remove()
+			errRemove := p.Remove(newId)
 
 			it("should return no errors", func(assert bdd.Assert) {
 				assert.NoError(errRemove)

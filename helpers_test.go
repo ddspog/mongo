@@ -87,6 +87,12 @@ func (p *product) New() (doc Documenter) {
 	return
 }
 
+// Validate checks for initialization problems on product, and return
+// error to be returned in any opration.
+func (p *product) Validate() (err error) {
+	return
+}
+
 // Map translates a product to a M object, more easily read by mgo
 // methods.
 func (p *product) Map() (out M, err error) {
@@ -142,16 +148,14 @@ func (p *product) CalculateUpdatedOn() {
 // of storing Products.
 type productHandle struct {
 	*Handle
-	DocumentV *product
 }
 
 // newProductHandle returns a empty productHandle.
 func newProductHandle() (p *productHandle) {
 	p = &productHandle{
-		Handle: NewHandle("products", mgo.Index{
+		Handle: NewHandle("products", newProduct(), mgo.Index{
 			Key: []string{"created_on"},
 		}),
-		DocumentV: newProduct(),
 	}
 	return
 }
@@ -167,7 +171,6 @@ func (p *productHandle) Safely() (ph *productHandle) {
 // purposes.
 func (p *productHandle) Clean() (ph *productHandle) {
 	p.Handle.Clean()
-	p.DocumentV = newProduct()
 	ph = p
 	return
 }
@@ -175,8 +178,8 @@ func (p *productHandle) Clean() (ph *productHandle) {
 // Find search on connected collection for a document matching data
 // stored on productHandle and returns it.
 func (p *productHandle) Find() (prod *product, err error) {
-	var doc Documenter = newProduct()
-	err = p.Handle.Find(p.Document(), doc)
+	var doc Documenter
+	doc, err = p.Handle.Find()
 	prod = doc.(*product)
 	return
 }
@@ -186,7 +189,7 @@ func (p *productHandle) Find() (prod *product, err error) {
 // query results.
 func (p *productHandle) FindAll(opts ...QueryOptions) (proda []*product, err error) {
 	var da []Documenter
-	err = p.Handle.FindAll(p.Document(), &da, opts...)
+	da, err = p.Handle.FindAll(opts...)
 	proda = make([]*product, len(da))
 	for i := range da {
 		//noinspection GoNilContainerIndexing
@@ -195,52 +198,24 @@ func (p *productHandle) FindAll(opts ...QueryOptions) (proda []*product, err err
 	return
 }
 
-// Insert creates a new document with data stored on productHandle
-// and put on connected collection.
-func (p *productHandle) Insert() (err error) {
-	err = p.Handle.Insert(p.Document())
-	return
-}
-
-// Remove delete a document from connected collection matching the id
-// of data stored on Handle.
-func (p *productHandle) Remove() (err error) {
-	err = p.Handle.Remove(p.Document().ID())
-	return
-}
-
-// Remove deletes all document from connected collection matching the
-// data stored on Handle.
-func (p *productHandle) RemoveAll() (info *mgo.ChangeInfo, err error) {
-	info, err = p.Handle.RemoveAll(p.Document())
-	return
-}
-
-// Update updates document from connected collection matching the id
-// received, and uses document info to update.
-func (p *productHandle) Update(id ObjectId) (err error) {
-	err = p.Handle.Update(id, p.Document())
-	return
-}
-
 // SetDocument sets product on Handle and returns Handle for chaining
 // purposes.
 func (p *productHandle) SetDocument(d *product) (r *productHandle) {
-	p.DocumentV = d
+	p.Handle.SetDocument(d)
 	r = p
 	return
 }
 
 // Document returns the Document of Handle with correct type.
 func (p *productHandle) Document() (d *product) {
-	d = p.DocumentV
+	d = p.Handle.Document().(*product)
 	return
 }
 
 // Set search map value for Handle and returns Handle for chaining
 // purposes.
 func (p *productHandle) SearchFor(s M) (r *productHandle) {
-	p.SearchMapV = s
+	p.Handle.SearchFor(s)
 	r = p
 	return
 }

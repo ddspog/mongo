@@ -66,6 +66,21 @@ func Test_Count_documents_with_Handle(t *testing.T) {
 	}, like(
 		s(len(fixtures)),
 	))
+
+	given(t, "a ProductHandle with a nil document", func(when bdd.When) {
+		when("p.Count() is called", func(it bdd.It) {
+			n, err := newProductHandle().SetDocument(nil).Safely().Count()
+
+			it("should an error", func(assert bdd.Assert) {
+				assert.Error(err)
+				assert.Equal(DocNotDefined.Error(), err.Error())
+			})
+
+			it("should return 0", func(assert bdd.Assert) {
+				assert.Equal(0, n)
+			})
+		})
+	})
 }
 
 // Feature Clean documents with Handle
@@ -282,12 +297,10 @@ func Test_Remove_documents_with_Handle(t *testing.T) {
 	given, like, s := bdd.Sentences()
 
 	given(t, "a linked ProductHandle p with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
-		p := newProductHandle().SetDocument(&product{
-			IDV: args[0].(ObjectId),
-		})
+		p := newProductHandle()
 
-		when("p.Remove() is called", func(it bdd.It) {
-			err := p.Safely().Remove()
+		when("p.Remove('%[1]v') is called", func(it bdd.It) {
+			err := p.Safely().Remove(args[0].(ObjectId))
 
 			if args[0].(ObjectId) != "" {
 				it("should return no errors", func(assert bdd.Assert) {
