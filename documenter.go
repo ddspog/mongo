@@ -6,6 +6,7 @@ package mongo
 // updated_on
 type Documenter interface {
 	New() Documenter
+	Validate() error
 	Map() (M, error)
 	Init(M) error
 	ID() ObjectId
