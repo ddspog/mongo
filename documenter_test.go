@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ddspog/mspec/bdd"
+	"github.com/ddspog/bdd"
 )
 
 // Feature Enable embedding with Document
@@ -14,7 +14,7 @@ import (
 // - I want to be able to embedded Document in other defined types,
 // - So that I could use the Document methods to abstract data on it.
 func Test_Enable_embedding_with_Document(t *testing.T) {
-	given, like, s := bdd.Sentences()
+	given, like, s := bdd.Sentences().All()
 
 	given(t, "a new embedded Product p with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
 		p := newProduct()
@@ -36,7 +36,7 @@ func Test_Enable_embedding_with_Document(t *testing.T) {
 // - I want to be able to create a Document and access data with its getters,
 // - So that I could use these getters to manipulate and read data.
 func Test_Create_Document_with_functional_Getters(t *testing.T) {
-	given, like, s := bdd.Sentences()
+	given, like, s := bdd.Sentences().All()
 
 	given(t, "a Product p with ID '%[1]v', CreatedOn = %[2]v, UpdatedOn = %[3]v", func(when bdd.When, args ...interface{}) {
 		p := newProduct()
@@ -71,7 +71,7 @@ func Test_Create_Document_with_functional_Getters(t *testing.T) {
 // - I want to be able to create a Document and modify data with its setters,
 // - So that I could use these setters to manipulate data.
 func Test_Create_Document_with_functional_Setters(t *testing.T) {
-	given, like, s := bdd.Sentences()
+	given, like, s := bdd.Sentences().All()
 
 	given(t, "a Product p with ID '%[1]v', CreatedOn = %[2]v, UpdatedOn = %[3]v", func(when bdd.When, args ...interface{}) {
 		p := newProduct()
@@ -107,7 +107,7 @@ func Test_Create_Document_with_functional_Setters(t *testing.T) {
 // - So that I could use these values later for data analysis.
 func Test_Calculate_Document_values(t *testing.T) {
 
-	given, like, s := bdd.Sentences()
+	given, like, s := bdd.Sentences().All()
 
 	given(t, "a empty Product p at current time %[1]v", func(when bdd.When, args ...interface{}) {
 		now = func() (t time.Time) {
@@ -140,7 +140,7 @@ func Test_Calculate_Document_values(t *testing.T) {
 // - I want to be able to call generation method to set random ID for Document,
 // - So that I could use Document later for indexing.
 func Test_Generate_ID_of_Document(t *testing.T) {
-	given, like, s := bdd.Sentences()
+	given, like, s := bdd.Sentences().All()
 
 	given(t, "a empty Product p", func(when bdd.When, args ...interface{}) {
 		p := newProduct()
@@ -167,7 +167,7 @@ func Test_Generate_ID_of_Document(t *testing.T) {
 // - I want that Documenter to be able to convert to M object,
 // - So that I can use to ease call on mgo methods.
 func Test_Encoding_to_map_object(t *testing.T) {
-	given, like, s := bdd.Sentences()
+	given, like, s := bdd.Sentences().All()
 
 	given(t, "a Product p with id '%[1]s'", func(when bdd.When, args ...interface{}) {
 		p := newProduct()

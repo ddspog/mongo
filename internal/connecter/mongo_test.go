@@ -6,7 +6,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/ddspog/mspec/bdd"
+	"github.com/ddspog/bdd"
 	"github.com/globalsign/mgo"
 )
 
@@ -15,7 +15,7 @@ import (
 // - I want to be able to use Mongo to get database object between sessions,
 // - So that I can use it in parallel in isolate cases.
 func Test_Mongo_consume_database_on_session(t *testing.T) {
-	given, _, _ := bdd.Sentences()
+	given := bdd.Sentences().Given()
 
 	given(t, "a new test MongoConnecter m, and DBCollecter(el){db = el}", func(when bdd.When) {
 		mc := New()
@@ -61,7 +61,7 @@ func Test_Mongo_consume_database_on_session(t *testing.T) {
 // - I want to be able to use Mongo to acess URL informatino,
 // - So that it can use this to connect to databases safely.
 func Test_Mongo_returns_URL_information(t *testing.T) {
-	given, _, _ := bdd.Sentences()
+	given := bdd.Sentences().Given()
 
 	given(t, "a new test MongoConnecter m, and parseURL returning error.New('any reason')", func(when bdd.When) {
 		mc := New()
@@ -88,7 +88,7 @@ func Test_Mongo_returns_URL_information(t *testing.T) {
 // - I want to be able to use Mongo to dial a connection,
 // - So that it can access databases without problem.
 func Test_Mongo_dials_connection(t *testing.T) {
-	given, _, _ := bdd.Sentences()
+	given := bdd.Sentences().Given()
 
 	given(t, "a new test MongoConnecter m, and dial returning error.New('any reason')", func(when bdd.When) {
 		mc := New()
