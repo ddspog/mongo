@@ -3,6 +3,7 @@ package connecter
 import (
 	"errors"
 	"io/ioutil"
+	"os"
 	"reflect"
 	"strings"
 
@@ -24,6 +25,7 @@ var (
 type TestMongo struct {
 	dir      string
 	prefix   string
+	path     string
 	session  *mgo.Session
 	server   *dbtest.DBServer
 	fixtures interface{}
@@ -59,9 +61,8 @@ func NewTestable(d, p string, fixtures interface{}, reset ...*func() error) (m M
 // with default URL. It also defines a reset function if received on
 // constructor, to reset and initialize database with fixtures.
 func (m *TestMongo) Connect() (err error) {
-	var path string
-	if path, err = ioutil.TempDir(m.dir, m.prefix); err == nil {
-		m.server.SetPath(path)
+	if m.path, err = ioutil.TempDir(m.dir, m.prefix); err == nil {
+		m.server.SetPath(m.path)
 		m.session = m.server.Session()
 
 		// No errors showing, save objects.
@@ -109,6 +110,7 @@ func (m *TestMongo) Disconnect() {
 	m.session.Close()
 	m.session = nil
 	m.server.Stop()
+	os.RemoveAll(m.path)
 }
 
 // ConsumeDatabaseOnSession clones a session and use it to creates a

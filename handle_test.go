@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ddspog/mspec/bdd"
+	"github.com/ddspog/bdd"
 )
 
 // TestMain setup the testable mongo connecter to run a temp database.
@@ -20,7 +20,7 @@ func TestMain(m *testing.M) {
 // - I want to be able to create a Handle, and access data with its getters,
 // - So that I could use these getters to manipulate and read data.
 func Test_Create_Handle_with_functional_Getters(t *testing.T) {
-	given, like, s := bdd.Sentences()
+	given, like, s := bdd.Sentences().All()
 
 	given(t, "a ProductHandle p with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
 		p := newProductHandle().SetDocument(&product{
@@ -50,7 +50,7 @@ func Test_Create_Handle_with_functional_Getters(t *testing.T) {
 // - I want to count documents with Handle,
 // - So that I can use this to perform verifications and such.
 func Test_Count_documents_with_Handle(t *testing.T) {
-	given, like, s := bdd.Sentences()
+	given, like, s := bdd.Sentences().All()
 
 	given(t, "a empty ProductHandle and products collection has %[1]v documents", func(when bdd.When, args ...interface{}) {
 		when("p.Count() is called", func(it bdd.It) {
@@ -88,7 +88,7 @@ func Test_Count_documents_with_Handle(t *testing.T) {
 // - I want to Clean documents on Handle,
 // - So that I can reset Handle after use.
 func Test_Clean_documents_with_Handle(t *testing.T) {
-	given, like, s := bdd.Sentences()
+	given, like, s := bdd.Sentences().All()
 
 	given(t, "a ProductHandle p with Document with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
 		p := newProductHandle().SetDocument(&product{
@@ -114,7 +114,7 @@ func Test_Clean_documents_with_Handle(t *testing.T) {
 // - So that I can user Handler to search on database.
 func Test_Find_documents_with_Handle(t *testing.T) {
 	defer cleanChanges()
-	given, like, s := bdd.Sentences()
+	given, like, s := bdd.Sentences().All()
 
 	given(t, "a linked ProductHandle p and products collection with documents "+colFixtures, func(when bdd.When, args ...interface{}) {
 		p := newProductHandle()
@@ -168,7 +168,7 @@ func Test_Find_documents_with_Handle(t *testing.T) {
 // - So that I can use Handler to iterate through data.
 func Test_Find_various_documents_with_Handle(t *testing.T) {
 	defer cleanChanges()
-	given, like, s := bdd.Sentences()
+	given, like, s := bdd.Sentences().All()
 
 	given(t, "a linked ProductHandle p with products collection with documents "+colFixtures, func(when bdd.When, args ...interface{}) {
 		p := newProductHandle()
@@ -245,7 +245,7 @@ func Test_Find_various_documents_with_Handle(t *testing.T) {
 // - So that I can use Handler to insert data.
 func Test_Insert_documents_with_Handle(t *testing.T) {
 	defer cleanChanges()
-	given, like, s := bdd.Sentences()
+	given, like, s := bdd.Sentences().All()
 
 	given(t, "a linked ProductHandle p with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
 		p := newProductHandle()
@@ -294,7 +294,7 @@ func Test_Insert_documents_with_Handle(t *testing.T) {
 // - So that I can use Handler to remove data.
 func Test_Remove_documents_with_Handle(t *testing.T) {
 	defer cleanChanges()
-	given, like, s := bdd.Sentences()
+	given, like, s := bdd.Sentences().All()
 
 	given(t, "a linked ProductHandle p with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
 		p := newProductHandle()
@@ -326,7 +326,7 @@ func Test_Remove_documents_with_Handle(t *testing.T) {
 // - So that I can use Handler to remove lots of data.
 func Test_Remove_various_documents_with_Handle(t *testing.T) {
 	defer cleanChanges()
-	given, like, s := bdd.Sentences()
+	given, like, s := bdd.Sentences().All()
 
 	given(t, "a linked ProductHandle p with ID '%[1]v'", func(when bdd.When, args ...interface{}) {
 		p := newProductHandle()
@@ -376,7 +376,7 @@ func Test_Remove_various_documents_with_Handle(t *testing.T) {
 // - So that I can use Handler to update data.
 func Test_Update_documents_with_Handle(t *testing.T) {
 	defer cleanChanges()
-	given, like, s := bdd.Sentences()
+	given, like, s := bdd.Sentences().All()
 
 	given(t, "a linked empty ProductHandle p", func(when bdd.When, args ...interface{}) {
 		p := newProductHandle()

@@ -7,7 +7,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ddspog/mspec/bdd"
+	"github.com/ddspog/bdd"
 )
 
 const (
@@ -36,7 +36,7 @@ func TestMain(m *testing.M) {
 // - I want to be able to connect and manipulate data from MongoDB,
 // - So I can create an real application on this, using a DB.
 func Test_Manipulate_data_on_MongoDB(t *testing.T) {
-	given, _, _ := bdd.Sentences()
+	given := bdd.Sentences().Given()
 
 	given(t, fmt.Sprintf("a local database with a products collection that contains documents with ids: '%[1]s', '%[2]s', '%[3]s'", testid01, testid02, testid03), func(when bdd.When) {
 		p := newProductHandle()
@@ -191,7 +191,7 @@ func Test_Manipulate_data_on_MongoDB(t *testing.T) {
 // - I want to be able to connect and retrieve data from MongoDB,
 // - So I can use these functions on real applications.
 func Test_Read_data_on_MongoDB(t *testing.T) {
-	given, like, s := bdd.Sentences()
+	given, like, s := bdd.Sentences().All()
 
 	given(t, fmt.Sprintf("a local database with a products collection that contains documents with ids: '%[1]s', '%[2]s', '%[3]s'", testid01, testid02, testid03), func(when bdd.When) {
 		p := newProductHandle()

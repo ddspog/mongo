@@ -225,7 +225,7 @@ Ref
 
 ### Tests Styleguide
 
-All the tests should be written using [bdd](https://github.com/ddspog/mspec/bdd) framework, using BDD style. Describe features and use scenarios to write your tests. Also use the like sentence to create parametric scenarios, and create lots of tests cases.
+All the tests should be written using [bdd](https://github.com/ddspog/bdd) framework, using BDD style. Describe features and use scenarios to write your tests. Also use the like sentence to create parametric scenarios, and create lots of tests cases.
 
 #### Example
 
