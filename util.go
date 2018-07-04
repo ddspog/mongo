@@ -89,3 +89,18 @@ func MapDocumenter(in Documenter) (out M, err error) {
 
 	return
 }
+
+// MarshalM applies marshal to an M object and returns the buffer
+// result and error if any.
+func MarshalM(in M) (out []byte, err error) {
+	out, err = bsonutils.Marshal(in)
+	return
+}
+
+// UnmarshalToM applies unmarshal to a new M object, returning with an
+// error if received.
+func UnmarshalToM(in []byte) (out M, err error) {
+	out = M{}
+	err = bsonutils.Unmarshal(in, &out)
+	return
+}
