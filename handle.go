@@ -252,7 +252,6 @@ func (h *Handle) SetDocument(d Documenter) {
 	}
 
 	h.DocumentV = d
-	return
 }
 
 // Document returns the Document of Handle.
@@ -265,7 +264,6 @@ func (h *Handle) Document() (d Documenter) {
 // purposes.
 func (h *Handle) SearchFor(s M) {
 	h.SearchMapV = s
-	return
 }
 
 // SearchMap return the search map value of Handle.
